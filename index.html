@@ -31,6 +31,14 @@ button,input,select,textarea{font:inherit;color:inherit}
 .side-bottom{margin-top:auto}
 .privacy{background:#f7f8fc;border:1px solid var(--line);border-radius:13px;padding:14px;color:var(--muted);font-size:12px;line-height:1.5}
 .privacy strong{display:block;color:#39445a;margin-bottom:4px}
+.sync-status{font-size:12px;color:var(--muted);min-height:1.2em}
+.sync-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.sync-row .btn{min-height:36px}
+.token-wrap input{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px}
+.cloud-banner{background:#eef4ff;border:1px solid #c9daf8;color:#2a4a8c;border-radius:12px;padding:12px 14px;font-size:13px;line-height:1.45;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.cloud-banner[hidden]{display:none!important}
+.cloud-banner .btn{min-height:34px}
+
 .side-note{padding:18px 10px 0;color:#a0a7b5;font-size:10px;letter-spacing:.04em}
 .main{padding:28px 32px 38px;max-width:1600px;width:100%;margin:0 auto;min-width:0}
 .topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:28px}
@@ -298,12 +306,13 @@ textarea{min-height:88px;resize:vertical}
     </nav>
   </div>
   <div class="side-bottom">
-    <div class="privacy"><strong>Your data stays yours</strong>Saved in this browser only. Nothing is sent to the cloud.</div>
-    <div class="side-note">PIPELY · LOCAL FIRST</div>
+    <div class="privacy" id="privacyBlurb"><strong>Your data stays yours</strong>Saved in this browser. Optional private Gist sync keeps devices aligned.</div>
+    <div class="side-note" id="sideNote">PIPELY · LOCAL + CLOUD</div>
   </div>
 </aside>
 <main class="main">
   <div class="warn" id="storageWarn" hidden role="alert">Saved applications could not be read. Nothing new will be written, and the stored copy was left as-is.</div>
+  <div class="cloud-banner" id="cloudBanner" hidden role="status"><span id="cloudBannerText"></span><span class="sync-row"><button type="button" class="btn primary" id="cloudBannerPull">Pull from cloud</button><button type="button" class="btn" id="cloudBannerPrefs">Preferences</button></span></div>
   <div class="undo" id="undoBar" hidden role="status" aria-live="polite">
     <span id="undoText"></span>
     <button type="button" class="btn" id="undoBtn">Undo</button>
@@ -501,7 +510,7 @@ textarea{min-height:88px;resize:vertical}
 <dialog id="exportDialog" aria-labelledby="exportTitle">
   <div class="prefs-box">
     <h2 id="exportTitle">Export &amp; backup</h2>
-    <p class="subtitle" id="exportSummary">Your applications live only in this browser.</p>
+    <p class="subtitle" id="exportSummary">Your applications live in this browser. Use Preferences → Cloud sync to pull/push a private Gist.</p>
     <div class="dialog-actions" style="justify-content:flex-start">
       <button type="button" class="btn primary" id="exportJson">↓ Download JSON backup</button>
       <button type="button" class="btn" id="exportCsv">↓ Download CSV</button>
@@ -530,7 +539,30 @@ textarea{min-height:88px;resize:vertical}
 <dialog id="prefsDialog" aria-labelledby="prefsTitle">
   <div class="prefs-box">
     <h2 id="prefsTitle">Preferences</h2>
-    <p class="subtitle">Applications stay in this browser under brice-job-apps-v1. Export a JSON backup before you replace the list.</p>
+    <p class="subtitle">Applications stay in this browser under <code>brice-job-apps-v1</code>. Optional private Gist sync loads the same list on any device.</p>
+    <div class="box-sec">
+      <div class="log-title">Cloud sync (private Gist)</div>
+      <p class="subtitle" style="margin:0">Pull works with the Gist ID alone (secret gist raw URL). Push needs a GitHub token with the <b>gist</b> scope. The token is stored only in this browser — never in the public repo.</p>
+      <label>Gist ID
+        <input id="syncGistId" type="text" spellcheck="false" autocomplete="off" placeholder="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx">
+      </label>
+      <label class="token-wrap">GitHub token (for Push only)
+        <input id="syncToken" type="password" spellcheck="false" autocomplete="off" placeholder="ghp_… or github_pat_…">
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;flex-direction:row;font-weight:600">
+        <input id="syncAutoPull" type="checkbox" checked> Auto-pull on load when this browser only has samples
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;flex-direction:row;font-weight:600">
+        <input id="syncAutoPush" type="checkbox"> Auto-push after saves (needs token)
+      </label>
+      <div class="sync-row">
+        <button type="button" class="btn primary" id="syncSave">Save sync settings</button>
+        <button type="button" class="btn" id="syncPull">Pull</button>
+        <button type="button" class="btn" id="syncPush">Push</button>
+      </div>
+      <p class="sync-status" id="syncPrefsStatus" aria-live="polite"></p>
+      <p class="subtitle" style="margin:0">Create a classic token with only the gist scope: <a href="https://github.com/settings/tokens/new?scopes=gist&amp;description=Pipely%20cloud%20sync" target="_blank" rel="noopener">github.com/settings/tokens</a></p>
+    </div>
     <button type="button" class="btn" id="clearSamples" hidden>Clear samples</button>
     <div class="dialog-actions">
       <button type="button" class="btn" id="prefsClose">Close</button>
@@ -656,6 +688,9 @@ const RESPONSE_DAYS = 14;
 const LIVE_ORIGIN = "https://supbrice.github.io";
 const LIVE_URL = "https://supbrice.github.io/pipely/";
 const LOCAL_ORIGIN_RE = /^http:\/\/(127\.0\.0\.1|localhost)(:\d+)?$/;
+const SYNC_KEY = "brice-job-apps-sync";
+const DEFAULT_GIST_ID = "7532d2540c1f892127b57bd7aa17e93e";
+const GIST_FILENAME = "pipely-apps.json";
 let storageOk = true;
 let undoSnapshot = null;
 let formLog = [];
@@ -767,12 +802,273 @@ function save() {
   }
   try {
     localStorage.setItem(KEY, JSON.stringify(apps));
+    queueAutoPush();
     return true;
   } catch (err) {
     alert("Could not write to this browser. Your latest change is only on screen until storage works again.");
     return false;
   }
 }
+
+let autoPushTimer = null;
+function queueAutoPush() {
+  const cfg = getSyncConfig();
+  if (!cfg.autoPush || !cfg.token || !cfg.gistId) return;
+  clearTimeout(autoPushTimer);
+  autoPushTimer = setTimeout(() => { pushToCloud(); }, 1200);
+}
+
+function getSyncConfig() {
+  let cfg = { gistId: DEFAULT_GIST_ID, token: "", autoPull: true, autoPush: false };
+  try {
+    const raw = localStorage.getItem(SYNC_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed === "object") {
+        if (typeof parsed.gistId === "string" && parsed.gistId.trim()) cfg.gistId = parsed.gistId.trim();
+        if (typeof parsed.token === "string") cfg.token = parsed.token.trim();
+        if (parsed.autoPull === false) cfg.autoPull = false;
+        if (parsed.autoPush === true) cfg.autoPush = true;
+      }
+    }
+  } catch (err) { /* ignore */ }
+  return cfg;
+}
+
+function setSyncConfig(cfg) {
+  const next = {
+    gistId: String(cfg.gistId || DEFAULT_GIST_ID).trim() || DEFAULT_GIST_ID,
+    token: String(cfg.token || "").trim(),
+    autoPull: cfg.autoPull !== false,
+    autoPush: !!cfg.autoPush
+  };
+  localStorage.setItem(SYNC_KEY, JSON.stringify(next));
+  return next;
+}
+
+function gistRawUrl(gistId) {
+  return "https://gist.githubusercontent.com/supbrice/" + encodeURIComponent(gistId) + "/raw/" + GIST_FILENAME + "?t=" + Date.now();
+}
+
+function onlySamples(list) {
+  return !list.length || list.every(a => a && a.isSample);
+}
+
+function realCount(list) {
+  return list.filter(a => a && !a.isSample).length;
+}
+
+function setSyncStatus(msg) {
+  const el = document.getElementById("syncPrefsStatus");
+  if (el) el.textContent = msg || "";
+}
+
+function updatePrivacyBlurb() {
+  const cfg = getSyncConfig();
+  const blurb = document.getElementById("privacyBlurb");
+  const note = document.getElementById("sideNote");
+  if (!blurb) return;
+  if (cfg.gistId) {
+    blurb.innerHTML = "<strong>Synced via private Gist</strong>List lives in this browser and can pull/push a secret Gist. Token (if any) stays on this device only.";
+    if (note) note.textContent = "PIPELY · CLOUD SYNC";
+  } else {
+    blurb.innerHTML = "<strong>Your data stays yours</strong>Saved in this browser. Optional private Gist sync keeps devices aligned.";
+    if (note) note.textContent = "PIPELY · LOCAL + CLOUD";
+  }
+}
+
+async function fetchCloudApps(cfg) {
+  const gistId = (cfg && cfg.gistId) || DEFAULT_GIST_ID;
+  if (!gistId) throw new Error("No Gist ID configured.");
+  // Prefer raw URL (no token). Fall back to API when a token is present.
+  let list = null;
+  let errRaw = null;
+  try {
+    const res = await fetch(gistRawUrl(gistId), { cache: "no-store" });
+    if (!res.ok) throw new Error("Raw fetch HTTP " + res.status);
+    const data = await res.json();
+    if (!Array.isArray(data)) throw new Error("Gist JSON is not an array.");
+    list = data;
+  } catch (err) {
+    errRaw = err;
+  }
+  if (!list && cfg && cfg.token) {
+    const res = await fetch("https://api.github.com/gists/" + encodeURIComponent(gistId), {
+      headers: {
+        Accept: "application/vnd.github+json",
+        Authorization: "Bearer " + cfg.token
+      }
+    });
+    if (!res.ok) throw new Error("GitHub API HTTP " + res.status);
+    const gist = await res.json();
+    const file = (gist.files && (gist.files[GIST_FILENAME] || Object.values(gist.files)[0])) || null;
+    if (!file || !file.content) throw new Error("Gist has no " + GIST_FILENAME);
+    let data;
+    if (file.truncated && file.raw_url) {
+      const rawRes = await fetch(file.raw_url + (file.raw_url.includes("?") ? "&" : "?") + "t=" + Date.now(), {
+        headers: { Authorization: "Bearer " + cfg.token }
+      });
+      if (!rawRes.ok) throw new Error("Truncated file raw HTTP " + rawRes.status);
+      data = await rawRes.json();
+    } else {
+      data = JSON.parse(file.content);
+    }
+    if (!Array.isArray(data)) throw new Error("Gist JSON is not an array.");
+    list = data;
+  }
+  if (!list) throw errRaw || new Error("Could not read Gist.");
+  const prepared = prepareImport(list);
+  if (!prepared.unique.length) throw new Error("Gist had no valid applications.");
+  return prepared;
+}
+
+async function pullFromCloud(opts) {
+  const options = opts || {};
+  const cfg = getSyncConfig();
+  setSyncStatus("Pulling from Gist…");
+  try {
+    const prepared = await fetchCloudApps(cfg);
+    const cloud = prepared.unique;
+    const localReal = realCount(apps);
+    const cloudReal = realCount(cloud);
+    if (options.silent && onlySamples(apps) && cloudReal > 0) {
+      const previous = apps.slice();
+      apps = cloud.slice();
+      if (!save()) { apps = previous; throw new Error("Could not save pulled apps."); }
+      render();
+      setSyncStatus("Pulled " + cloud.length + " applications from cloud.");
+      const banner = document.getElementById("cloudBanner");
+      if (banner) banner.hidden = true;
+      return { ok: true, count: cloud.length, mode: "auto-replace" };
+    }
+    if (options.silent) {
+      if (cloudReal > localReal && localReal > 0) {
+        const banner = document.getElementById("cloudBanner");
+        const text = document.getElementById("cloudBannerText");
+        if (banner && text) {
+          text.textContent = "Cloud has " + cloud.length + " applications (this browser has " + apps.length + "). Pull to update.";
+          banner.hidden = false;
+        }
+      }
+      setSyncStatus("Cloud has " + cloud.length + " applications.");
+      return { ok: true, count: cloud.length, mode: "check" };
+    }
+    const mode = options.mode || (onlySamples(apps) ? "replace" : null);
+    let chosen = mode;
+    if (!chosen) {
+      const msg = "Cloud has " + cloud.length + " apps. This browser has " + apps.length + ".\n\nOK = Replace local with cloud\nCancel = Merge cloud into local";
+      chosen = confirm(msg) ? "replace" : "merge";
+    }
+    const previous = apps.slice();
+    if (chosen === "replace") {
+      apps = cloud.slice();
+    } else {
+      const byId = new Map(apps.map(a => [a.id, a]));
+      cloud.forEach(item => {
+        const cur = byId.get(item.id);
+        if (!cur) {
+          apps.push(item);
+          return;
+        }
+        const next = Object.assign({}, cur, {
+          company: item.company,
+          role: item.role,
+          status: item.status,
+          dateApplied: item.dateApplied,
+          nextFollowUp: item.nextFollowUp || cur.nextFollowUp || null,
+          source: item.source,
+          pay: item.pay,
+          link: item.link,
+          notes: item.notes,
+          isSample: item.isSample,
+          log: mergeLogs(cur.log, item.log)
+        });
+        if (!next.log || !next.log.length) delete next.log;
+        const idx = apps.findIndex(a => a.id === item.id);
+        if (idx >= 0) apps[idx] = next;
+      });
+    }
+    if (!save()) { apps = previous; throw new Error("Could not save after pull."); }
+    render();
+    setSyncStatus((chosen === "replace" ? "Replaced with " : "Merged ") + cloud.length + " from cloud.");
+    const banner = document.getElementById("cloudBanner");
+    if (banner) banner.hidden = true;
+    return { ok: true, count: cloud.length, mode: chosen };
+  } catch (err) {
+    const msg = (err && err.message) ? err.message : String(err);
+    setSyncStatus("Pull failed: " + msg);
+    if (!options.silent) alert("Pull failed: " + msg);
+    return { ok: false, error: msg };
+  }
+}
+
+async function pushToCloud() {
+  const cfg = getSyncConfig();
+  if (!cfg.token) {
+    setSyncStatus("Add a GitHub token with gist scope to Push.");
+    alert("Push needs a GitHub personal access token with the gist scope. Create one, paste it in Preferences, Save, then Push.");
+    return { ok: false };
+  }
+  if (!cfg.gistId) {
+    setSyncStatus("Set a Gist ID first.");
+    return { ok: false };
+  }
+  setSyncStatus("Pushing " + apps.length + " applications…");
+  try {
+    const body = {
+      files: {
+        [GIST_FILENAME]: { content: JSON.stringify(apps, null, 1) }
+      }
+    };
+    const res = await fetch("https://api.github.com/gists/" + encodeURIComponent(cfg.gistId), {
+      method: "PATCH",
+      headers: {
+        Accept: "application/vnd.github+json",
+        Authorization: "Bearer " + cfg.token,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(body)
+    });
+    if (!res.ok) {
+      const t = await res.text();
+      throw new Error("HTTP " + res.status + (t ? ": " + t.slice(0, 180) : ""));
+    }
+    setSyncStatus("Pushed " + apps.length + " applications to Gist.");
+    return { ok: true };
+  } catch (err) {
+    const msg = (err && err.message) ? err.message : String(err);
+    setSyncStatus("Push failed: " + msg);
+    alert("Push failed: " + msg);
+    return { ok: false, error: msg };
+  }
+}
+
+function fillSyncForm() {
+  const cfg = getSyncConfig();
+  const gist = document.getElementById("syncGistId");
+  const token = document.getElementById("syncToken");
+  const autoPull = document.getElementById("syncAutoPull");
+  const autoPush = document.getElementById("syncAutoPush");
+  if (gist) gist.value = cfg.gistId || DEFAULT_GIST_ID;
+  if (token) token.value = cfg.token || "";
+  if (autoPull) autoPull.checked = cfg.autoPull !== false;
+  if (autoPush) autoPush.checked = !!cfg.autoPush;
+  updatePrivacyBlurb();
+}
+
+function saveSyncForm() {
+  const next = setSyncConfig({
+    gistId: document.getElementById("syncGistId").value,
+    token: document.getElementById("syncToken").value,
+    autoPull: document.getElementById("syncAutoPull").checked,
+    autoPush: document.getElementById("syncAutoPush").checked
+  });
+  setSyncStatus("Saved. Gist " + next.gistId.slice(0, 8) + "… · auto-pull " + (next.autoPull ? "on" : "off") + " · auto-push " + (next.autoPush ? "on" : "off") + (next.token ? " · token set" : " · no token"));
+  updatePrivacyBlurb();
+  return next;
+}
+
+
 
 function uid() {
   return (crypto.randomUUID && crypto.randomUUID()) || ("id-" + Date.now() + "-" + Math.random().toString(16).slice(2));
@@ -1807,7 +2103,19 @@ document.getElementById("logNote").addEventListener("keydown", (e) => {
   if (e.key === "Enter") { e.preventDefault(); addFormLog(); }
 });
 document.getElementById("filterClear").addEventListener("click", () => goToList("all"));
-document.getElementById("prefsBtn").addEventListener("click", () => document.getElementById("prefsDialog").showModal());
+document.getElementById("prefsBtn").addEventListener("click", () => {
+  fillSyncForm();
+  setSyncStatus("");
+  document.getElementById("prefsDialog").showModal();
+});
+document.getElementById("syncSave").addEventListener("click", () => { saveSyncForm(); });
+document.getElementById("syncPull").addEventListener("click", () => { pullFromCloud({ silent: false }); });
+document.getElementById("syncPush").addEventListener("click", () => { pushToCloud(); });
+document.getElementById("cloudBannerPull").addEventListener("click", () => { pullFromCloud({ silent: false, mode: "replace" }); });
+document.getElementById("cloudBannerPrefs").addEventListener("click", () => {
+  fillSyncForm();
+  document.getElementById("prefsDialog").showModal();
+});
 document.getElementById("prefsClose").addEventListener("click", () => document.getElementById("prefsDialog").close());
 
 document.getElementById("form").addEventListener("submit", (e) => {
@@ -2285,7 +2593,33 @@ let savedView = "overview";
 try { savedView = localStorage.getItem(VIEW_KEY) || "overview"; } catch (err) { /* ignore */ }
 setView(savedView);
 if (!storageOk) document.getElementById("storageWarn").hidden = false;
+
+// Seed default Gist ID into localStorage once (token never auto-seeded).
+try {
+  if (!localStorage.getItem(SYNC_KEY)) {
+    setSyncConfig({ gistId: DEFAULT_GIST_ID, token: "", autoPull: true, autoPush: false });
+  }
+} catch (err) { /* ignore */ }
+updatePrivacyBlurb();
+
+// One-click setup from URL hash: #pipely-gist=<id> or #pipely-sync=<id>
+try {
+  const hash = location.hash || "";
+  const m = hash.match(/^#pipely-(?:gist|sync)=([a-f0-9]+)/i);
+  if (m) {
+    const cfg = getSyncConfig();
+    setSyncConfig({ gistId: m[1], token: cfg.token, autoPull: true, autoPush: cfg.autoPush });
+    history.replaceState(null, "", location.pathname + location.search);
+  }
+} catch (err) { /* ignore */ }
+
 render();
+
+(async function bootCloudSync() {
+  const cfg = getSyncConfig();
+  if (!cfg.gistId || cfg.autoPull === false) return;
+  await pullFromCloud({ silent: true });
+})();
 </script>
 <div id="tip" class="tip" hidden></div>
 

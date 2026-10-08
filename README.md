@@ -1,6 +1,6 @@
 # Pipely
 
-Pipely is a private job application tracker. It is a single `index.html` file (HTML + CSS + JS, no build step, no libraries).
+Pipely is a private job application tracker. It is a single `index.html` file (HTML + CSS + JS, no build step, no libraries) plus small `assets/` for the logo.
 
 ## Open it locally
 
@@ -11,25 +11,39 @@ Pipely is a private job application tracker. It is a single `index.html` file (H
 
 https://supbrice.github.io/pipely/ (GitHub Pages from `main` / root of the public repo https://github.com/supbrice/pipely).
 
-The code is public. Your applications are not: they live only in the browser you open the page in, so the live site and the local copy each keep their own separate list. Use Export JSON / Import JSON to move data between them.
+The code is public. Your applications are not committed to the repo. They live in the browser (`localStorage` key `brice-job-apps-v1`) and can optionally sync through a **secret GitHub Gist**.
+
+## Cloud sync (private Gist)
+
+Preferences → **Cloud sync** stores settings under `brice-job-apps-sync` in this browser only.
+
+- **Gist ID** — identifies the secret gist that holds `pipely-apps.json`. Pull uses the public raw URL for that secret gist (no token required).
+- **GitHub token** — optional. Needed only to **Push** updates back to the gist. Create a classic token with the **gist** scope only: https://github.com/settings/tokens/new?scopes=gist&description=Pipely%20cloud%20sync  
+  Paste it in Preferences and click Save. The token never goes into this git repo.
+- **Auto-pull** — when this browser only has sample rows, Pipely replaces them with the gist list on load.
+- **Auto-push** — after saves, pushes to the gist when a token is set.
+
+Do not commit personal access tokens or application JSON to the public repo. The gist stays secret (unlisted); anyone who knows the raw gist URL can read it, so treat that ID like a private link.
 
 ## Features
 
-- Overview cards are clickable: Total, In progress, Interviews, Offers, Follow-ups due, and Response rate each open the matching applications.
-- Follow-up reminders: an overdue banner at the top of Overview, a count in the tab title, and Followed up / Snooze buttons. Followed up writes a log entry and sets the next follow-up 7 days out.
-- Response rate: share of applications sent 14+ days ago (withdrawn and closed postings left out) that moved to Screening, Interview, Offer, or Rejected.
-- Import takes a Pipely JSON backup or a tracker CSV (Date applied, Company, Role, Location, Source, Status, Next step, Follow-up date, Apply URL, Job ID, Cover letter, Notes). Merge matches records by id and keeps your interview logs.
-- Warns you when you add an application at a company where you already have an active one.
-- Per-application interview log (date, type, note), stored in the optional `log` field. Older records without it still work.
+- Overview cards are clickable: Total, In progress, Interviews, Offers, Follow-ups due, Rejected, and Response rate each open the matching applications.
+- Follow-up reminders: an overdue banner on Overview, a count in the tab title, and Followed up / Snooze buttons.
+- Response rate: share of applications sent 14+ days ago (withdrawn left out) that moved to Screening, Interview, Offer, or Rejected.
+- Import takes a Pipely JSON backup or a tracker CSV. Merge matches by id and keeps interview logs.
+- Warns when you add an application at a company where you already have an active one.
+- Per-application interview log (date, type, note).
 
-## Moving data to the live site
+## Moving data between browsers
 
-Sidebar, then Export & backup. From the local preview, Send to live site opens the live page and passes your list over tab to tab with postMessage. Nothing is uploaded. The live page accepts data only from a 127.0.0.1 or localhost tab that opened it, and it asks you to choose Merge or Replace first. You can always Download JSON backup instead, then use Import on the other page.
+Prefer Cloud sync (Pull / Push). You can still Export JSON / Import JSON, or from a local preview use Send to live site (tab-to-tab postMessage; nothing uploaded to GitHub).
 
 ## Where your data lives
 
-Applications stay in the browser you use, under localStorage key `brice-job-apps-v1`. The selected tab is stored under `brice-job-apps-view`. Nothing is sent to a server, and this repo contains no application data. Each browser or device has its own separate list.
+- Applications: `brice-job-apps-v1`
+- Selected tab: `brice-job-apps-view`
+- Sync settings (gist id + optional token): `brice-job-apps-sync`
 
-Export JSON before using Replace. Clear samples deletes only the built-in example records, not applications you added. Files named `index.html.bak-*` are backups of the page file, not of your application data, and are not committed.
+Export JSON before using Replace. Clear samples deletes only the built-in examples. Files named `index.html.bak-*` are page backups, not application data, and are not committed.
 
 This page is not part of the public portfolio.
