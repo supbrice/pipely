@@ -27,7 +27,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 .privacy{background:#f7f8fc;border:1px solid var(--line);border-radius:13px;padding:14px;color:var(--muted);font-size:12px;line-height:1.5}
 .privacy strong{display:block;color:#39445a;margin-bottom:4px}
 .side-note{padding:18px 10px 0;color:#a0a7b5;font-size:10px;letter-spacing:.04em}
-.main{padding:28px 32px 38px;max-width:1600px;width:100%;margin:auto;min-width:0}
+.main{padding:28px 32px 38px;max-width:1600px;width:100%;margin:0 auto;min-width:0}
 .topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:28px}
 .eyebrow{font-size:11px;color:var(--muted);margin-bottom:5px;letter-spacing:.04em}
 .page-title{font-family:Manrope,sans-serif;font-size:27px;letter-spacing:-1px;margin:0;font-weight:800}
@@ -37,8 +37,13 @@ button,input,select,textarea{font:inherit;color:inherit}
 .btn{border:1px solid var(--line);background:#fff;color:#49536a;border-radius:10px;padding:10px 14px;font:600 12px 'DM Sans',sans-serif;box-shadow:0 2px 4px #18274b05;cursor:pointer}
 .btn.primary{background:var(--blue);border-color:var(--blue);color:#fff;box-shadow:0 5px 12px #4778f52e}
 .btn .plus{font-size:16px;margin-right:5px}
-.cards{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px;margin-bottom:20px}
+.cards{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:12px;margin-bottom:20px}
 .stat{background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:18px;box-shadow:var(--shadow);min-width:0}
+.stat.clickable{cursor:pointer;transition:border-color .15s,box-shadow .15s,transform .15s}
+.stat.clickable:hover{border-color:#c9d6fb;box-shadow:0 10px 28px rgba(71,120,245,.12);transform:translateY(-1px)}
+.stat.clickable:hover .stat-label:after,.stat.clickable:focus-visible .stat-label:after{content:' →';color:var(--blue)}
+.stat.alert{border-color:#f0c2c6;background:#fffafa}
+.filter-note{display:flex;align-items:center;gap:10px;margin:0 0 12px;font-size:12px;color:var(--muted)}
 .stat-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
 .stat-label{color:var(--muted);font-size:12px;font-weight:600}
 .stat-icon{width:32px;height:32px;border-radius:10px;display:grid;place-items:center;font-size:15px}
@@ -47,6 +52,19 @@ button,input,select,textarea{font:inherit;color:inherit}
 .si-amber{background:var(--amber-soft);color:#c8861a}
 .si-purple{background:var(--purple-soft);color:#7055cc}
 .si-red{background:var(--red-soft);color:var(--red)}
+.si-gray{background:#f1f3f8;color:#8a93a6}
+.nav-badge.muted{background:#f1f3f8;color:#8a93a6}
+.rej-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:16px}
+.rej-stat{background:#f7f8fc;border:1px solid var(--line);border-radius:12px;padding:12px 14px;min-width:0}
+.rej-stat b{display:block;font:800 22px Manrope,sans-serif;letter-spacing:-.6px;color:var(--ink)}
+.rej-stat span{font-size:11px;color:var(--muted)}
+.rej-tools{align-items:center}
+.rej-tools label{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);cursor:pointer}
+.rej-tools label{white-space:nowrap}
+.rej-tools label input{min-height:0;padding:0;width:15px;height:15px;margin:0;accent-color:var(--blue)}
+#rejSearch{flex:1 1 240px;min-width:200px}
+.chip.rej{background:#f1f3f8;color:#6f788c;border-color:transparent}
+.closed-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .stat-number{font:800 28px Manrope,sans-serif;letter-spacing:-1px}
 .stat-foot{font-size:11px;color:var(--muted);margin-top:5px}
 .up{color:var(--green);font-weight:700}
@@ -158,7 +176,7 @@ a.link{color:var(--blue);font-weight:600;font-size:12px;text-decoration:none}
 .empty{text-align:center;color:var(--muted);padding:28px 16px}
 .empty-title{margin:0 0 4px;color:var(--ink);font-weight:700}
 select.move{width:100%;margin-top:10px;background:#f7f8fb}
-dialog{border:0;border-radius:16px;padding:0;width:min(560px,calc(100vw - 32px));box-shadow:0 24px 80px rgba(24,39,75,.18);color:var(--ink)}
+dialog{border:0;border-radius:16px;padding:0;width:min(600px,calc(100vw - 32px));max-height:calc(100vh - 32px);overflow:auto;box-shadow:0 24px 80px rgba(24,39,75,.18);color:var(--ink)}
 dialog::backdrop{background:rgba(23,32,51,.45)}
 form,.import-box,.prefs-box{padding:22px;display:grid;gap:14px}
 form h2,.import-box h2,.prefs-box h2{margin:0;font-family:Manrope,sans-serif;font-size:20px;letter-spacing:-.4px}
@@ -169,13 +187,52 @@ textarea{min-height:88px;resize:vertical}
 .dialog-actions{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap}
 .tip{position:fixed;z-index:40;pointer-events:none;white-space:pre-line;background:var(--ink);color:#fff;font-size:12px;font-weight:500;line-height:1.35;padding:6px 8px;border-radius:8px;max-width:240px}
 .mobile-nav{display:none}
+.remind{background:#fff;border:1px solid #f0c2c6;border-left:5px solid var(--red);border-radius:16px;padding:16px 18px;margin-bottom:20px;box-shadow:var(--shadow)}
+.remind.soon-only{border-color:#f3e0b8;border-left-color:var(--amber)}
+.remind-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.remind-title{font:800 17px Manrope,sans-serif;color:var(--red);letter-spacing:-.3px}
+.remind.soon-only .remind-title{color:#9a6700}
+.remind-sub{font-size:12px;color:var(--muted);margin-top:4px}
+.remind-actions{display:flex;gap:8px;flex-wrap:wrap}
+.remind-list{display:grid;gap:6px;margin-top:12px}
+.remind-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:10px;align-items:center;padding:8px 10px;border-radius:10px;background:#fffafa;border:1px solid #f6dfe1}
+.remind-row.soon{background:#fffdf7;border-color:#f3e7cc}
+.remind-row .company{font-weight:700;font-size:13px;color:var(--ink)}
+.remind-row .role{font-size:11px;margin-top:1px}
+.remind-btns{display:flex;gap:6px;flex-wrap:wrap}
+.remind-more{margin-top:10px;font-size:12px}
+.linkbtn{background:none;border:0;padding:0;color:var(--blue);font-weight:700;cursor:pointer;font-size:12px}
+.mini{border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px 9px;font:600 11px 'DM Sans',sans-serif;cursor:pointer;color:#49536a;white-space:nowrap}
+.mini.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+.dup-warn{padding:10px 12px;border-radius:10px;background:var(--amber-soft);color:#8a5d00;font-size:12px;font-weight:500;line-height:1.45}
+.log-box{border:1px solid var(--line);border-radius:12px;padding:12px;display:grid;gap:10px;background:#fbfcfe}
+.log-title{font-size:12px;font-weight:700;color:var(--ink)}
+.log-title span{font-weight:500;color:var(--muted)}
+.log-items{display:grid;gap:6px}
+.log-empty{font-size:12px;color:var(--muted)}
+.log-item{display:grid;grid-template-columns:auto auto minmax(0,1fr) auto;gap:8px;align-items:center;font-size:12px;color:#4d576c;background:#fff;border:1px solid var(--line);border-radius:9px;padding:6px 8px}
+.log-item .note{overflow-wrap:anywhere}
+.log-type{display:inline-flex;border-radius:6px;padding:3px 7px;font-size:10px;font-weight:700;background:var(--purple-soft);color:#7055cc}
+.log-type.t-Follow-up{background:var(--blue-soft);color:var(--blue)}
+.log-type.t-Note,.log-type.t-Email{background:#f2f4f8;color:#5f6a80}
+.log-add{display:grid;grid-template-columns:138px 112px minmax(0,1fr) auto;gap:8px}
+.log-add input,.log-add select{background:#f7f8fb;border:1px solid var(--line);border-radius:10px;padding:8px 10px;min-width:0}
+.timeline{grid-column:1 / -1;display:grid;gap:4px;border-left:2px solid #e4dcff;padding-left:10px;margin:0}
+.timeline div{font-size:12px;color:var(--muted);overflow-wrap:anywhere}
+.timeline b{color:#5b4bb0;font-weight:700}
+.sync-steps{margin:0;padding-left:18px;color:var(--muted);font-size:13px;line-height:1.6}
+.box-sec{display:grid;gap:8px;border-top:1px solid var(--line);padding-top:14px}
 .company,.role,.notes{overflow-wrap:anywhere}
 @media (prefers-reduced-motion:reduce){
   .bar,.pill,.kcard,.row,.btn{transition:none}
 }
+@media(max-width:1380px){
+  .cards{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
 @media(max-width:1100px){
   .main{padding:24px 20px}
   .cards{grid-template-columns:repeat(3,1fr)}
+  .rej-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
   .grid,.lower,.board,.closed-lane{grid-template-columns:1fr}
   .source-wrap{justify-content:flex-start}
   .donut{width:125px;height:125px;flex-basis:125px}
@@ -202,6 +259,10 @@ textarea{min-height:88px;resize:vertical}
   .row{grid-template-columns:minmax(0,1fr) auto}
   .when,.source,.row-actions,.notes{grid-column:1 / -1}
   .grid-2{grid-template-columns:1fr}
+  .log-add{grid-template-columns:1fr 1fr}
+  .log-add input#logNote{grid-column:1 / -1}
+  .remind-row{grid-template-columns:minmax(0,1fr) auto}
+  .remind-btns{grid-column:1 / -1}
   .mobile-nav{display:flex;position:fixed;bottom:0;left:0;right:0;background:#ffffffed;backdrop-filter:blur(14px);border-top:1px solid var(--line);justify-content:space-around;padding:10px 5px 12px;z-index:20}
   .mobile-nav button{font-size:10px;color:#7b8497;background:none;border:0;text-align:center;display:grid;gap:4px;padding:0;cursor:pointer;min-height:0}
   .mobile-nav button.active{color:var(--blue);font-weight:700}
@@ -221,6 +282,7 @@ textarea{min-height:88px;resize:vertical}
       <button type="button" data-view="board"><span class="ico">▦</span>Pipeline board</button>
       <button type="button" data-view="list"><span class="ico">☷</span>All applications</button>
       <button type="button" data-view="follow"><span class="ico">◷</span>Follow-ups <span class="nav-badge" id="followBadge" hidden>0</span></button>
+      <button type="button" data-view="rejected"><span class="ico">⊘</span>Rejected <span class="nav-badge muted" id="rejBadge" hidden>0</span></button>
     </nav>
   </div>
   <div>
@@ -248,14 +310,15 @@ textarea{min-height:88px;resize:vertical}
       <div class="subtitle" id="pageSub">A clear view of your search. One step at a time.</div>
     </div>
     <div class="actions">
-      <button type="button" class="btn" id="exportBtn">↓ Export</button>
-      <button type="button" class="btn" id="importBtn">＋ Import</button>
-      <input type="file" id="importFile" accept="application/json,.json" hidden>
+      <button type="button" class="btn" id="exportBtn" title="Download a JSON backup of every application in this browser">↓ Export backup</button>
+      <button type="button" class="btn" id="importBtn" title="Import a Pipely JSON backup or a tracker CSV">＋ Import JSON / CSV</button>
+      <input type="file" id="importFile" accept="application/json,.json,text/csv,.csv" hidden>
       <button type="button" class="btn primary" id="addBtn"><span class="plus">＋</span>Add application</button>
     </div>
   </header>
 
   <section id="view-overview">
+    <section class="remind" id="remind" hidden aria-live="polite"></section>
     <section class="cards" id="cards" aria-label="Summary"></section>
     <section class="grid">
       <div class="panel">
@@ -265,7 +328,7 @@ textarea{min-height:88px;resize:vertical}
       <div class="panel">
         <div class="panel-head"><div><div class="panel-title">Pipeline health</div><div class="panel-sub">Where things stand right now</div></div></div>
         <div class="funnel" id="funnel"></div>
-        <div class="funnel-note"><strong>Small steps add up.</strong><br>Keep your momentum going with a thoughtful follow-up on your active applications.</div>
+        <div class="funnel-note" id="funnelNote"><strong>Small steps add up.</strong><br>Keep your momentum going with a thoughtful follow-up on your active applications.</div>
       </div>
     </section>
     <section class="lower">
@@ -289,7 +352,7 @@ textarea{min-height:88px;resize:vertical}
     <p class="board-note">Drag a card to change its stage. On a phone, use the Move menu.</p>
     <div class="board" id="board"></div>
     <div class="closed-wrap">
-      <h3>Rejected / withdrawn</h3>
+      <div class="closed-head"><h3>Rejected / withdrawn</h3><button type="button" class="linkbtn" id="boardRejLink">Open Rejected view →</button></div>
       <div class="closed-lane" id="closed"></div>
     </div>
   </section>
@@ -301,6 +364,9 @@ textarea{min-height:88px;resize:vertical}
       <select id="filter" aria-label="Filter by status">
         <option value="all">All statuses</option>
         <option value="follow">Needs follow-up</option>
+        <option value="overdue">Follow-up overdue</option>
+        <option value="progress">In progress (screening + interview)</option>
+        <option value="heard">Heard back (14+ days)</option>
         <option>Applied</option>
         <option>Screening</option>
         <option>Interview</option>
@@ -315,6 +381,7 @@ textarea{min-height:88px;resize:vertical}
         <option value="status">Status</option>
       </select>
     </div>
+    <div class="filter-note" id="filterNote" hidden><span id="filterNoteText"></span><button type="button" class="linkbtn" id="filterClear">Show all</button></div>
     <div class="list" id="list"></div>
     <div class="empty" id="empty" hidden><p class="empty-title">No matches</p><p>Try another status or clear the search.</p></div>
   </section>
@@ -326,13 +393,35 @@ textarea{min-height:88px;resize:vertical}
       <div class="empty" id="followEmpty" hidden><p class="empty-title">No follow-ups due</p><p>Nothing overdue or due in the next 3 days.</p></div>
     </div>
   </section>
+
+  <section id="view-rejected" hidden>
+    <div class="rej-stats" id="rejStats"></div>
+    <div class="panel">
+      <div class="panel-head"><div><div class="panel-title">Rejected applications</div><div class="panel-sub" id="rejSub">Every application that came back as a no.</div></div></div>
+      <div class="toolbar rej-tools">
+        <input id="rejSearch" type="search" placeholder="Search company, role, or notes" aria-label="Search rejected">
+        <select id="rejSort" aria-label="Sort rejected">
+          <option value="rej-desc">Most recently rejected</option>
+          <option value="date-desc">Newest applied</option>
+          <option value="date-asc">Oldest applied</option>
+          <option value="company">Company A–Z</option>
+          <option value="fast">Fastest no</option>
+        </select>
+        <select id="rejSource" aria-label="Filter rejected by source"><option value="all">All sources</option></select>
+        <label><input type="checkbox" id="rejWithdrawn"> Include withdrawn / closed postings</label>
+      </div>
+      <div class="list" id="rejList"></div>
+      <div class="empty" id="rejEmpty" hidden><p class="empty-title">No rejections here</p><p>Nothing matches. Try clearing the search or source filter.</p></div>
+    </div>
+  </section>
 </main>
 </div>
 <nav class="mobile-nav" aria-label="Mobile">
   <button type="button" data-view="overview"><b>◫</b>Overview</button>
   <button type="button" data-view="board"><b>▦</b>Board</button>
   <button type="button" data-view="list"><b>☷</b>Applications</button>
-  <button type="button" data-view="follow"><b>◷</b>Follow-ups</button>
+  <button type="button" data-view="follow"><b>◷</b><span>Follow-ups <span class="nav-badge" id="followBadgeM" hidden>0</span></span></button>
+  <button type="button" data-view="rejected"><b>⊘</b>Rejected</button>
 </nav>
 
 <dialog id="dialog" aria-labelledby="formTitle">
@@ -343,6 +432,7 @@ textarea{min-height:88px;resize:vertical}
       <label>Company<input id="company" required maxlength="120" autocomplete="organization"></label>
       <label>Role / title<input id="role" required maxlength="160"></label>
     </div>
+    <div class="dup-warn" id="dupWarn" hidden role="status"></div>
     <div class="grid-2">
       <label>Status
         <select id="status" required>
@@ -371,7 +461,19 @@ textarea{min-height:88px;resize:vertical}
       <label>Pay <span>(optional)</span><input id="pay" maxlength="80" placeholder="$ / hr or range"></label>
     </div>
     <label>Link <span>(optional)</span><input id="link" type="url" placeholder="https://"></label>
-    <label>Notes <span>(optional)</span><textarea id="notes" rows="3" maxlength="1000"></textarea></label>
+    <label>Notes <span>(optional)</span><textarea id="notes" rows="3"></textarea></label>
+    <div class="log-box">
+      <div class="log-title">Interview log <span>· dated notes for calls, screens, interviews, follow-ups</span></div>
+      <div class="log-items" id="logItems"></div>
+      <div class="log-add">
+        <input type="date" id="logDate" aria-label="Log entry date">
+        <select id="logType" aria-label="Log entry type">
+          <option>Interview</option><option>Screen</option><option>Call</option><option>Email</option><option>Follow-up</option><option>Note</option>
+        </select>
+        <input id="logNote" maxlength="500" placeholder="Who you spoke with, what was asked, next steps" aria-label="Log entry note">
+        <button type="button" class="btn" id="logAdd">Add</button>
+      </div>
+    </div>
     <div class="dialog-actions">
       <button type="button" class="btn" id="cancelBtn">Cancel</button>
       <button type="submit" class="btn primary">Save</button>
@@ -387,6 +489,35 @@ textarea{min-height:88px;resize:vertical}
       <button type="button" class="btn" id="importCancel">Cancel</button>
       <button type="button" class="btn" id="importMerge">Merge</button>
       <button type="button" class="btn primary" id="importReplace">Replace</button>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="exportDialog" aria-labelledby="exportTitle">
+  <div class="prefs-box">
+    <h2 id="exportTitle">Export &amp; backup</h2>
+    <p class="subtitle" id="exportSummary">Your applications live only in this browser.</p>
+    <div class="dialog-actions" style="justify-content:flex-start">
+      <button type="button" class="btn primary" id="exportJson">↓ Download JSON backup</button>
+      <button type="button" class="btn" id="exportCsv">↓ Download CSV</button>
+    </div>
+    <p class="subtitle" style="margin:0">JSON keeps everything, including interview logs. CSV is for spreadsheets.</p>
+    <div class="box-sec" id="syncBox" hidden>
+      <div class="log-title">Send to the live site</div>
+      <p class="subtitle" style="margin:0">Opens supbrice.github.io/pipely and hands your list straight to it, browser tab to browser tab. Nothing is uploaded or stored on GitHub. You pick Merge or Replace on the live page.</p>
+      <div><button type="button" class="btn" id="sendLive">Send to live site ↗</button></div>
+      <p class="subtitle" id="syncStatus" style="margin:0" aria-live="polite"></p>
+    </div>
+    <div class="box-sec">
+      <div class="log-title">Move by file (works anywhere)</div>
+      <ol class="sync-steps">
+        <li>Click <b>Download JSON backup</b> here.</li>
+        <li>Open the other copy of Pipely (for example https://supbrice.github.io/pipely/).</li>
+        <li>Click <b>＋ Import JSON / CSV</b>, pick the file, then choose Merge or Replace.</li>
+      </ol>
+    </div>
+    <div class="dialog-actions">
+      <button type="button" class="btn" id="exportClose">Close</button>
     </div>
   </div>
 </dialog>
@@ -515,8 +646,15 @@ const SAMPLES = [
 ];
 
 const SAMPLE_IDS = new Set(SAMPLES.map(s => s.id));
+const LOG_TYPES = ["Interview", "Screen", "Call", "Email", "Follow-up", "Note"];
+const RESPONSE_DAYS = 14;
+const LIVE_ORIGIN = "https://supbrice.github.io";
+const LIVE_URL = "https://supbrice.github.io/pipely/";
+const LOCAL_ORIGIN_RE = /^http:\/\/(127\.0\.0\.1|localhost)(:\d+)?$/;
 let storageOk = true;
-let undoDelete = null;
+let undoSnapshot = null;
+let formLog = [];
+let pendingLabel = "";
 let apps = load();
 let pendingImport = null;
 let dragId = null;
@@ -542,13 +680,40 @@ function safeHref(raw) {
   return "";
 }
 
+function cleanLog(raw) {
+  if (!Array.isArray(raw)) return [];
+  const out = [];
+  raw.forEach(e => {
+    if (!e || typeof e !== "object") return;
+    const note = String(e.note || "").trim().slice(0, 500);
+    if (!isRealISO(e.date) || !note) return;
+    out.push({
+      id: typeof e.id === "string" && e.id ? e.id : uid(),
+      date: e.date,
+      type: LOG_TYPES.includes(e.type) ? e.type : "Note",
+      note
+    });
+  });
+  return out.sort((a, b) => a.date.localeCompare(b.date));
+}
+
+function mergeLogs(a, b) {
+  const seen = new Set();
+  const out = [];
+  cleanLog([].concat(a || [], b || [])).forEach(e => {
+    const key = e.id + "|" + e.date + "|" + e.note;
+    if (seen.has(e.id) || seen.has(key)) return;
+    seen.add(e.id); seen.add(key);
+    out.push(e);
+  });
+  return out;
+}
+
 function normalizeStored(app) {
   const id = typeof app.id === "string" && app.id ? app.id : uid();
-  return Object.assign({}, app, {
-    id,
-    nextFollowUp: cleanFollowUp(app.nextFollowUp),
-    isSample: SAMPLE_IDS.has(id) && app.isSample !== false
-  });
+  const extra = { id, nextFollowUp: cleanFollowUp(app.nextFollowUp), isSample: SAMPLE_IDS.has(id) && app.isSample !== false };
+  if (app.log !== undefined) extra.log = cleanLog(app.log);
+  return Object.assign({}, app, extra);
 }
 
 function load() {
@@ -588,6 +753,9 @@ function load() {
 }
 
 function save() {
+  undoSnapshot = null;
+  const bar = document.getElementById("undoBar");
+  if (bar) bar.hidden = true;
   if (!storageOk) {
     alert("Changes were not saved. The stored list could not be read, and it was left untouched.");
     return false;
@@ -715,6 +883,37 @@ const FLOW_COLORS = {
 };
 const FLOW_ORDER = ["LinkedIn", "Company site", "Indeed", "Easy Apply", "Other"];
 
+function responseStats() {
+  const cutoff = iso(addDays(new Date(), -RESPONSE_DAYS));
+  const real = apps.filter(a => !a.isSample);
+  const base = real.length ? real : apps;
+  const pool = base.filter(a => a.status !== "Withdrawn" && isRealISO(a.dateApplied) && a.dateApplied <= cutoff);
+  const heard = pool.filter(a => a.status !== "Applied");
+  const positive = pool.filter(a => ["Screening", "Interview", "Offer"].includes(a.status));
+  const rejected = pool.filter(a => a.status === "Rejected");
+  return {
+    pool: pool.length,
+    heard: heard.length,
+    positive: positive.length,
+    rejected: rejected.length,
+    waiting: pool.length - heard.length,
+    rate: pool.length ? Math.round(heard.length / pool.length * 100) : null,
+    posRate: pool.length ? Math.round(positive.length / pool.length * 100) : null,
+    heardIds: new Set(heard.map(a => a.id))
+  };
+}
+
+function pct(n) { return n === null ? "—" : n + "%"; }
+
+function goToList(filter, sort) {
+  document.getElementById("search").value = "";
+  document.getElementById("filter").value = filter;
+  if (sort) document.getElementById("sort").value = sort;
+  setView("list");
+  renderList();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
 function renderCards() {
   const inProgress = apps.filter(a => a.status === "Screening" || a.status === "Interview").length;
   const interviews = apps.filter(a => a.status === "Interview").length;
@@ -732,27 +931,152 @@ function renderCards() {
     totalFoot.textContent = "None added this month";
   }
   const followFoot = el("div", { class: "stat-foot", text: overdue + " overdue · " + soon + " coming up" });
-  if (overdue) followFoot.style.color = "var(--red)";
+  if (overdue) { followFoot.style.color = "var(--red)"; followFoot.style.fontWeight = "700"; }
+  const rs = responseStats();
+  const rejectedApps = apps.filter(a => a.status === "Rejected");
+  const weekAgo = iso(addDays(new Date(), -7));
+  const rejWeek = rejectedApps.filter(a => { const d = rejectedOn(a); return d && d >= weekAgo; }).length;
+  const rejFoot = (apps.length ? Math.round(rejectedApps.length / apps.length * 100) : 0) + "% of tracked · " + rejWeek + " in last 7 days";
+  const rateFoot = el("div", { class: "stat-foot", text: rs.heard + " of " + rs.pool + " heard back · sent " + RESPONSE_DAYS + "+ days ago" });
   const specs = [
-    ["Total applications", apps.length, totalFoot, "▤", "si-blue"],
-    ["In progress", inProgress, "Screening or interview stage", "◷", "si-purple"],
-    ["Interviews", interviews, "Conversations in motion", "✦", "si-amber"],
-    ["Offers", offers, "A good step forward", "✓", "si-green"],
-    ["Follow-ups due", followApps.length, followFoot, "⌁", "si-red"]
+    ["Total applications", apps.length, totalFoot, "▤", "si-blue", () => goToList("all", "date-desc"), "Show all applications"],
+    ["In progress", inProgress, "Screening or interview stage", "◷", "si-purple", () => goToList("progress"), "Show screening and interview applications"],
+    ["Interviews", interviews, "Conversations in motion", "✦", "si-amber", () => goToList("Interview"), "Show interview-stage applications"],
+    ["Offers", offers, "A good step forward", "✓", "si-green", () => goToList("Offer"), "Show offers"],
+    ["Rejected", rejectedApps.length, rejFoot, "⊘", "si-gray", () => openRejected(), "Show rejected applications"],
+    ["Follow-ups due", followApps.length, followFoot, "⌁", "si-red", () => setView("follow"), "Show follow-ups that are overdue or due soon"],
+    ["Response rate", pct(rs.rate), rateFoot, "↺", "si-green", () => goToList("heard"),
+      "Applications sent " + RESPONSE_DAYS + "+ days ago (withdrawn / closed postings left out). Heard back = moved to Screening, Interview, Offer, or Rejected. Click to see them."]
   ];
-  document.getElementById("cards").replaceChildren(...specs.map(([label, n, foot, icon, cls]) => el("article", { class: "stat" }, [
-    el("div", { class: "stat-top" }, [
-      el("span", { class: "stat-label", text: label }),
-      el("span", { class: "stat-icon " + cls, text: icon })
-    ]),
-    el("div", { class: "stat-number", text: String(n) }),
-    typeof foot === "string" ? el("div", { class: "stat-foot", text: foot }) : foot
-  ])));
-  const badge = document.getElementById("followBadge");
-  if (badge) {
+  document.getElementById("cards").replaceChildren(...specs.map(([label, n, foot, icon, cls, onOpen, hint]) => {
+    const card = el("article", { class: "stat clickable" + (label === "Follow-ups due" && overdue ? " alert" : ""), role: "button", tabindex: "0", title: hint, "aria-label": label + ": " + n + ". " + hint }, [
+      el("div", { class: "stat-top" }, [
+        el("span", { class: "stat-label", text: label }),
+        el("span", { class: "stat-icon " + cls, text: icon })
+      ]),
+      el("div", { class: "stat-number", text: String(n) }),
+      typeof foot === "string" ? el("div", { class: "stat-foot", text: foot }) : foot
+    ]);
+    card.addEventListener("click", onOpen);
+    card.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onOpen(); }
+    });
+    return card;
+  }));
+  const rejBadge = document.getElementById("rejBadge");
+  if (rejBadge) { rejBadge.textContent = String(rejectedApps.length); rejBadge.hidden = rejectedApps.length === 0; }
+  ["followBadge", "followBadgeM"].forEach(id => {
+    const badge = document.getElementById(id);
+    if (!badge) return;
     badge.textContent = String(followApps.length);
     badge.hidden = followApps.length === 0;
+  });
+  document.title = overdue ? "(" + overdue + " overdue) Pipely" : "Pipely";
+  const note = document.getElementById("funnelNote");
+  if (note) {
+    if (rs.pool) {
+      note.replaceChildren(
+        el("strong", { text: "Response rate " + pct(rs.rate) + " · " + rs.heard + " of " + rs.pool }),
+        el("br"),
+        document.createTextNode("Of " + rs.pool + " applications sent " + RESPONSE_DAYS + "+ days ago: " + rs.positive + " moved forward (screen or later, " + pct(rs.posRate) + "), " + rs.rejected + " rejected, " + rs.waiting + " with no reply yet.")
+      );
+    } else {
+      note.replaceChildren(el("strong", { text: "Response rate appears after " + RESPONSE_DAYS + " days." }), el("br"), document.createTextNode("It counts applications sent at least " + RESPONSE_DAYS + " days ago."));
+    }
   }
+}
+
+function daysLate(app) {
+  const due = parseISO(app.nextFollowUp);
+  if (!due) return 0;
+  const now = new Date();
+  return Math.round((new Date(now.getFullYear(), now.getMonth(), now.getDate()) - due) / 86400000);
+}
+
+function dueLabel(app) {
+  const late = daysLate(app);
+  if (late > 0) return late === 1 ? "1 day overdue" : late + " days overdue";
+  if (late === 0) return "Due today";
+  return "Due " + formatDate(app.nextFollowUp);
+}
+
+function offerUndo(text, snapshot) {
+  undoSnapshot = snapshot;
+  document.getElementById("undoText").textContent = text;
+  document.getElementById("undoBar").hidden = false;
+}
+
+function updateApps(ids, fn, text) {
+  const snapshot = JSON.parse(JSON.stringify(apps));
+  const wanted = new Set(ids);
+  apps = apps.map(a => {
+    if (!wanted.has(a.id)) return a;
+    const copy = Object.assign({}, a);
+    fn(copy);
+    return copy;
+  });
+  if (!save()) { apps = snapshot; return; }
+  render();
+  if (text) offerUndo(text, snapshot);
+}
+
+function markFollowedUp(app) {
+  const next = iso(addDays(new Date(), 7));
+  updateApps([app.id], a => {
+    a.log = mergeLogs(a.log, [{ id: uid(), date: todayISO(), type: "Follow-up", note: "Followed up" }]);
+    a.nextFollowUp = next;
+  }, "Logged a follow-up for " + app.company + ". Next one " + formatDate(next) + ".");
+}
+
+function snoozeFollow(app, days) {
+  const next = iso(addDays(new Date(), days));
+  updateApps([app.id], a => { a.nextFollowUp = next; }, app.company + " follow-up moved to " + formatDate(next) + ".");
+}
+
+function followButtons(a) {
+  return [
+    el("button", { type: "button", class: "mini primary", text: "✓ Followed up", title: "Log a follow-up today and set the next one for 7 days out", onclick: () => markFollowedUp(a) }),
+    el("button", { type: "button", class: "mini", text: "Snooze 3d", title: "Move this follow-up 3 days out", onclick: () => snoozeFollow(a, 3) })
+  ];
+}
+
+function renderRemind() {
+  const host = document.getElementById("remind");
+  if (!host) return;
+  const due = apps.filter(needsFollowUp).sort((a, b) => String(a.nextFollowUp).localeCompare(String(b.nextFollowUp)));
+  if (!due.length) { host.hidden = true; host.replaceChildren(); return; }
+  const overdue = due.filter(a => followState(a) === "overdue");
+  const soon = due.length - overdue.length;
+  host.hidden = false;
+  host.className = "remind" + (overdue.length ? "" : " soon-only");
+  const title = overdue.length
+    ? "⚠ " + overdue.length + " follow-up" + (overdue.length === 1 ? " is" : "s are") + " overdue"
+    : soon + " follow-up" + (soon === 1 ? "" : "s") + " due in the next 3 days";
+  const sub = overdue.length
+    ? "Oldest was due " + formatDate(overdue[0].nextFollowUp) + " (" + dueLabel(overdue[0]) + "). " + soon + " more due in the next 3 days."
+    : "Nothing overdue. Nice.";
+  const actions = el("div", { class: "remind-actions" }, [
+    el("button", { type: "button", class: "btn primary", text: "Open follow-ups", onclick: () => setView("follow") })
+  ]);
+  if (overdue.length > 1) {
+    actions.append(el("button", { type: "button", class: "btn", text: "Snooze all overdue +7d", onclick: () => {
+      if (!confirm("Move all " + overdue.length + " overdue follow-ups to " + formatDate(iso(addDays(new Date(), 7))) + "? You can undo right after.")) return;
+      const next = iso(addDays(new Date(), 7));
+      updateApps(overdue.map(a => a.id), a => { a.nextFollowUp = next; }, "Moved " + overdue.length + " overdue follow-ups to " + formatDate(next) + ".");
+    } }));
+  }
+  const list = el("div", { class: "remind-list" });
+  due.slice(0, 5).forEach(a => {
+    const state = followState(a);
+    list.append(el("div", { class: "remind-row " + state }, [
+      el("div", {}, [el("div", { class: "company", text: a.company }), el("div", { class: "role", text: a.role + " · " + a.status })]),
+      el("span", { class: "chip " + state, text: dueLabel(a), title: "Follow up " + formatDate(a.nextFollowUp) }),
+      el("div", { class: "remind-btns" }, followButtons(a).concat([el("button", { type: "button", class: "mini", text: "Open", onclick: () => openForm(a) })]))
+    ]));
+  });
+  const parts = [el("div", { class: "remind-head" }, [el("div", {}, [el("div", { class: "remind-title", text: title }), el("div", { class: "remind-sub", text: sub })]), actions]), list];
+  if (due.length > 5) parts.push(el("div", { class: "remind-more" }, [el("button", { type: "button", class: "linkbtn", text: "+ " + (due.length - 5) + " more in Follow-ups →", onclick: () => setView("follow") })]));
+  host.replaceChildren(...parts);
 }
 function roundedTop(x, y, w, h, r) {
   const rad = Math.min(r, w / 2, h / 2);
@@ -1009,6 +1333,7 @@ function renderRecent() {
   host.replaceChildren(el("div", { class: "table-scroll" }, [recentTable(rows)]));
 }
 function renderOverview() {
+  renderRemind();
   renderWeekly();
   renderFunnel();
   renderSources();
@@ -1076,7 +1401,8 @@ function kanbanCard(a) {
     el("div", { class: "role", text: a.role || "" }),
     el("div", { class: "kmeta" }, [
       el("span", { text: a.source || "" }),
-      el("span", { class: "chip days", text: daysSince(a), title: "Days since applied" })
+      el("span", { class: "chip days", text: daysSince(a), title: "Days since applied" }),
+      a.log && a.log.length ? el("span", { class: "chip", text: "🗒 " + a.log.length, title: a.log.length + " interview log entr" + (a.log.length === 1 ? "y" : "ies") }) : null
     ]),
     flags.childNodes.length ? flags : null,
     move
@@ -1102,15 +1428,22 @@ function visibleApps() {
   const q = document.getElementById("search").value.trim().toLowerCase();
   const filter = document.getElementById("filter").value;
   const sort = document.getElementById("sort").value;
+  const heardIds = filter === "heard" ? responseStats().heardIds : null;
   const rows = apps.filter(a => {
     if (filter === "follow") {
       if (!needsFollowUp(a)) return false;
+    } else if (filter === "overdue") {
+      if (followState(a) !== "overdue") return false;
+    } else if (filter === "progress") {
+      if (a.status !== "Screening" && a.status !== "Interview") return false;
+    } else if (filter === "heard") {
+      if (!heardIds.has(a.id)) return false;
     } else if (filter !== "all" && a.status !== filter) return false;
     if (!q) return true;
     return (a.company + " " + a.role).toLowerCase().includes(q);
   });
   rows.sort((a, b) => {
-    if (sort === "company") return a.company.localeCompare(b.company) || b.dateApplied.localeCompare(a.dateApplied);
+    if (sort === "company") return a.company.localeCompare(b.company) || String(b.dateApplied).localeCompare(String(a.dateApplied));
     if (sort === "status") return (STATUS_RANK[a.status] ?? 99) - (STATUS_RANK[b.status] ?? 99) || b.dateApplied.localeCompare(a.dateApplied);
     if (sort === "date-asc") return a.dateApplied.localeCompare(b.dateApplied);
     return b.dateApplied.localeCompare(a.dateApplied);
@@ -1127,7 +1460,8 @@ function appCard(a) {
   const actions = el("div", { class: "row-actions" });
   const href = safeHref(a.link);
   if (href) actions.append(el("a", { class: "link", href: href, target: "_blank", rel: "noopener noreferrer", text: "Link" }));
-  actions.append(el("button", { type: "button", text: "Edit", onclick: () => openForm(a) }));
+  if (followState(a)) followButtons(a).forEach(b => actions.append(b));
+  actions.append(el("button", { type: "button", text: "Edit / log", onclick: () => openForm(a) }));
   actions.append(el("button", { type: "button", class: "danger", text: "Delete", onclick: () => remove(a) }));
   const bits = [a.source, a.pay].filter(Boolean).join(" · ");
   const state = followState(a);
@@ -1135,8 +1469,8 @@ function appCard(a) {
     el("span", { class: "chip", text: formatDate(a.dateApplied) }),
     el("span", { class: "chip days", text: daysSince(a), title: "Days since applied" })
   ]);
-  if (state === "overdue") when.append(el("span", { class: "chip overdue", text: "Overdue", title: "Follow up " + formatDate(a.nextFollowUp) }));
-  if (state === "soon") when.append(el("span", { class: "chip soon", text: "Due soon", title: "Follow up " + formatDate(a.nextFollowUp) }));
+  if (state === "overdue") when.append(el("span", { class: "chip overdue", text: dueLabel(a), title: "Follow up " + formatDate(a.nextFollowUp) }));
+  if (state === "soon") when.append(el("span", { class: "chip soon", text: dueLabel(a), title: "Follow up " + formatDate(a.nextFollowUp) }));
   const article = el("article", { class: "row" + (state ? " " + state : "") }, [
     title,
     el("span", { class: "badge " + (a.status || ""), text: a.status || "—" }),
@@ -1144,12 +1478,37 @@ function appCard(a) {
     el("div", { class: "source", text: bits || "—" }),
     actions
   ]);
+  if (a.log && a.log.length) {
+    const tl = el("div", { class: "timeline", "aria-label": "Interview log" });
+    a.log.slice().reverse().slice(0, 3).forEach(e => {
+      const row = el("div");
+      row.append(el("b", { text: formatDate(e.date) + " · " + e.type }), document.createTextNode(" — " + e.note));
+      tl.append(row);
+    });
+    if (a.log.length > 3) tl.append(el("div", { text: "+ " + (a.log.length - 3) + " earlier (Edit / log to see all)" }));
+    article.append(tl);
+  }
   if (a.notes) article.append(el("p", { class: "notes", text: a.notes }));
   return article;
 }
 
+const FILTER_TEXT = {
+  follow: "Follow-ups overdue or due in the next 3 days",
+  overdue: "Follow-ups that are overdue",
+  progress: "In progress: screening or interview stage",
+  heard: "Heard back: sent " + RESPONSE_DAYS + "+ days ago and moved past Applied",
+  Applied: "Status: Applied", Screening: "Status: Screening", Interview: "Status: Interview",
+  Offer: "Status: Offer", Rejected: "Status: Rejected", Withdrawn: "Status: Withdrawn"
+};
+
 function renderList() {
   const rows = visibleApps();
+  const filter = document.getElementById("filter").value;
+  const fn = document.getElementById("filterNote");
+  if (fn) {
+    fn.hidden = filter === "all";
+    document.getElementById("filterNoteText").textContent = (FILTER_TEXT[filter] || filter) + " · " + rows.length + " shown";
+  }
   const list = document.getElementById("list");
   const empty = document.getElementById("empty");
   empty.hidden = rows.length !== 0;
@@ -1163,7 +1522,111 @@ function renderFollow() {
   if (!host || !empty) return;
   empty.hidden = rows.length !== 0;
   host.replaceChildren(...rows.map(appCard));
+  const sub = document.querySelector("#view-follow .panel-sub");
+  if (sub) {
+    const over = rows.filter(a => followState(a) === "overdue").length;
+    sub.textContent = over + " overdue · " + (rows.length - over) + " due in the next 3 days. Offer, rejected, and withdrawn are not included. “Followed up” logs it and sets the next one 7 days out.";
+  }
 }
+// Best-effort "rejected on" date: interview/activity log first, then the notes text.
+function rejectedOn(a) {
+  const logHit = (a.log || []).filter(e => /reject|not selected|declin|another candidate/i.test((e.type || "") + " " + (e.note || "")) && isRealISO(e.date))
+    .map(e => e.date).sort().pop();
+  if (logHit) return logHit;
+  const notes = String(a.notes || "");
+  const year = String(a.dateApplied || "").slice(0, 4) || String(new Date().getFullYear());
+  const KW = /(reject\w*|not selected|another candidate|not able to consider|not moving forward|better match|req closed)/ig;
+  let best = null;
+  let m;
+  while ((m = KW.exec(notes))) {
+    const after = notes.slice(m.index, m.index + 70);
+    const before = notes.slice(Math.max(0, m.index - 30), m.index);
+    let d = (after.match(/(\d{4}-\d{2}-\d{2})/) || [])[1] || (before.match(/(\d{4}-\d{2}-\d{2})\D*$/) || [])[1];
+    if (!d) {
+      const md = before.match(/(\d{1,2})\/(\d{1,2})\D*$/) || after.match(/\b(\d{1,2})\/(\d{1,2})\b/);
+      if (md) d = year + "-" + md[1].padStart(2, "0") + "-" + md[2].padStart(2, "0");
+    }
+    if (!d && /same day/i.test(notes.slice(m.index - 20, m.index + 40))) d = a.dateApplied;
+    if (d && isRealISO(d) && (!best || d > best)) best = d;
+  }
+  return best;
+}
+
+function daysToNo(a) {
+  const r = parseISO(rejectedOn(a));
+  const s = parseISO(a.dateApplied);
+  if (!r || !s) return null;
+  const n = Math.round((r - s) / 86400000);
+  return n >= 0 ? n : null;
+}
+
+function openRejected() {
+  setView("rejected");
+  renderRejected();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function rejectedPool() {
+  const withdrawn = document.getElementById("rejWithdrawn");
+  const statuses = withdrawn && withdrawn.checked ? ["Rejected", "Withdrawn"] : ["Rejected"];
+  return apps.filter(a => statuses.includes(a.status));
+}
+
+function renderRejected() {
+  const host = document.getElementById("rejList");
+  if (!host) return;
+  const pool = rejectedPool();
+  const all = apps.filter(a => a.status === "Rejected");
+  // Summary strip (always about Rejected only)
+  const days = all.map(daysToNo).filter(n => n !== null).sort((x, y) => x - y);
+  const median = days.length ? days[Math.floor((days.length - 1) / 2)] : null;
+  const month = todayISO().slice(0, 7);
+  const thisMonth = all.filter(a => String(rejectedOn(a) || "").startsWith(month)).length;
+  const bySource = {};
+  all.forEach(a => { const k = a.source || "Other"; bySource[k] = (bySource[k] || 0) + 1; });
+  const top = Object.entries(bySource).sort((x, y) => y[1] - x[1])[0];
+  const share = apps.length ? Math.round(all.length / apps.length * 100) : 0;
+  const stat = (n, label) => el("div", { class: "rej-stat" }, [el("b", { text: String(n) }), el("span", { text: label })]);
+  document.getElementById("rejStats").replaceChildren(
+    stat(all.length, share + "% of " + apps.length + " tracked applications"),
+    stat(thisMonth, "rejected this month (where the date is known)"),
+    stat(median === null ? "—" : median + "d", "median time to a no (" + days.length + " with dates)"),
+    stat(top ? top[1] : 0, top ? "from " + top[0] : "no source yet")
+  );
+  // Source filter options
+  const srcSel = document.getElementById("rejSource");
+  const wanted = srcSel.value;
+  const sources = Array.from(new Set(pool.map(a => a.source || "Other"))).sort();
+  srcSel.replaceChildren(el("option", { value: "all", text: "All sources" }), ...sources.map(x => el("option", { value: x, text: x })));
+  srcSel.value = sources.includes(wanted) ? wanted : "all";
+  // Rows
+  const q = document.getElementById("rejSearch").value.trim().toLowerCase();
+  const sort = document.getElementById("rejSort").value;
+  const rows = pool.filter(a => (srcSel.value === "all" || (a.source || "Other") === srcSel.value) &&
+    (!q || (a.company + " " + a.role + " " + (a.notes || "")).toLowerCase().includes(q)));
+  rows.sort((a, b) => {
+    const da = String(a.dateApplied || ""), db = String(b.dateApplied || "");
+    if (sort === "company") return String(a.company).localeCompare(String(b.company)) || db.localeCompare(da);
+    if (sort === "date-asc") return da.localeCompare(db);
+    if (sort === "date-desc") return db.localeCompare(da);
+    if (sort === "fast") return (daysToNo(a) ?? 9999) - (daysToNo(b) ?? 9999) || db.localeCompare(da);
+    return String(rejectedOn(b) || "").localeCompare(String(rejectedOn(a) || "")) || db.localeCompare(da);
+  });
+  host.replaceChildren(...rows.map(a => {
+    const card = appCard(a);
+    const when = card.querySelector(".when");
+    const r = rejectedOn(a);
+    if (when && a.status === "Rejected") {
+      const n = daysToNo(a);
+      when.append(el("span", { class: "chip rej", text: r ? "No on " + formatDate(r) + (n !== null ? " · " + n + "d" : "") : "Rejection date unknown", title: "Rejection date, read from the activity log or notes" }));
+    }
+    return card;
+  }));
+  document.getElementById("rejEmpty").hidden = rows.length !== 0;
+  const sub = document.getElementById("rejSub");
+  if (sub) sub.textContent = rows.length + " shown · " + all.length + " rejected" + (pool.length !== all.length ? " + " + (pool.length - all.length) + " withdrawn / closed" : "") + ".";
+}
+
 function syncChrome() {
   const hasSamples = apps.some(a => a.isSample);
   document.getElementById("banner").hidden = !hasSamples;
@@ -1177,21 +1640,17 @@ function render() {
   renderBoard();
   renderList();
   renderFollow();
+  renderRejected();
 }
 function setStatus(id, status) {
   const app = apps.find(a => a.id === id);
   if (!app || !STATUSES.includes(status) || app.status === status) return;
   const previous = app.status;
-  app.status = status;
-  if (!save()) {
-    app.status = previous;
-    return;
-  }
-  render();
+  updateApps([id], a => { a.status = status; }, app.company + " moved from " + previous + " to " + status + ".");
 }
 
 function setView(name) {
-  const allowed = ["overview", "board", "list", "follow"];
+  const allowed = ["overview", "board", "list", "follow", "rejected"];
   const view = allowed.includes(name) ? name : "overview";
   allowed.forEach(id => {
     const panel = document.getElementById("view-" + id);
@@ -1205,7 +1664,8 @@ function setView(name) {
     overview: ["WORKSPACE / OVERVIEW", null, "A clear view of your search. One step at a time."],
     board: ["WORKSPACE / PIPELINE", "Pipeline", "Drag a card to change its stage. On a phone, use Move."],
     list: ["WORKSPACE / APPLICATIONS", "All applications", "Search, filter, and sort everything saved in this browser."],
-    follow: ["WORKSPACE / FOLLOW-UPS", "Follow-ups", "Applied, screening, and interview — overdue and the next 3 days."]
+    follow: ["WORKSPACE / FOLLOW-UPS", "Follow-ups", "Applied, screening, and interview — overdue and the next 3 days."],
+    rejected: ["WORKSPACE / REJECTED", "Rejected", "Every no in one place, newest first. Search, sort, and spot patterns."]
   };
   document.getElementById("eyebrow").textContent = copy[view][0];
   const title = document.getElementById("pageTitle");
@@ -1235,8 +1695,67 @@ function openForm(app) {
   document.getElementById("pay").value = app ? (app.pay || "") : "";
   document.getElementById("link").value = app ? (app.link || "") : "";
   document.getElementById("notes").value = app ? (app.notes || "") : "";
+  formLog = app ? cleanLog(app.log) : [];
+  document.getElementById("logDate").value = todayISO();
+  document.getElementById("logType").value = app && app.status === "Interview" ? "Interview" : (app && app.status === "Screening" ? "Screen" : "Note");
+  document.getElementById("logNote").value = "";
+  renderFormLog();
+  updateDupWarn();
   document.getElementById("dialog").showModal();
   document.getElementById("company").focus();
+}
+
+function companyKey(name) {
+  return String(name || "").toLowerCase()
+    .replace(/\([^)]*\)/g, " ")
+    .replace(/&/g, " and ")
+    .replace(/[^a-z0-9 ]+/g, " ")
+    .replace(/\b(inc|llc|ltd|corp|corporation|co|company|the|group|usa)\b/g, " ")
+    .replace(/\s+/g, " ").trim();
+}
+
+function activeAtCompany(name, excludeId) {
+  const key = companyKey(name);
+  if (!key) return [];
+  return apps.filter(a => a.id !== excludeId && !CLOSED.includes(a.status) && companyKey(a.company) === key);
+}
+
+function dupSummary(list) {
+  const shown = list.slice(0, 3).map(a => a.role + " (" + a.status + ", " + formatDate(a.dateApplied) + ")");
+  return shown.join("; ") + (list.length > 3 ? "; and " + (list.length - 3) + " more" : "");
+}
+
+function updateDupWarn() {
+  const box = document.getElementById("dupWarn");
+  const name = document.getElementById("company").value.trim();
+  const list = activeAtCompany(name, document.getElementById("editId").value);
+  if (!list.length) { box.hidden = true; box.textContent = ""; return; }
+  box.hidden = false;
+  box.textContent = "Heads up: you already have " + list.length + " active application" + (list.length === 1 ? "" : "s") + " at " + list[0].company + " — " + dupSummary(list) + ".";
+}
+
+function renderFormLog() {
+  const host = document.getElementById("logItems");
+  if (!formLog.length) {
+    host.replaceChildren(el("div", { class: "log-empty", text: "No entries yet. Add one for each call, screen, or interview." }));
+    return;
+  }
+  host.replaceChildren(...formLog.slice().reverse().map(e => el("div", { class: "log-item" }, [
+    el("span", { text: formatDate(e.date) }),
+    el("span", { class: "log-type t-" + e.type, text: e.type }),
+    el("span", { class: "note", text: e.note }),
+    el("button", { type: "button", class: "mini", text: "Remove", "aria-label": "Remove log entry", onclick: () => { formLog = formLog.filter(x => x.id !== e.id); renderFormLog(); } })
+  ])));
+}
+
+function addFormLog() {
+  const date = document.getElementById("logDate").value;
+  const note = document.getElementById("logNote").value.trim();
+  if (!note) { document.getElementById("logNote").focus(); return; }
+  if (!isRealISO(date)) { alert("Pick a date for this log entry."); return; }
+  formLog = cleanLog(formLog.concat([{ id: uid(), date, type: document.getElementById("logType").value, note }]));
+  document.getElementById("logNote").value = "";
+  renderFormLog();
 }
 
 function remove(app) {
@@ -1245,33 +1764,19 @@ function remove(app) {
     return;
   }
   if (!confirm("Delete " + app.company + " — " + app.role + "?")) return;
-  undoDelete = app;
+  const snapshot = JSON.parse(JSON.stringify(apps));
   apps = apps.filter(a => a.id !== app.id);
-  if (!save()) {
-    apps.push(app);
-    undoDelete = null;
-    return;
-  }
-  const bar = document.getElementById("undoBar");
-  document.getElementById("undoText").textContent = "Deleted " + app.company + " — " + app.role + ".";
-  bar.hidden = false;
+  if (!save()) { apps = snapshot; return; }
   render();
+  offerUndo("Deleted " + app.company + " — " + app.role + ".", snapshot);
 }
 
 function undoRemove() {
-  if (!undoDelete) return;
-  if (apps.some(a => a.id === undoDelete.id)) {
-    undoDelete = null;
-    document.getElementById("undoBar").hidden = true;
-    return;
-  }
-  apps.unshift(undoDelete);
-  if (!save()) {
-    apps = apps.filter(a => a.id !== undoDelete.id);
-    return;
-  }
-  undoDelete = null;
-  document.getElementById("undoBar").hidden = true;
+  if (!undoSnapshot) return;
+  const snapshot = undoSnapshot;
+  const current = apps;
+  apps = snapshot;
+  if (!save()) { apps = current; return; }
   render();
 }
 
@@ -1285,7 +1790,18 @@ document.querySelectorAll("[data-view]").forEach(btn => {
   btn.addEventListener("click", () => setView(btn.dataset.view));
 });
 document.getElementById("viewAllBtn").addEventListener("click", () => setView("list"));
-document.getElementById("exportSide").addEventListener("click", () => document.getElementById("exportBtn").click());
+["rejSearch", "rejSort", "rejSource", "rejWithdrawn"].forEach(id => {
+  const node = document.getElementById(id);
+  node.addEventListener(id === "rejSearch" ? "input" : "change", renderRejected);
+});
+document.getElementById("boardRejLink").addEventListener("click", openRejected);
+document.getElementById("exportSide").addEventListener("click", openExportDialog);
+document.getElementById("company").addEventListener("input", updateDupWarn);
+document.getElementById("logAdd").addEventListener("click", addFormLog);
+document.getElementById("logNote").addEventListener("keydown", (e) => {
+  if (e.key === "Enter") { e.preventDefault(); addFormLog(); }
+});
+document.getElementById("filterClear").addEventListener("click", () => goToList("all"));
 document.getElementById("prefsBtn").addEventListener("click", () => document.getElementById("prefsDialog").showModal());
 document.getElementById("prefsClose").addEventListener("click", () => document.getElementById("prefsDialog").close());
 
@@ -1306,6 +1822,9 @@ document.getElementById("form").addEventListener("submit", (e) => {
     notes: document.getElementById("notes").value.trim(),
     isSample: existing ? !!existing.isSample : false
   };
+  const pendingNote = document.getElementById("logNote").value.trim();
+  if (pendingNote && confirm("Add the unsaved interview log note too?\n\n" + pendingNote)) addFormLog();
+  if (formLog.length || (existing && existing.log)) next.log = cleanLog(formLog);
   if (!STATUSES.includes(next.status)) return;
   if (!isRealISO(next.dateApplied)) {
     alert("Date applied needs a real calendar date.");
@@ -1317,11 +1836,13 @@ document.getElementById("form").addEventListener("submit", (e) => {
     return;
   }
   next.link = safeHref(linkRaw);
-  if (!existing) {
-    const key = (next.company + "\n" + next.role).toLowerCase();
-    const dup = apps.some(a => (a.company + "\n" + a.role).toLowerCase() === key);
-    if (dup && !confirm("You already have " + next.company + " — " + next.role + ". Save another copy?")) return;
-  }
+  const key = (next.company + "\n" + next.role).toLowerCase();
+  const exactDup = !existing && apps.some(a => (a.company + "\n" + a.role).toLowerCase() === key);
+  if (exactDup && !confirm("You already have " + next.company + " — " + next.role + ". Save another copy?")) return;
+  const companyChanged = !existing || companyKey(existing.company) !== companyKey(next.company);
+  const active = activeAtCompany(next.company, existing ? existing.id : null);
+  if (!exactDup && companyChanged && active.length && !CLOSED.includes(next.status) &&
+      !confirm("You already have " + active.length + " active application" + (active.length === 1 ? "" : "s") + " at " + active[0].company + ":\n" + dupSummary(active) + "\n\nSave this one too?")) return;
   const saved = existing ? Object.assign({}, existing, next) : next;
   if (existing) apps = apps.map(a => a.id === id ? saved : a);
   else apps.unshift(saved);
@@ -1347,15 +1868,88 @@ document.getElementById("clearSamples").addEventListener("click", () => {
   render();
 });
 
-document.getElementById("exportBtn").addEventListener("click", () => {
-  const blob = new Blob([JSON.stringify(apps, null, 2)], { type: "application/json" });
+function downloadText(text, name, type) {
+  const blob = new Blob([text], { type });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = "brice-job-apps.json";
+  a.download = name;
+  document.body.append(a);
   a.click();
-  URL.revokeObjectURL(url);
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function exportJson() {
+  downloadText(JSON.stringify(apps, null, 2), "pipely-backup-" + todayISO() + ".json", "application/json");
+}
+
+function csvCell(v) {
+  const s = String(v === null || v === undefined ? "" : v);
+  return /[",\r\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+}
+
+function exportCsv() {
+  const head = ["ID", "Company", "Role", "Status", "Date applied", "Next follow-up", "Source", "Pay", "Link", "Notes", "Interview log"];
+  const lines = [head.join(",")];
+  apps.forEach(a => {
+    const log = cleanLog(a.log).map(e => e.date + " " + e.type + ": " + e.note).join(" || ");
+    lines.push([a.id, a.company, a.role, a.status, a.dateApplied, a.nextFollowUp || "", a.source, a.pay || "", a.link || "", a.notes || "", log].map(csvCell).join(","));
+  });
+  downloadText("\uFEFF" + lines.join("\r\n"), "pipely-" + todayISO() + ".csv", "text/csv");
+}
+
+function isLocalPreview() {
+  return LOCAL_ORIGIN_RE.test(location.origin);
+}
+
+function openExportDialog() {
+  const real = apps.filter(a => !a.isSample).length;
+  document.getElementById("exportSummary").textContent = apps.length + " application" + (apps.length === 1 ? "" : "s") + " (" + real + " real) live only in this browser. Download a backup before big changes, or move them to another browser.";
+  document.getElementById("syncBox").hidden = !isLocalPreview();
+  document.getElementById("syncStatus").textContent = "";
+  document.getElementById("exportDialog").showModal();
+}
+
+let liveWin = null;
+let liveTimer = null;
+function sendToLive() {
+  const status = document.getElementById("syncStatus");
+  liveWin = window.open(LIVE_URL + "#sync", "pipely-live");
+  if (!liveWin) { status.textContent = "The browser blocked the new tab. Allow pop-ups for this page, or use Download JSON backup instead."; return; }
+  status.textContent = "Opening the live site… waiting for it to answer.";
+  clearTimeout(liveTimer);
+  liveTimer = setTimeout(() => {
+    status.textContent = "The live site didn’t answer. It may not have the sync update yet. Use Download JSON backup, then Import on the live page.";
+  }, 15000);
+}
+
+window.addEventListener("message", (e) => {
+  const data = e.data;
+  if (!data || typeof data !== "object") return;
+  // Local side: live tab says it is ready -> hand over the list (only to the live origin, only to the tab we opened).
+  if (data.type === "pipely-ready" && e.origin === LIVE_ORIGIN && liveWin && e.source === liveWin) {
+    clearTimeout(liveTimer);
+    liveWin.postMessage({ type: "pipely-sync", apps: JSON.parse(JSON.stringify(apps)) }, LIVE_ORIGIN);
+    document.getElementById("syncStatus").textContent = "Sent " + apps.length + " applications. Switch to the live tab and choose Merge or Replace.";
+    return;
+  }
+  // Live side: accept a list only from the local preview tab that opened this one.
+  if (data.type === "pipely-sync" && LOCAL_ORIGIN_RE.test(e.origin) && window.opener && e.source === window.opener && Array.isArray(data.apps)) {
+    showImportPreview(data.apps, "from your local Pipely (" + e.origin + ")");
+  }
 });
+
+if (location.hash === "#sync" && window.opener) {
+  try { window.opener.postMessage({ type: "pipely-ready" }, "*"); } catch (err) { /* opener gone */ }
+  history.replaceState(null, "", location.pathname + location.search);
+}
+
+document.getElementById("exportBtn").addEventListener("click", exportJson);
+document.getElementById("exportJson").addEventListener("click", exportJson);
+document.getElementById("exportCsv").addEventListener("click", exportCsv);
+document.getElementById("sendLive").addEventListener("click", sendToLive);
+document.getElementById("exportClose").addEventListener("click", () => document.getElementById("exportDialog").close());
 
 document.getElementById("importBtn").addEventListener("click", () => {
   document.getElementById("importFile").value = "";
@@ -1382,8 +1976,14 @@ function normalizeImported(item) {
     pay: String(item.pay || "").trim(),
     link: linkRaw ? safeHref(linkRaw) : "",
     notes: String(item.notes || "").trim(),
-    isSample: SAMPLE_IDS.has(id) && item.isSample !== false
+    isSample: SAMPLE_IDS.has(id) && item.isSample !== false,
+    log: cleanLog(item.log)
   };
+}
+
+function finishImported(item) {
+  if (!item.log.length) delete item.log;
+  return item;
 }
 
 function prepareImport(list) {
@@ -1392,7 +1992,7 @@ function prepareImport(list) {
   list.forEach(item => {
     const next = normalizeImported(item);
     if (!next) skipped += 1;
-    else mapped.push(next);
+    else mapped.push(finishImported(next));
   });
   const seen = new Set();
   const unique = [];
@@ -1408,14 +2008,204 @@ function prepareImport(list) {
   return { unique, skipped, duplicateIds };
 }
 
+// ---- CSV import (Recruiter tracker format, or Pipely's own CSV export) ----
+function sha1Hex(str) {
+  const bytes = new TextEncoder().encode(str);
+  const ml = bytes.length * 8;
+  const withPad = new Uint8Array(((bytes.length + 9 + 63) >> 6) << 6);
+  withPad.set(bytes);
+  withPad[bytes.length] = 0x80;
+  const dv = new DataView(withPad.buffer);
+  dv.setUint32(withPad.length - 4, ml >>> 0);
+  dv.setUint32(withPad.length - 8, Math.floor(ml / 4294967296));
+  let h0 = 0x67452301, h1 = 0xEFCDAB89, h2 = 0x98BADCFE, h3 = 0x10325476, h4 = 0xC3D2E1F0;
+  const w = new Uint32Array(80);
+  for (let off = 0; off < withPad.length; off += 64) {
+    for (let i = 0; i < 16; i++) w[i] = dv.getUint32(off + i * 4);
+    for (let i = 16; i < 80; i++) { const x = w[i - 3] ^ w[i - 8] ^ w[i - 14] ^ w[i - 16]; w[i] = (x << 1) | (x >>> 31); }
+    let a = h0, b = h1, c = h2, d = h3, e = h4;
+    for (let i = 0; i < 80; i++) {
+      let f, k;
+      if (i < 20) { f = (b & c) | (~b & d); k = 0x5A827999; }
+      else if (i < 40) { f = b ^ c ^ d; k = 0x6ED9EBA1; }
+      else if (i < 60) { f = (b & c) | (b & d) | (c & d); k = 0x8F1BBCDC; }
+      else { f = b ^ c ^ d; k = 0xCA62C1D6; }
+      const t = (((a << 5) | (a >>> 27)) + f + e + k + w[i]) >>> 0;
+      e = d; d = c; c = (b << 30) | (b >>> 2); b = a; a = t;
+    }
+    h0 = (h0 + a) >>> 0; h1 = (h1 + b) >>> 0; h2 = (h2 + c) >>> 0; h3 = (h3 + d) >>> 0; h4 = (h4 + e) >>> 0;
+  }
+  return [h0, h1, h2, h3, h4].map(n => n.toString(16).padStart(8, "0")).join("");
+}
+
+function parseCSV(text) {
+  const rows = [];
+  let row = [], field = "", quoted = false;
+  text = String(text).replace(/^\uFEFF/, "");
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (quoted) {
+      if (c === '"') {
+        if (text[i + 1] === '"') { field += '"'; i++; }
+        else quoted = false;
+      } else field += c;
+    } else if (c === '"') quoted = true;
+    else if (c === ",") { row.push(field); field = ""; }
+    else if (c === "\n" || c === "\r") {
+      if (c === "\r" && text[i + 1] === "\n") i++;
+      row.push(field); rows.push(row); row = []; field = "";
+    } else field += c;
+  }
+  if (field !== "" || row.length) { row.push(field); rows.push(row); }
+  return rows.filter(r => r.some(v => String(v).trim() !== ""));
+}
+
+function mapCsvStatus(raw) {
+  const s = String(raw || "").trim().toLowerCase();
+  if (!s) return "Applied";
+  const exact = STATUSES.find(x => x.toLowerCase() === s);
+  if (exact) return exact;
+  if (/offer/.test(s)) return "Offer";
+  if (/reject|declin|not selected|turned down|no longer/.test(s)) return "Rejected";
+  if (/interview/.test(s)) return "Interview";
+  if (/screen|replied|response|responded|phone|recruiter/.test(s)) return "Screening";
+  if (/withdr|closed|skip|cancel|expired|filled/.test(s)) return "Withdrawn";
+  return "Applied";
+}
+
+function mapCsvSource(raw) {
+  const s = String(raw || "").trim().toLowerCase();
+  if (!s) return "Other";
+  const exact = SOURCES.find(x => x.toLowerCase() === s);
+  if (exact) return exact;
+  if (/easy ?apply/.test(s)) return /indeed/.test(s) ? "Indeed" : "Easy Apply";
+  if (/indeed/.test(s)) return "Indeed";
+  if (/referr/.test(s)) return "Referral";
+  if (/linkedin/.test(s)) return "LinkedIn";
+  if (/^recruiter|sorce|staffing|dice|agency|ziprecruiter|glassdoor|monster|handshake|^other/.test(s)) return "Other";
+  return "Company site";
+}
+
+function csvDate(raw) {
+  const v = String(raw || "").trim();
+  if (isRealISO(v)) return v;
+  const m = v.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);
+  if (m) {
+    const y = m[3].length === 2 ? "20" + m[3] : m[3];
+    const out = y + "-" + m[1].padStart(2, "0") + "-" + m[2].padStart(2, "0");
+    if (isRealISO(out)) return out;
+  }
+  return "";
+}
+
+function payFromNotes(notes) {
+  const m = String(notes || "").match(/\$\s?[\d][\d.,]*\s?k?(?:\s?(?:–|-|to)\s?\$?\s?[\d][\d.,]*\s?k?)?(?:\s?\/\s?(?:hr|hour|yr|year))?/i);
+  return m ? m[0].replace(/\s+/g, "").replace(/\/hour/i, "/hr").replace(/[.,]$/, "") : "";
+}
+
+function csvToApps(text) {
+  const rows = parseCSV(text);
+  if (rows.length < 2) return null;
+  const head = rows[0].map(h => String(h).trim().toLowerCase());
+  const col = (...names) => { for (const n of names) { const i = head.indexOf(n); if (i !== -1) return i; } return -1; };
+  const C = {
+    id: col("id"),
+    date: col("date applied", "applied", "date", "applied on"),
+    company: col("company", "employer"),
+    role: col("role", "role / title", "title", "job title", "position"),
+    location: col("location"),
+    source: col("source"),
+    status: col("status"),
+    next: col("next step", "next"),
+    follow: col("follow-up date", "follow up date", "next follow-up", "next follow up", "followup", "follow-up"),
+    url: col("apply url", "link", "url", "job url"),
+    jobId: col("job id", "req id", "requisition id"),
+    cover: col("cover letter"),
+    notes: col("notes"),
+    pay: col("pay", "salary")
+  };
+  if (C.company === -1 || C.role === -1) return null;
+  const pipelyCsv = C.id !== -1;
+  return rows.slice(1).map(r => {
+    const g = k => (C[k] === -1 ? "" : String(r[C[k]] || "").trim());
+    const company = g("company"), role = g("role");
+    const notesRaw = g("notes");
+    let date = csvDate(g("date"));
+    let dateNote = "";
+    if (!date) {
+      const found = (notesRaw.match(/\b(\d{4}-\d{2}-\d{2})\b/) || [])[1];
+      if (found && isRealISO(found)) { date = found; dateNote = "Date shown = first date in notes (original apply date not in tracker)"; }
+      else if (csvDate(g("follow"))) { date = csvDate(g("follow")); dateNote = "Date shown = follow-up date (original apply date not in tracker)"; }
+    }
+    const rawStatus = g("status");
+    const status = mapCsvStatus(rawStatus);
+    const rawSource = g("source");
+    const url = g("url"), jobId = g("jobId");
+    const id = g("id") || ("rec-" + sha1Hex([jobId || url, company, role, date].join("|")).slice(0, 12));
+    let notes = notesRaw;
+    if (!pipelyCsv) {
+      const parts = [];
+      if (dateNote) parts.push(dateNote);
+      if (rawStatus && rawStatus.toLowerCase() !== status.toLowerCase()) parts.push("Tracker status: " + rawStatus);
+      if (rawSource) parts.push("Source: " + rawSource);
+      if (g("location")) parts.push("Location: " + g("location"));
+      if (g("next")) parts.push("Next: " + g("next"));
+      if (jobId) parts.push("Job ID: " + jobId);
+      if (g("cover")) parts.push("Cover letter: " + g("cover"));
+      notes = parts.join(" | ") + (parts.length && notesRaw ? "\n" : "") + notesRaw;
+    }
+    return {
+      id, company, role, status,
+      dateApplied: date,
+      nextFollowUp: CLOSED.includes(status) ? null : (csvDate(g("follow")) || null),
+      source: mapCsvSource(rawSource),
+      pay: g("pay") || payFromNotes(notesRaw),
+      link: url,
+      notes,
+      isSample: false
+    };
+  });
+}
+
+function showImportPreview(list, label) {
+  const prepared = prepareImport(list);
+  pendingImport = prepared.unique;
+  pendingLabel = label || "";
+  if (!pendingImport.length) {
+    alert("No usable applications " + (label || "in that file") + ". Each needs a company, a role, a real date applied, and a known status. Nothing was changed.");
+    pendingImport = null;
+    return;
+  }
+  const bits = [
+    pendingImport.length + " application" + (pendingImport.length === 1 ? "" : "s") + " ready" + (label ? " " + label : "") + "."
+  ];
+  if (prepared.skipped) bits.push(prepared.skipped + " skipped.");
+  if (prepared.duplicateIds) bits.push(prepared.duplicateIds + " duplicate id" + (prepared.duplicateIds === 1 ? "" : "s") + " ignored (first one kept).");
+  bits.push("This browser has " + apps.length + " now. Merge updates matches by id (status, notes, dates from the file; your interview logs and later follow-up dates are kept) and adds the rest. Replace overwrites everything in this browser. Export a copy first if you might need it back.");
+  document.getElementById("importSummary").textContent = bits.join(" ");
+  const dlg = document.getElementById("importDialog");
+  if (!dlg.open) dlg.showModal();
+}
+
 document.getElementById("importFile").addEventListener("change", async (e) => {
   const file = e.target.files && e.target.files[0];
   if (!file) return;
+  const text = await file.text();
+  const looksCsv = /\.csv$/i.test(file.name) || /csv/.test(file.type) || !/^\s*[\[{]/.test(text.replace(/^\uFEFF/, ""));
+  if (looksCsv) {
+    const list = csvToApps(text);
+    if (!list) {
+      alert("That CSV needs a header row with at least Company and Role columns. Nothing was changed.");
+      return;
+    }
+    showImportPreview(list, "from " + file.name);
+    return;
+  }
   let parsed;
   try {
-    parsed = JSON.parse(await file.text());
+    parsed = JSON.parse(text);
   } catch {
-    alert("That file isn’t valid JSON.");
+    alert("That file isn’t valid JSON or CSV.");
     return;
   }
   const list = Array.isArray(parsed) ? parsed : (parsed && Array.isArray(parsed.apps) ? parsed.apps : null);
@@ -1423,22 +2213,16 @@ document.getElementById("importFile").addEventListener("change", async (e) => {
     alert("Expected a JSON array of applications, or an object with an apps array.");
     return;
   }
-  const prepared = prepareImport(list);
-  pendingImport = prepared.unique;
-  if (!pendingImport.length) {
-    alert("No usable applications in that file. Each needs a company, a role, a real date applied, and a known status. Nothing was changed.");
-    pendingImport = null;
-    return;
-  }
-  const bits = [
-    pendingImport.length + " application" + (pendingImport.length === 1 ? "" : "s") + " ready."
-  ];
-  if (prepared.skipped) bits.push(prepared.skipped + " skipped.");
-  if (prepared.duplicateIds) bits.push(prepared.duplicateIds + " duplicate id" + (prepared.duplicateIds === 1 ? "" : "s") + " ignored (first one kept).");
-  bits.push("Merge updates matches by id only and adds the rest. Replace overwrites everything in this browser. Export a copy first if you might need it back.");
-  document.getElementById("importSummary").textContent = bits.join(" ");
-  document.getElementById("importDialog").showModal();
+  showImportPreview(list, "from " + file.name);
 });
+
+function mergeRecord(current, item) {
+  const out = Object.assign({}, current, item);
+  const log = mergeLogs(current.log, item.log);
+  if (log.length || current.log) out.log = log; else delete out.log;
+  if (current.nextFollowUp && item.nextFollowUp && current.nextFollowUp > item.nextFollowUp) out.nextFollowUp = current.nextFollowUp;
+  return out;
+}
 
 document.getElementById("importCancel").addEventListener("click", () => {
   pendingImport = null;
@@ -1451,7 +2235,7 @@ document.getElementById("importMerge").addEventListener("click", () => {
   const byId = new Map(apps.map(a => [a.id, a]));
   pendingImport.forEach(item => {
     const current = byId.get(item.id);
-    byId.set(item.id, current ? Object.assign({}, current, item) : item);
+    byId.set(item.id, current ? mergeRecord(current, item) : item);
   });
   apps = Array.from(byId.values());
   if (!save()) {
@@ -1461,11 +2245,12 @@ document.getElementById("importMerge").addEventListener("click", () => {
   pendingImport = null;
   document.getElementById("importDialog").close();
   render();
+  offerUndo("Merged import: " + previous.length + " → " + apps.length + " applications.", previous);
 });
 
 document.getElementById("importReplace").addEventListener("click", () => {
   if (!pendingImport || !pendingImport.length) return;
-  if (!confirm("Replace all " + apps.length + " saved application" + (apps.length === 1 ? "" : "s") + " with " + pendingImport.length + " from this file? Export first if you might need the current list. This cannot be undone from the page.")) return;
+  if (!confirm("Replace all " + apps.length + " saved application" + (apps.length === 1 ? "" : "s") + " with " + pendingImport.length + " from this file? Export first if you might need the current list. You can Undo right after; after that it is gone.")) return;
   const previous = apps.slice();
   apps = pendingImport.slice();
   if (!save()) {
@@ -1475,6 +2260,7 @@ document.getElementById("importReplace").addEventListener("click", () => {
   pendingImport = null;
   document.getElementById("importDialog").close();
   render();
+  offerUndo("Replaced " + previous.length + " applications with " + apps.length + ".", previous);
 });
 
 let savedView = "overview";
