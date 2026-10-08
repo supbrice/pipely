@@ -1936,6 +1936,19 @@ window.addEventListener("message", (e) => {
   }
   // Live side: accept a list only from the local preview tab that opened this one.
   if (data.type === "pipely-sync" && LOCAL_ORIGIN_RE.test(e.origin) && window.opener && e.source === window.opener && Array.isArray(data.apps)) {
+    if (data.autoReplace === true) {
+      const prepared = prepareImport(data.apps);
+      if (!prepared.unique.length) {
+        alert("No usable applications from local Pipely. Nothing was changed.");
+        return;
+      }
+      const previous = apps.slice();
+      apps = prepared.unique.slice();
+      if (!save()) { apps = previous; return; }
+      render();
+      offerUndo("Replaced " + previous.length + " applications with " + apps.length + " from local Pipely.", previous);
+      return;
+    }
     showImportPreview(data.apps, "from your local Pipely (" + e.origin + ")");
   }
 });
