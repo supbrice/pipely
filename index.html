@@ -4,6 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Pipely</title>
+<link rel="icon" type="image/svg+xml" href="assets/pipely-logo.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
+<meta name="theme-color" content="#1A5BF0">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap');
 :root{--bg:#F4F6FA;--panel:#fff;--ink:#172033;--muted:#7B8497;--line:#E8EBF2;--blue:#4778F5;--blue-soft:#edf2ff;--green:#159B72;--green-soft:#e8f8f1;--amber:#F0B44D;--amber-soft:#fff4df;--red:#D95E66;--red-soft:#fff0f0;--purple:#9274E8;--purple-soft:#f2edff;--shadow:0 8px 28px rgba(24,39,75,.045)}
@@ -16,6 +20,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 .sidebar{background:#fff;border-right:1px solid var(--line);padding:26px 16px;display:flex;flex-direction:column;gap:30px}
 .brand{display:flex;align-items:center;gap:11px;padding:0 10px;font-family:Manrope,sans-serif;font-size:16px;font-weight:800;letter-spacing:-.4px}
 .brand-mark{width:34px;height:34px;border-radius:11px;background:linear-gradient(145deg,#5687ff,#355de2);display:grid;place-items:center;color:#fff;font-weight:800;box-shadow:0 5px 12px #4778f533;flex:none}
+.brand-logo{display:block;background:none;border-radius:9px;box-shadow:0 4px 12px #1f4fd826,0 0 0 1px #e3e8f2}
 .private{font-size:9px;color:#9ba4b5;font-weight:600;margin-left:auto;letter-spacing:.04em}
 .nav-label{font-size:10px;text-transform:uppercase;letter-spacing:1.2px;color:#a0a7b7;font-weight:700;padding:0 12px;margin-bottom:9px}
 .nav{display:grid;gap:5px}
@@ -274,7 +279,7 @@ textarea{min-height:88px;resize:vertical}
 <body>
 <div class="app">
 <aside class="sidebar">
-  <div class="brand"><div class="brand-mark">P</div> Pipely <span class="private">PRIVATE</span></div>
+  <div class="brand"><img class="brand-mark brand-logo" src="assets/pipely-logo.svg" alt="Pipely logo" width="34" height="34"> Pipely <span class="private">PRIVATE</span></div>
   <div>
     <div class="nav-label">Workspace</div>
     <nav class="nav" aria-label="Workspace">
