@@ -692,6 +692,7 @@ const LIVE_ORIGIN = "https://supbrice.github.io";
 const LIVE_URL = "https://supbrice.github.io/pipely/";
 const LOCAL_ORIGIN_RE = /^http:\/\/(127\.0\.0\.1|localhost)(:\d+)?$/;
 const SYNC_KEY = "brice-job-apps-sync";
+const RETIRED_GIST_ID = "7532d2540c1f892127b57bd7aa17e93e";
 const DEFAULT_GIST_ID = "";
 const GIST_FILENAME = "pipely-apps.json";
 let storageOk = true;
@@ -2605,7 +2606,7 @@ if (!storageOk) document.getElementById("storageWarn").hidden = false;
 // Seed default Gist ID into localStorage once (token never auto-seeded).
 try {
   if (!localStorage.getItem(SYNC_KEY)) {
-    setSyncConfig({ gistId: DEFAULT_GIST_ID, token: "", autoPull: true, autoPush: false });
+    setSyncConfig({ gistId: "", token: "", autoPull: false, autoPush: false });
   }
 } catch (err) { /* ignore */ }
 updatePrivacyBlurb();
@@ -2625,6 +2626,12 @@ render();
 
 (async function bootCloudSync() {
   const cfg = getSyncConfig();
+  if (cfg.gistId === RETIRED_GIST_ID) {
+    setSyncConfig({ gistId: "", token: cfg.token || "", autoPull: false, autoPush: false });
+    updatePrivacyBlurb();
+    setSyncStatus("Cloud sync off. Your list stays in this browser.");
+    return;
+  }
   if (!cfg.gistId || cfg.autoPull === false) return;
   await pullFromCloud({ silent: true });
 })();
