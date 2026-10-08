@@ -1,0 +1,1489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pipely</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap');
+:root{--bg:#F4F6FA;--panel:#fff;--ink:#172033;--muted:#7B8497;--line:#E8EBF2;--blue:#4778F5;--blue-soft:#edf2ff;--green:#159B72;--green-soft:#e8f8f1;--amber:#F0B44D;--amber-soft:#fff4df;--red:#D95E66;--red-soft:#fff0f0;--purple:#9274E8;--purple-soft:#f2edff;--shadow:0 8px 28px rgba(24,39,75,.045)}
+*{box-sizing:border-box}
+[hidden]{display:none !important}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;font-size:14px;line-height:1.4}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.app{display:grid;grid-template-columns:226px minmax(0,1fr);min-height:100vh}
+.sidebar{background:#fff;border-right:1px solid var(--line);padding:26px 16px;display:flex;flex-direction:column;gap:30px}
+.brand{display:flex;align-items:center;gap:11px;padding:0 10px;font-family:Manrope,sans-serif;font-size:16px;font-weight:800;letter-spacing:-.4px}
+.brand-mark{width:34px;height:34px;border-radius:11px;background:linear-gradient(145deg,#5687ff,#355de2);display:grid;place-items:center;color:#fff;font-weight:800;box-shadow:0 5px 12px #4778f533;flex:none}
+.private{font-size:9px;color:#9ba4b5;font-weight:600;margin-left:auto;letter-spacing:.04em}
+.nav-label{font-size:10px;text-transform:uppercase;letter-spacing:1.2px;color:#a0a7b7;font-weight:700;padding:0 12px;margin-bottom:9px}
+.nav{display:grid;gap:5px}
+.nav button{width:100%;text-align:left;color:#778095;background:none;border:0;padding:11px 12px;border-radius:10px;display:flex;align-items:center;gap:12px;font-weight:600;cursor:pointer;min-height:0}
+.nav button.active{background:var(--blue-soft);color:var(--blue)}
+.ico{width:18px;text-align:center;font-size:16px}
+.nav-badge{margin-left:auto;background:#fff0f0;color:#d95e66;border-radius:7px;padding:3px 7px;font-size:10px;font-weight:700}
+.side-bottom{margin-top:auto}
+.privacy{background:#f7f8fc;border:1px solid var(--line);border-radius:13px;padding:14px;color:var(--muted);font-size:12px;line-height:1.5}
+.privacy strong{display:block;color:#39445a;margin-bottom:4px}
+.side-note{padding:18px 10px 0;color:#a0a7b5;font-size:10px;letter-spacing:.04em}
+.main{padding:28px 32px 38px;max-width:1600px;width:100%;margin:auto;min-width:0}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:28px}
+.eyebrow{font-size:11px;color:var(--muted);margin-bottom:5px;letter-spacing:.04em}
+.page-title{font-family:Manrope,sans-serif;font-size:27px;letter-spacing:-1px;margin:0;font-weight:800}
+.spark{font-size:23px;margin-left:4px}
+.subtitle{color:var(--muted);margin-top:6px;font-size:13px}
+.actions{display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+.btn{border:1px solid var(--line);background:#fff;color:#49536a;border-radius:10px;padding:10px 14px;font:600 12px 'DM Sans',sans-serif;box-shadow:0 2px 4px #18274b05;cursor:pointer}
+.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff;box-shadow:0 5px 12px #4778f52e}
+.btn .plus{font-size:16px;margin-right:5px}
+.cards{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px;margin-bottom:20px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:18px;box-shadow:var(--shadow);min-width:0}
+.stat-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.stat-label{color:var(--muted);font-size:12px;font-weight:600}
+.stat-icon{width:32px;height:32px;border-radius:10px;display:grid;place-items:center;font-size:15px}
+.si-blue{background:var(--blue-soft);color:var(--blue)}
+.si-green{background:var(--green-soft);color:var(--green)}
+.si-amber{background:var(--amber-soft);color:#c8861a}
+.si-purple{background:var(--purple-soft);color:#7055cc}
+.si-red{background:var(--red-soft);color:var(--red)}
+.stat-number{font:800 28px Manrope,sans-serif;letter-spacing:-1px}
+.stat-foot{font-size:11px;color:var(--muted);margin-top:5px}
+.up{color:var(--green);font-weight:700}
+.grid{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(270px,1fr);gap:18px;margin-bottom:18px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:21px;box-shadow:var(--shadow);min-width:0}
+.panel-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:18px}
+.panel-title{font:700 15px Manrope,sans-serif;letter-spacing:-.25px}
+.panel-sub{font-size:11px;color:var(--muted);margin-top:5px}
+.period{font-size:11px;color:#677187;background:#f7f8fb;border:1px solid var(--line);padding:7px 9px;border-radius:8px;white-space:nowrap}
+.chart{min-height:206px;display:grid;grid-template-columns:28px 1fr;gap:9px}
+.yaxis{display:flex;flex-direction:column;justify-content:space-between;color:#a2a9b7;font-size:10px;padding:1px 0 23px;text-align:right}
+.bars-area{display:flex;flex-direction:column;min-width:0}
+.bars{height:180px;display:flex;align-items:flex-end;justify-content:space-around;gap:8px;border-bottom:1px solid var(--line);background:repeating-linear-gradient(to bottom,transparent 0,transparent 43px,#edf0f5 44px,#edf0f5 45px);padding:0 6px}
+.bar-group{height:100%;display:flex;align-items:flex-end;gap:3px;width:100%;justify-content:center}
+.bar{width:min(14px,18%);border-radius:5px 5px 2px 2px;min-height:4px}
+.bar:hover{opacity:.72}
+.xlabels{display:flex;justify-content:space-around;color:#9aa2b2;font-size:10px;padding-top:9px}
+.legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:18px;color:#727c90;font-size:11px}
+.dot{display:inline-block;width:7px;height:7px;border-radius:3px;margin-right:5px}
+.funnel{display:grid;gap:13px}
+.funnel-row{display:grid;grid-template-columns:78px 1fr 28px;gap:10px;align-items:center;font-size:11px;color:#717b90}
+.track{height:8px;border-radius:20px;background:#f0f2f7;overflow:hidden}
+.fill{height:100%;border-radius:20px}
+.funnel-num{text-align:right;font-weight:700;color:#39445a}
+.funnel-note{margin-top:19px;border-radius:11px;background:#f5f7ff;padding:12px;color:#687593;font-size:11px;line-height:1.5}
+.funnel-note strong{color:#52658e}
+.lower{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1.55fr);gap:18px}
+.source-wrap{display:flex;align-items:center;gap:24px;padding:7px 0 3px;min-width:0}
+.donut{width:140px;height:140px;flex:0 0 140px;border-radius:50%;display:grid;place-items:center;position:relative;background:#e8ebf2}
+.donut:after{content:"";position:absolute;width:91px;height:91px;background:#fff;border-radius:50%}
+.donut-center{z-index:1;text-align:center}
+.donut-center strong{display:block;font:800 25px Manrope,sans-serif}
+.donut-center span{font-size:10px;color:var(--muted)}
+.source-list{display:grid;gap:12px;flex:1;min-width:0}
+.source-item{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:11px;color:#6e788d}
+.source-name{display:flex;align-items:center;gap:8px}
+.source-item strong{color:#39445a}
+.activity{display:grid;grid-template-columns:repeat(12,1fr);gap:8px;align-items:end;height:112px;padding:6px 0 0}
+.month{display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:7px;height:100%;min-width:0}
+.pill{width:100%;max-width:25px;border-radius:8px 8px 4px 4px;background:linear-gradient(180deg,#7da0ff,#4778f5);box-shadow:0 4px 10px #4778f51b;min-height:6px}
+.month span{font-size:10px;color:#929bad}
+.activity-foot{display:flex;justify-content:space-between;align-items:center;margin-top:13px;color:#98a0af;font-size:10px}
+.scale{display:flex;align-items:center;gap:4px}
+.scale i{display:block;width:10px;height:7px;border-radius:3px;background:#e4eaf8}
+.scale i:nth-child(3){background:#a8bffc}
+.scale i:nth-child(4){background:#7398f9}
+.scale i:nth-child(5){background:#4778f5}
+.recent{margin-top:18px}
+.table-scroll{overflow-x:auto}
+.table{width:100%;border-collapse:collapse}
+.table th{text-align:left;text-transform:uppercase;letter-spacing:.7px;color:#a0a7b5;font-size:9px;padding:0 10px 12px;font-weight:700}
+.table td{padding:13px 10px;border-top:1px solid #f0f2f6;font-size:11px;color:#657087;white-space:nowrap}
+.table td.company{display:flex;align-items:center;gap:10px;color:#263147;font-weight:700}
+.logo{width:31px;height:31px;border-radius:9px;display:grid;place-items:center;font-weight:800;font-size:11px;flex:none}
+.l1{background:#e9efff;color:#4269d6}.l2{background:#e6f8f0;color:#159b72}.l3{background:#fff0df;color:#c27b20}.l4{background:#f0eaff;color:#7b5bd1}
+.table .role{display:block;font-weight:400;color:#99a1b0;margin-top:3px;font-size:10px}
+.status{display:inline-flex;align-items:center;gap:5px;border-radius:7px;padding:6px 8px;font-size:10px;font-weight:700}
+.s-interview{color:#7055cc;background:#f1edff}.s-applied{color:#4778f5;background:#edf2ff}.s-screen{color:#b47a1a;background:#fff4df}.s-offer{color:#159b72;background:#e8f8f1}.s-rejected{color:#cc5c64;background:#fff0f0}
+.days{color:#929bad;font-size:10px}
+.due-over{color:var(--red);font-weight:700}.due-soon{color:#7055cc;font-weight:700}
+.warn{margin-bottom:16px;padding:12px 16px;border-radius:12px;background:var(--red-soft);color:var(--red);font-size:13px;font-weight:500}
+.undo{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px;padding:10px 12px 10px 16px;background:#fff;border:1px solid var(--line);border-radius:12px}
+.board-note{color:var(--muted);font-size:13px;margin:0 0 14px}
+.board{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.closed-wrap{margin-top:22px}
+.closed-wrap h3{margin:0 0 8px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.closed-lane{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.kcol{background:#f7f8fc;border:1px solid var(--line);border-radius:16px;padding:12px;min-height:180px;display:flex;flex-direction:column;gap:8px}
+.kcol.over{border-color:var(--blue);background:#f5f7ff}
+.khead{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:2px 4px 6px}
+.kname{display:inline-flex;align-items:center;gap:8px}
+.khead strong{font-size:13px;font-weight:700}
+.kdot{width:8px;height:8px;border-radius:99px}
+.kdot.Applied{background:var(--blue)}.kdot.Screening{background:var(--amber)}.kdot.Interview{background:var(--purple)}.kdot.Offer{background:var(--green)}.kdot.Rejected,.kdot.Withdrawn{background:#c5cedd}
+.kcount{min-width:24px;height:24px;padding:0 8px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--muted);background:#fff;border:1px solid var(--line);border-radius:999px}
+.kcards{display:flex;flex-direction:column;gap:8px;flex:1;min-height:72px}
+.placeholder{flex:1;min-height:88px;border:1px dashed var(--line);border-radius:12px;display:grid;place-items:center;align-content:center;gap:2px;text-align:center;color:var(--muted);padding:16px;font-size:12px}
+.placeholder strong{font-size:13px;color:var(--ink)}
+.kcard{background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);padding:12px;cursor:grab}
+.kcard-top{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+.kcard .company,.row .company{font-weight:700;color:var(--ink);font-size:14px}
+.role{color:var(--muted);font-size:13px;margin-top:2px}
+.kmeta{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px;color:var(--muted);font-size:12px;font-weight:500}
+.flags,.when{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.flags{margin-top:8px}
+.chip{display:inline-flex;align-items:center;min-height:22px;padding:2px 8px;border-radius:999px;background:#f7f8fb;border:1px solid var(--line);color:var(--muted);font-size:11px;font-weight:600}
+.chip.overdue{background:var(--red-soft);color:var(--red);border-color:transparent}
+.chip.soon{background:var(--amber-soft);color:#9a6700;border-color:transparent}
+.row.overdue,.kcard.overdue{border-color:#f0c2c6;background:#fffafa}
+.row.soon,.kcard.soon{border-color:#f3e0b8}
+.sample{margin-left:6px;background:var(--amber-soft);color:#9a6700;border-radius:999px;padding:2px 6px;font-size:10px;font-weight:700}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.toolbar input,.toolbar select{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px;min-height:40px}
+#search{flex:1;min-width:180px}
+.list{display:flex;flex-direction:column;gap:8px}
+.row{background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:14px 16px;display:grid;grid-template-columns:minmax(0,1.6fr) auto auto auto auto;gap:12px 16px;align-items:center}
+.badge{display:inline-flex;align-items:center;border-radius:7px;padding:6px 8px;font-size:11px;font-weight:700}
+.badge.Applied{color:#4778f5;background:#edf2ff}
+.badge.Screening{color:#b47a1a;background:#fff4df}
+.badge.Interview{color:#7055cc;background:#f1edff}
+.badge.Offer{color:#159b72;background:#e8f8f1}
+.badge.Rejected,.badge.Withdrawn{color:#cc5c64;background:#fff0f0}
+.row-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.row-actions button,.dialog-actions button,select.move{border:1px solid var(--line);background:#fff;border-radius:10px;padding:8px 12px;font:600 12px 'DM Sans',sans-serif;cursor:pointer;color:#49536a}
+button.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+button.danger{color:var(--red)}
+a.link{color:var(--blue);font-weight:600;font-size:12px;text-decoration:none}
+.notes{grid-column:1 / -1;margin:0;color:var(--muted);font-size:12px}
+.empty{text-align:center;color:var(--muted);padding:28px 16px}
+.empty-title{margin:0 0 4px;color:var(--ink);font-weight:700}
+select.move{width:100%;margin-top:10px;background:#f7f8fb}
+dialog{border:0;border-radius:16px;padding:0;width:min(560px,calc(100vw - 32px));box-shadow:0 24px 80px rgba(24,39,75,.18);color:var(--ink)}
+dialog::backdrop{background:rgba(23,32,51,.45)}
+form,.import-box,.prefs-box{padding:22px;display:grid;gap:14px}
+form h2,.import-box h2,.prefs-box h2{margin:0;font-family:Manrope,sans-serif;font-size:20px;letter-spacing:-.4px}
+label{display:grid;gap:6px;font-size:12px;font-weight:600;color:var(--muted)}
+label input,label select,label textarea{width:100%;background:#f7f8fb;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+textarea{min-height:88px;resize:vertical}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.dialog-actions{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+.tip{position:fixed;z-index:40;pointer-events:none;white-space:pre-line;background:var(--ink);color:#fff;font-size:12px;font-weight:500;line-height:1.35;padding:6px 8px;border-radius:8px;max-width:240px}
+.mobile-nav{display:none}
+.company,.role,.notes{overflow-wrap:anywhere}
+@media (prefers-reduced-motion:reduce){
+  .bar,.pill,.kcard,.row,.btn{transition:none}
+}
+@media(max-width:1100px){
+  .main{padding:24px 20px}
+  .cards{grid-template-columns:repeat(3,1fr)}
+  .grid,.lower,.board,.closed-lane{grid-template-columns:1fr}
+  .source-wrap{justify-content:flex-start}
+  .donut{width:125px;height:125px;flex-basis:125px}
+  .donut:after{width:80px;height:80px}
+}
+@media(max-width:700px){
+  .app{grid-template-columns:1fr}
+  .sidebar{display:none}
+  .main{padding:22px 14px 96px}
+  .topbar{align-items:flex-start;flex-direction:column}
+  .actions{width:100%}
+  .actions .btn{flex:1}
+  .page-title{font-size:24px}
+  .cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .stat{padding:14px}
+  .stat-number{font-size:24px}
+  .panel{padding:16px}
+  .bars{height:150px;gap:4px}
+  .bar{width:7px}
+  .donut{width:108px;height:108px;flex-basis:108px}
+  .donut:after{width:70px;height:70px}
+  .donut-center strong{font-size:21px}
+  .table th:nth-child(3),.table td:nth-child(3),.table th:nth-child(5),.table td:nth-child(5){display:none}
+  .row{grid-template-columns:minmax(0,1fr) auto}
+  .when,.source,.row-actions,.notes{grid-column:1 / -1}
+  .grid-2{grid-template-columns:1fr}
+  .mobile-nav{display:flex;position:fixed;bottom:0;left:0;right:0;background:#ffffffed;backdrop-filter:blur(14px);border-top:1px solid var(--line);justify-content:space-around;padding:10px 5px 12px;z-index:20}
+  .mobile-nav button{font-size:10px;color:#7b8497;background:none;border:0;text-align:center;display:grid;gap:4px;padding:0;cursor:pointer;min-height:0}
+  .mobile-nav button.active{color:var(--blue);font-weight:700}
+  .mobile-nav b{font-size:17px;font-weight:500}
+  .activity{gap:5px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div class="brand"><div class="brand-mark">P</div> Pipely <span class="private">PRIVATE</span></div>
+  <div>
+    <div class="nav-label">Workspace</div>
+    <nav class="nav" aria-label="Workspace">
+      <button type="button" data-view="overview" class="active"><span class="ico">◫</span>Overview</button>
+      <button type="button" data-view="board"><span class="ico">▦</span>Pipeline board</button>
+      <button type="button" data-view="list"><span class="ico">☷</span>All applications</button>
+      <button type="button" data-view="follow"><span class="ico">◷</span>Follow-ups <span class="nav-badge" id="followBadge" hidden>0</span></button>
+    </nav>
+  </div>
+  <div>
+    <div class="nav-label">Manage</div>
+    <nav class="nav" aria-label="Manage">
+      <button type="button" id="exportSide"><span class="ico">↗</span>Export &amp; backup</button>
+      <button type="button" id="prefsBtn"><span class="ico">⚙</span>Preferences</button>
+    </nav>
+  </div>
+  <div class="side-bottom">
+    <div class="privacy"><strong>Your data stays yours</strong>Saved in this browser only. Nothing is sent to the cloud.</div>
+    <div class="side-note">PIPELY · LOCAL FIRST</div>
+  </div>
+</aside>
+<main class="main">
+  <div class="warn" id="storageWarn" hidden role="alert">Saved applications could not be read. Nothing new will be written, and the stored copy was left as-is.</div>
+  <div class="undo" id="undoBar" hidden role="status" aria-live="polite">
+    <span id="undoText"></span>
+    <button type="button" class="btn" id="undoBtn">Undo</button>
+  </div>
+  <header class="topbar">
+    <div>
+      <div class="eyebrow" id="eyebrow">WORKSPACE / OVERVIEW</div>
+      <h1 class="page-title" id="pageTitle">Applications</h1>
+      <div class="subtitle" id="pageSub">A clear view of your search. One step at a time.</div>
+    </div>
+    <div class="actions">
+      <button type="button" class="btn" id="exportBtn">↓ Export</button>
+      <button type="button" class="btn" id="importBtn">＋ Import</button>
+      <input type="file" id="importFile" accept="application/json,.json" hidden>
+      <button type="button" class="btn primary" id="addBtn"><span class="plus">＋</span>Add application</button>
+    </div>
+  </header>
+
+  <section id="view-overview">
+    <section class="cards" id="cards" aria-label="Summary"></section>
+    <section class="grid">
+      <div class="panel">
+        <div class="panel-head"><div><div class="panel-title">Application activity</div><div class="panel-sub">Applications submitted over the last 8 weeks</div></div><span class="period">Last 8 weeks</span></div>
+        <div id="weekly"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><div><div class="panel-title">Pipeline health</div><div class="panel-sub">Where things stand right now</div></div></div>
+        <div class="funnel" id="funnel"></div>
+        <div class="funnel-note"><strong>Small steps add up.</strong><br>Keep your momentum going with a thoughtful follow-up on your active applications.</div>
+      </div>
+    </section>
+    <section class="lower">
+      <div class="panel">
+        <div class="panel-head"><div><div class="panel-title">Where you’re applying</div><div class="panel-sub">Application sources</div></div><span class="period">All time</span></div>
+        <div id="sources"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><div><div class="panel-title">Your consistency</div><div class="panel-sub">A little progress, week after week</div></div><span class="period">12 weeks</span></div>
+        <div id="heatmap"></div>
+        <div class="activity-foot"><span>Quieter</span><div class="scale"><i></i><i></i><i></i><i></i><i></i></div><span>Busier</span></div>
+      </div>
+    </section>
+    <section class="panel recent">
+      <div class="panel-head"><div><div class="panel-title">Recently updated</div><div class="panel-sub">Pick up where you left off</div></div><button type="button" class="btn" id="viewAllBtn">View all applications ↗</button></div>
+      <div id="recent"></div>
+    </section>
+  </section>
+
+  <section id="view-board" hidden>
+    <p class="board-note">Drag a card to change its stage. On a phone, use the Move menu.</p>
+    <div class="board" id="board"></div>
+    <div class="closed-wrap">
+      <h3>Rejected / withdrawn</h3>
+      <div class="closed-lane" id="closed"></div>
+    </div>
+  </section>
+
+  <section id="view-list" hidden>
+    <div class="banner" id="banner" hidden>These include sample applications. Clear samples removes only those built-in examples.</div>
+    <div class="toolbar">
+      <input id="search" type="search" placeholder="Search company or role" aria-label="Search">
+      <select id="filter" aria-label="Filter by status">
+        <option value="all">All statuses</option>
+        <option value="follow">Needs follow-up</option>
+        <option>Applied</option>
+        <option>Screening</option>
+        <option>Interview</option>
+        <option>Offer</option>
+        <option>Rejected</option>
+        <option>Withdrawn</option>
+      </select>
+      <select id="sort" aria-label="Sort">
+        <option value="date-desc">Newest first</option>
+        <option value="date-asc">Oldest first</option>
+        <option value="company">Company A–Z</option>
+        <option value="status">Status</option>
+      </select>
+    </div>
+    <div class="list" id="list"></div>
+    <div class="empty" id="empty" hidden><p class="empty-title">No matches</p><p>Try another status or clear the search.</p></div>
+  </section>
+
+  <section id="view-follow" hidden>
+    <div class="panel">
+      <div class="panel-head"><div><div class="panel-title">Needs a follow-up</div><div class="panel-sub">Overdue, or due within 3 days. Offer, rejected, and withdrawn are not included.</div></div></div>
+      <div class="list" id="followList"></div>
+      <div class="empty" id="followEmpty" hidden><p class="empty-title">No follow-ups due</p><p>Nothing overdue or due in the next 3 days.</p></div>
+    </div>
+  </section>
+</main>
+</div>
+<nav class="mobile-nav" aria-label="Mobile">
+  <button type="button" data-view="overview"><b>◫</b>Overview</button>
+  <button type="button" data-view="board"><b>▦</b>Board</button>
+  <button type="button" data-view="list"><b>☷</b>Applications</button>
+  <button type="button" data-view="follow"><b>◷</b>Follow-ups</button>
+</nav>
+
+<dialog id="dialog" aria-labelledby="formTitle">
+  <form id="form">
+    <h2 id="formTitle">Add application</h2>
+    <input type="hidden" id="editId">
+    <div class="grid-2">
+      <label>Company<input id="company" required maxlength="120" autocomplete="organization"></label>
+      <label>Role / title<input id="role" required maxlength="160"></label>
+    </div>
+    <div class="grid-2">
+      <label>Status
+        <select id="status" required>
+          <option>Applied</option>
+          <option>Screening</option>
+          <option>Interview</option>
+          <option>Offer</option>
+          <option>Rejected</option>
+          <option>Withdrawn</option>
+        </select>
+      </label>
+      <label>Date applied<input id="dateApplied" type="date" required></label>
+    </div>
+    <label>Next follow-up <span>(optional)</span><input id="nextFollowUp" type="date"></label>
+    <div class="grid-2">
+      <label>Source
+        <select id="source" required>
+          <option>Easy Apply</option>
+          <option>LinkedIn</option>
+          <option>Indeed</option>
+          <option>Company site</option>
+          <option>Referral</option>
+          <option>Other</option>
+        </select>
+      </label>
+      <label>Pay <span>(optional)</span><input id="pay" maxlength="80" placeholder="$ / hr or range"></label>
+    </div>
+    <label>Link <span>(optional)</span><input id="link" type="url" placeholder="https://"></label>
+    <label>Notes <span>(optional)</span><textarea id="notes" rows="3" maxlength="1000"></textarea></label>
+    <div class="dialog-actions">
+      <button type="button" class="btn" id="cancelBtn">Cancel</button>
+      <button type="submit" class="btn primary">Save</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="importDialog" aria-labelledby="importTitle">
+  <div class="import-box">
+    <h2 id="importTitle">Import applications</h2>
+    <p id="importSummary" class="subtitle"></p>
+    <div class="dialog-actions">
+      <button type="button" class="btn" id="importCancel">Cancel</button>
+      <button type="button" class="btn" id="importMerge">Merge</button>
+      <button type="button" class="btn primary" id="importReplace">Replace</button>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="prefsDialog" aria-labelledby="prefsTitle">
+  <div class="prefs-box">
+    <h2 id="prefsTitle">Preferences</h2>
+    <p class="subtitle">Applications stay in this browser under brice-job-apps-v1. Export a JSON backup before you replace the list.</p>
+    <button type="button" class="btn" id="clearSamples" hidden>Clear samples</button>
+    <div class="dialog-actions">
+      <button type="button" class="btn" id="prefsClose">Close</button>
+    </div>
+  </div>
+</dialog>
+<script>
+const KEY = "brice-job-apps-v1";
+const VIEW_KEY = "brice-job-apps-view";
+const STATUSES = ["Applied", "Screening", "Interview", "Offer", "Rejected", "Withdrawn"];
+const PIPE = ["Applied", "Screening", "Interview", "Offer"];
+const CLOSED = ["Rejected", "Withdrawn"];
+const SOURCES = ["Easy Apply", "LinkedIn", "Indeed", "Company site", "Referral", "Other"];
+const CHART_SOURCES = ["Easy Apply", "LinkedIn", "Indeed", "Company site", "Other"];
+const STATUS_RANK = Object.fromEntries(STATUSES.map((s, i) => [s, i]));
+const SVGNS = "http://www.w3.org/2000/svg";
+const SOURCE_COLOR = {
+  "Easy Apply": "var(--src-easy)",
+  LinkedIn: "var(--src-li)",
+  Indeed: "var(--src-indeed)",
+  "Company site": "var(--src-co)",
+  Referral: "var(--src-re)",
+  Other: "var(--src-ot)"
+};
+const SOURCE_SWATCH = {
+  "Easy Apply": "swatch-easy",
+  LinkedIn: "swatch-li",
+  Indeed: "swatch-indeed",
+  "Company site": "swatch-co",
+  Referral: "swatch-re",
+  Other: "swatch-ot"
+};
+
+function sourceBucket(raw) {
+  const s = String(raw || "").trim().toLowerCase().replace(/[_-]+/g, " ");
+  if (s.includes("easy apply") || s.includes("easyapply")) return "Easy Apply";
+  if (s.includes("indeed")) return "Indeed";
+  if (s.includes("company site") || s.includes("company website") || s.includes("company page")) return "Company site";
+  if (s.includes("linkedin")) return "LinkedIn";
+  return "Other";
+}
+
+const SAMPLES = [
+  {
+    id: "sample-offer",
+    company: "Brightline Services",
+    role: "Customer Support Associate",
+    status: "Offer",
+    dateApplied: "2026-09-15",
+    source: "Company site",
+    pay: "",
+    link: "",
+    notes: "Sample. Offer received.",
+    isSample: true
+  },
+  {
+    id: "sample-helpdesk",
+    company: "Lakeside Health",
+    role: "IT Help Desk Technician",
+    status: "Interview",
+    dateApplied: "2026-09-29",
+    source: "LinkedIn",
+    pay: "",
+    link: "",
+    notes: "Sample. Recruiter screen done.",
+    nextFollowUp: "2026-10-06",
+    isSample: true
+  },
+  {
+    id: "sample-desktop",
+    company: "Northwind Credit Union",
+    role: "Desktop Support Analyst",
+    status: "Applied",
+    dateApplied: "2026-10-02",
+    source: "Company site",
+    pay: "",
+    link: "",
+    notes: "Sample.",
+    isSample: true
+  },
+  {
+    id: "sample-sysadmin",
+    company: "Harbor Municipal IT",
+    role: "Junior Systems Administrator",
+    status: "Screening",
+    dateApplied: "2026-09-22",
+    source: "Referral",
+    pay: "",
+    link: "",
+    notes: "Sample. Resume with the hiring manager.",
+    nextFollowUp: "2026-10-10",
+    isSample: true
+  },
+  {
+    id: "sample-servicedesk",
+    company: "Fieldstone Logistics",
+    role: "Service Desk Analyst",
+    status: "Applied",
+    dateApplied: "2026-10-06",
+    source: "LinkedIn",
+    pay: "",
+    link: "",
+    notes: "Sample.",
+    isSample: true
+  },
+  {
+    id: "sample-rejected",
+    company: "Apex Software",
+    role: "IT Support Specialist",
+    status: "Rejected",
+    dateApplied: "2026-08-18",
+    source: "LinkedIn",
+    pay: "",
+    link: "",
+    notes: "Sample. Closed after resume review.",
+    isSample: true
+  }
+];
+
+const SAMPLE_IDS = new Set(SAMPLES.map(s => s.id));
+let storageOk = true;
+let undoDelete = null;
+let apps = load();
+let pendingImport = null;
+let dragId = null;
+
+function isRealISO(value) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value || "")) return false;
+  const parts = value.split("-").map(Number);
+  const dt = new Date(parts[0], parts[1] - 1, parts[2]);
+  return dt.getFullYear() === parts[0] && dt.getMonth() === parts[1] - 1 && dt.getDate() === parts[2];
+}
+
+function cleanFollowUp(value) {
+  return isRealISO(value) ? value : null;
+}
+
+function safeHref(raw) {
+  const value = String(raw || "").trim();
+  if (!/^https?:\/\//i.test(value)) return "";
+  try {
+    const url = new URL(value);
+    if (url.protocol === "http:" || url.protocol === "https:") return url.href;
+  } catch (err) { /* ignore */ }
+  return "";
+}
+
+function normalizeStored(app) {
+  const id = typeof app.id === "string" && app.id ? app.id : uid();
+  return Object.assign({}, app, {
+    id,
+    nextFollowUp: cleanFollowUp(app.nextFollowUp),
+    isSample: SAMPLE_IDS.has(id) && app.isSample !== false
+  });
+}
+
+function load() {
+  const raw = localStorage.getItem(KEY);
+  if (raw === null) {
+    const seed = SAMPLES.map(a => normalizeStored(a));
+    localStorage.setItem(KEY, JSON.stringify(seed));
+    return seed;
+  }
+  let data;
+  try {
+    data = JSON.parse(raw);
+  } catch (err) {
+    storageOk = false;
+    return [];
+  }
+  if (!Array.isArray(data)) {
+    storageOk = false;
+    return [];
+  }
+  const list = [];
+  let changed = false;
+  for (const item of data) {
+    if (!item || typeof item !== "object" || Array.isArray(item)) {
+      storageOk = false;
+      return [];
+    }
+    const next = normalizeStored(item);
+    if (JSON.stringify(next) !== JSON.stringify(item)) changed = true;
+    list.push(next);
+  }
+  if (changed) {
+    try { localStorage.setItem(KEY, JSON.stringify(list)); }
+    catch (err) { storageOk = false; }
+  }
+  return list;
+}
+
+function save() {
+  if (!storageOk) {
+    alert("Changes were not saved. The stored list could not be read, and it was left untouched.");
+    return false;
+  }
+  try {
+    localStorage.setItem(KEY, JSON.stringify(apps));
+    return true;
+  } catch (err) {
+    alert("Could not write to this browser. Your latest change is only on screen until storage works again.");
+    return false;
+  }
+}
+
+function uid() {
+  return (crypto.randomUUID && crypto.randomUUID()) || ("id-" + Date.now() + "-" + Math.random().toString(16).slice(2));
+}
+
+function el(tag, attrs, children) {
+  const node = document.createElement(tag);
+  if (attrs) {
+    for (const [k, v] of Object.entries(attrs)) {
+      if (k === "class") node.className = v;
+      else if (k === "text") node.textContent = v;
+      else if (k.startsWith("on") && typeof v === "function") node.addEventListener(k.slice(2), v);
+      else if (v !== null && v !== undefined) node.setAttribute(k, v);
+    }
+  }
+  (children || []).forEach(child => {
+    if (child) node.append(child);
+  });
+  return node;
+}
+
+function svgEl(tag, attrs) {
+  const node = document.createElementNS(SVGNS, tag);
+  for (const [k, v] of Object.entries(attrs || {})) node.setAttribute(k, String(v));
+  return node;
+}
+
+function iso(d) {
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return d.getFullYear() + "-" + m + "-" + day;
+}
+
+function parseISO(value) {
+  const parts = String(value || "").split("-").map(Number);
+  if (parts.length !== 3 || parts.some(n => !n && n !== 0)) return null;
+  const d = new Date(parts[0], parts[1] - 1, parts[2]);
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+
+function addDays(date, n) {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate() + n);
+}
+
+function startOfWeek(date) {
+  const x = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  x.setDate(x.getDate() - x.getDay());
+  return x;
+}
+
+function formatDate(value) {
+  const d = parseISO(value);
+  if (!d) return value || "—";
+  return d.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+}
+
+function weekStarts() {
+  const first = addDays(startOfWeek(new Date()), -7 * 11);
+  return Array.from({ length: 12 }, (_, i) => addDays(first, i * 7));
+}
+
+function counts() {
+  const c = { Applied: 0, Interviewing: 0, Offer: 0, Closed: 0, Total: apps.length };
+  for (const a of apps) {
+    if (a.status === "Applied") c.Applied++;
+    else if (a.status === "Screening" || a.status === "Interview") c.Interviewing++;
+    else if (a.status === "Offer") c.Offer++;
+    else if (a.status === "Rejected" || a.status === "Withdrawn") c.Closed++;
+  }
+  return c;
+}
+
+function statusCount(status) {
+  return apps.filter(a => a.status === status).length;
+}
+
+
+function followState(app) {
+  if (!app || !["Applied", "Screening", "Interview"].includes(app.status)) return null;
+  const due = cleanFollowUp(app.nextFollowUp);
+  if (!due) return null;
+  const today = todayISO();
+  if (due < today) return "overdue";
+  if (due <= iso(addDays(new Date(), 3))) return "soon";
+  return null;
+}
+
+function needsFollowUp(app) {
+  return !!followState(app);
+}
+
+function daysSince(app) {
+  const applied = parseISO(app && app.dateApplied);
+  if (!applied) return "";
+  const now = new Date();
+  const start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const diff = Math.round((start - applied) / 86400000);
+  return Math.max(0, diff) + "d";
+}
+
+function greeting() {
+  const h = new Date().getHours();
+  const part = h < 12 ? "morning" : h < 17 ? "afternoon" : "evening";
+  return "Good " + part + ", Brice";
+}
+
+const FLOW_COLORS = {
+  "Easy Apply": "#F0B44D",
+  LinkedIn: "#4778F5",
+  Indeed: "#159B72",
+  "Company site": "#9274E8",
+  Other: "#DCE2ED"
+};
+const FLOW_ORDER = ["LinkedIn", "Company site", "Indeed", "Easy Apply", "Other"];
+
+function renderCards() {
+  const inProgress = apps.filter(a => a.status === "Screening" || a.status === "Interview").length;
+  const interviews = apps.filter(a => a.status === "Interview").length;
+  const offers = apps.filter(a => a.status === "Offer").length;
+  const followApps = apps.filter(needsFollowUp);
+  const overdue = followApps.filter(a => followState(a) === "overdue").length;
+  const soon = followApps.length - overdue;
+  const month = todayISO().slice(0, 7);
+  const added = apps.filter(a => String(a.dateApplied || "").startsWith(month)).length;
+  const totalFoot = el("div", { class: "stat-foot" });
+  if (added) {
+    totalFoot.append(el("span", { class: "up", text: "↑ " + added }));
+    totalFoot.append(document.createTextNode(" added this month"));
+  } else {
+    totalFoot.textContent = "None added this month";
+  }
+  const followFoot = el("div", { class: "stat-foot", text: overdue + " overdue · " + soon + " coming up" });
+  if (overdue) followFoot.style.color = "var(--red)";
+  const specs = [
+    ["Total applications", apps.length, totalFoot, "▤", "si-blue"],
+    ["In progress", inProgress, "Screening or interview stage", "◷", "si-purple"],
+    ["Interviews", interviews, "Conversations in motion", "✦", "si-amber"],
+    ["Offers", offers, "A good step forward", "✓", "si-green"],
+    ["Follow-ups due", followApps.length, followFoot, "⌁", "si-red"]
+  ];
+  document.getElementById("cards").replaceChildren(...specs.map(([label, n, foot, icon, cls]) => el("article", { class: "stat" }, [
+    el("div", { class: "stat-top" }, [
+      el("span", { class: "stat-label", text: label }),
+      el("span", { class: "stat-icon " + cls, text: icon })
+    ]),
+    el("div", { class: "stat-number", text: String(n) }),
+    typeof foot === "string" ? el("div", { class: "stat-foot", text: foot }) : foot
+  ])));
+  const badge = document.getElementById("followBadge");
+  if (badge) {
+    badge.textContent = String(followApps.length);
+    badge.hidden = followApps.length === 0;
+  }
+}
+function roundedTop(x, y, w, h, r) {
+  const rad = Math.min(r, w / 2, h / 2);
+  return "M " + x + " " + (y + h) +
+    " L " + x + " " + (y + rad) +
+    " Q " + x + " " + y + " " + (x + rad) + " " + y +
+    " L " + (x + w - rad) + " " + y +
+    " Q " + (x + w) + " " + y + " " + (x + w) + " " + (y + rad) +
+    " L " + (x + w) + " " + (y + h) + " Z";
+}
+
+function showTip(evt, text) {
+  const tip = document.getElementById("tip");
+  tip.textContent = text;
+  tip.hidden = false;
+  moveTip(evt);
+}
+
+function moveTip(evt) {
+  const tip = document.getElementById("tip");
+  const pad = 12;
+  const x = Math.min(evt.clientX + 12, window.innerWidth - tip.offsetWidth - pad);
+  const y = Math.min(evt.clientY + 16, window.innerHeight - tip.offsetHeight - pad);
+  tip.style.left = Math.max(pad, x) + "px";
+  tip.style.top = Math.max(pad, y) + "px";
+}
+
+function hideTip() {
+  document.getElementById("tip").hidden = true;
+}
+
+
+function weekBuckets(count) {
+  const starts = weekStarts().slice(-count);
+  return starts.map(start => {
+    const startISO = iso(start);
+    const endISO = iso(addDays(start, 7));
+    const counts = Object.fromEntries(CHART_SOURCES.map(s => [s, 0]));
+    apps.forEach(a => {
+      if (a.dateApplied >= startISO && a.dateApplied < endISO) counts[sourceBucket(a.source)]++;
+    });
+    const n = CHART_SOURCES.reduce((sum, s) => sum + counts[s], 0);
+    return { start, n, counts };
+  });
+}
+
+function chartTop(peak) {
+  const p = Math.max(1, peak);
+  if (p <= 4) return 4;
+  return Math.ceil(p / 2) * 2;
+}
+
+function renderWeekly() {
+  const buckets = weekBuckets(8);
+  const totals = Object.fromEntries(FLOW_ORDER.map(s => [s, 0]));
+  buckets.forEach(b => FLOW_ORDER.forEach(s => { totals[s] += b.counts[s] || 0; }));
+  const top = chartTop(Math.max(0, ...buckets.map(b => b.n)));
+  const ticks = [4, 3, 2, 1, 0].map(i => Math.round(top * i / 4));
+  const yaxis = el("div", { class: "yaxis" });
+  ticks.forEach(tick => yaxis.append(el("span", { text: String(tick) })));
+  const bars = el("div", { class: "bars" });
+  const labels = el("div", { class: "xlabels" });
+  buckets.forEach(b => {
+    const group = el("div", { class: "bar-group" });
+    const lines = [formatDate(iso(b.start)) + " · " + b.n];
+    FLOW_ORDER.forEach(source => {
+      const n = b.counts[source] || 0;
+      lines.push(source + "  " + n);
+      if (!n) return;
+      const bar = el("div", { class: "bar" });
+      bar.style.height = Math.max(4, (n / top) * 100) + "%";
+      bar.style.background = FLOW_COLORS[source];
+      group.append(bar);
+    });
+    const text = lines.join("\n");
+    group.addEventListener("mouseenter", (e) => showTip(e, text));
+    group.addEventListener("mousemove", moveTip);
+    group.addEventListener("mouseleave", hideTip);
+    bars.append(group);
+    labels.append(el("span", { text: b.start.toLocaleDateString(undefined, { month: "short", day: "numeric" }) }));
+  });
+  const legend = el("div", { class: "legend" });
+  FLOW_ORDER.forEach(source => {
+    const row = el("span");
+    const dot = el("i", { class: "dot" });
+    dot.style.background = FLOW_COLORS[source];
+    row.append(dot, document.createTextNode(source + " "), el("b", { text: String(totals[source]) }));
+    legend.append(row);
+  });
+  const chart = el("div", { class: "chart" }, [
+    yaxis,
+    el("div", { class: "bars-area" }, [bars, labels])
+  ]);
+  document.getElementById("weekly").replaceChildren(chart, legend);
+}
+function renderFunnel() {
+  const stages = [
+    ["Applied", "#4778F5"],
+    ["Screening", "#F0B44D"],
+    ["Interview", "#9274E8"],
+    ["Offer", "#159B72"]
+  ];
+  const nums = stages.map(([status, color]) => ({ status, color, n: statusCount(status) }));
+  const max = Math.max(1, ...nums.map(x => x.n));
+  document.getElementById("funnel").replaceChildren(...nums.map(({ status, color, n }) => {
+    const fill = el("div", { class: "fill" });
+    fill.style.width = (n ? Math.max(n / max * 100, 6) : 0) + "%";
+    fill.style.background = color;
+    return el("div", { class: "funnel-row" }, [
+      el("span", { text: status }),
+      el("div", { class: "track" }, [fill]),
+      el("span", { class: "funnel-num", text: String(n) })
+    ]);
+  }));
+}
+function renderSources() {
+  const countsBy = Object.fromEntries(FLOW_ORDER.map(s => [s, 0]));
+  apps.forEach(a => {
+    const key = sourceBucket(a.source);
+    if (countsBy[key] !== undefined) countsBy[key]++;
+  });
+  const total = FLOW_ORDER.reduce((sum, s) => sum + countsBy[s], 0);
+  const donut = el("div", { class: "donut", role: "img", "aria-label": "Application sources" });
+  if (total) {
+    let cursor = 0;
+    const stops = [];
+    FLOW_ORDER.forEach(source => {
+      const n = countsBy[source];
+      if (!n) return;
+      const start = (cursor / total) * 100;
+      cursor += n;
+      const end = (cursor / total) * 100;
+      stops.push(FLOW_COLORS[source] + " " + start + "% " + end + "%");
+    });
+    donut.style.background = "conic-gradient(" + stops.join(",") + ")";
+  }
+  donut.append(el("div", { class: "donut-center" }, [
+    el("strong", { text: String(total) }),
+    el("span", { text: total === 1 ? "application" : "applications" })
+  ]));
+  const list = el("div", { class: "source-list" });
+  FLOW_ORDER.forEach(source => {
+    const dot = el("i", { class: "dot" });
+    dot.style.background = FLOW_COLORS[source];
+    list.append(el("div", { class: "source-item" }, [
+      el("span", { class: "source-name" }, [dot, document.createTextNode(source)]),
+      el("strong", { text: String(countsBy[source]) })
+    ]));
+  });
+  document.getElementById("sources").replaceChildren(el("div", { class: "source-wrap" }, [donut, list]));
+}
+function heatLevel(n, max) {
+  if (!n) return 0;
+  if (max <= 1) return 3;
+  const t = n / max;
+  if (t > 0.75) return 4;
+  if (t > 0.5) return 3;
+  if (t > 0.25) return 2;
+  return 1;
+}
+
+
+
+function renderHeatmap() {
+  const buckets = weekBuckets(12);
+  const max = Math.max(1, ...buckets.map(b => b.n));
+  const root = el("div", { class: "activity" });
+  buckets.forEach(b => {
+    const pill = el("div", { class: "pill" });
+    pill.style.height = (b.n ? Math.max(14, (b.n / max) * 100) : 8) + "%";
+    if (!b.n) pill.style.opacity = "0.35";
+    const label = formatDate(iso(b.start)) + " · " + b.n + (b.n === 1 ? " application" : " applications");
+    pill.addEventListener("mouseenter", (e) => showTip(e, label));
+    pill.addEventListener("mousemove", moveTip);
+    pill.addEventListener("mouseleave", hideTip);
+    root.append(el("div", { class: "month" }, [
+      pill,
+      el("span", { text: b.start.toLocaleDateString(undefined, { month: "short" }) })
+    ]));
+  });
+  document.getElementById("heatmap").replaceChildren(root);
+}
+
+function logoClass(name) {
+  const code = (name || "?").trim().charCodeAt(0) || 0;
+  return "l" + ((Math.abs(code) % 4) + 1);
+}
+
+function initial(name) {
+  const ch = (name || "?").trim().charAt(0);
+  return ch ? ch.toUpperCase() : "?";
+}
+
+function ageLabel(app) {
+  const raw = daysSince(app);
+  const n = parseInt(raw, 10);
+  if (!raw || Number.isNaN(n)) return "—";
+  return n === 1 ? "1 day" : n + " days";
+}
+
+function statusClass(status) {
+  if (status === "Interview") return "s-interview";
+  if (status === "Screening") return "s-screen";
+  if (status === "Offer") return "s-offer";
+  if (status === "Rejected" || status === "Withdrawn") return "s-rejected";
+  return "s-applied";
+}
+
+function statusLabel(status) {
+  if (status === "Rejected" || status === "Withdrawn") return "Closed";
+  return status || "—";
+}
+
+function recentTable(rows) {
+  const table = el("table", { class: "table" });
+  const hr = el("tr");
+  ["Company / role", "Status", "Applied", "Follow-up", "Age"].forEach(label => hr.append(el("th", { text: label })));
+  const body = el("tbody");
+  rows.forEach(a => {
+    const name = el("span");
+    name.append(document.createTextNode(a.company || "—"));
+    name.append(el("span", { class: "role", text: a.role || "" }));
+    const state = followState(a);
+    let followText = "—";
+    let followClass = "";
+    if (state === "overdue") { followText = "Overdue"; followClass = "due-over"; }
+    else if (state === "soon") { followText = "Due soon"; followClass = "due-soon"; }
+    else if (a.nextFollowUp) { followText = formatDate(a.nextFollowUp); }
+    body.append(el("tr", {}, [
+      el("td", { class: "company" }, [
+        el("span", { class: "logo " + logoClass(a.company), text: initial(a.company) }),
+        name
+      ]),
+      el("td", {}, [el("span", { class: "status " + statusClass(a.status), text: "● " + statusLabel(a.status) })]),
+      el("td", { text: formatDate(a.dateApplied) }),
+      el("td", { class: followClass, text: followText }),
+      el("td", { class: "days", text: ageLabel(a) })
+    ]));
+  });
+  table.append(el("thead", {}, [hr]), body);
+  return table;
+}
+
+function renderRecent() {
+  const rows = apps.slice().sort((a, b) => String(b.dateApplied || "").localeCompare(String(a.dateApplied || ""))).slice(0, 5);
+  const host = document.getElementById("recent");
+  if (!rows.length) {
+    host.replaceChildren(el("div", { class: "empty" }, [
+      el("p", { class: "empty-title", text: "No applications yet" }),
+      el("p", { text: "Add one to see it here." })
+    ]));
+    return;
+  }
+  host.replaceChildren(el("div", { class: "table-scroll" }, [recentTable(rows)]));
+}
+function renderOverview() {
+  renderWeekly();
+  renderFunnel();
+  renderSources();
+  renderHeatmap();
+  renderRecent();
+}
+function column(status) {
+  const items = apps
+    .filter(a => a.status === status)
+    .sort((a, b) => b.dateApplied.localeCompare(a.dateApplied));
+  const cards = el("div", { class: "kcards" });
+  if (!items.length) {
+    cards.append(el("div", { class: "placeholder" }, [
+      el("strong", { text: "Empty" }),
+      el("span", { text: "Drop a card here" })
+    ]));
+  }
+  items.forEach(a => cards.append(kanbanCard(a)));
+  const col = el("section", { class: "kcol", "data-status": status }, [
+    el("div", { class: "khead" }, [
+      el("span", { class: "kname" }, [
+        el("i", { class: "kdot " + status }),
+        el("strong", { text: status })
+      ]),
+      el("span", { class: "kcount", text: String(items.length) })
+    ]),
+    cards
+  ]);
+  col.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    col.classList.add("over");
+  });
+  col.addEventListener("dragleave", (e) => {
+    if (!col.contains(e.relatedTarget)) col.classList.remove("over");
+  });
+  col.addEventListener("drop", (e) => {
+    e.preventDefault();
+    col.classList.remove("over");
+    const id = (e.dataTransfer && e.dataTransfer.getData("text/plain")) || dragId;
+    setStatus(id, status);
+  });
+  return col;
+}
+
+function kanbanCard(a) {
+  const move = el("select", { class: "move", "aria-label": "Move " + a.company });
+  STATUSES.forEach(status => {
+    const opt = el("option", { value: status, text: "Move to " + status });
+    if (status === a.status) opt.selected = true;
+    move.append(opt);
+  });
+  move.addEventListener("change", () => setStatus(a.id, move.value));
+  move.addEventListener("mousedown", (e) => e.stopPropagation());
+  const company = el("div", { class: "company", text: a.company || "—" });
+  if (a.isSample) company.append(el("span", { class: "sample", text: "Sample" }));
+  const state = followState(a);
+  const flags = el("div", { class: "flags" });
+  if (state === "overdue") flags.append(el("span", { class: "chip overdue", text: "Overdue", title: "Follow up " + formatDate(a.nextFollowUp) }));
+  if (state === "soon") flags.append(el("span", { class: "chip soon", text: "Due soon", title: "Follow up " + formatDate(a.nextFollowUp) }));
+  const card = el("article", { class: "kcard" + (state ? " " + state : ""), draggable: "true" }, [
+    el("div", { class: "kcard-top" }, [
+      company,
+      el("span", { class: "chip", text: formatDate(a.dateApplied) })
+    ]),
+    el("div", { class: "role", text: a.role || "" }),
+    el("div", { class: "kmeta" }, [
+      el("span", { text: a.source || "" }),
+      el("span", { class: "chip days", text: daysSince(a), title: "Days since applied" })
+    ]),
+    flags.childNodes.length ? flags : null,
+    move
+  ]);
+  card.addEventListener("dragstart", (e) => {
+    if (e.target.closest("select, button, a")) {
+      e.preventDefault();
+      return;
+    }
+    dragId = a.id;
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/plain", a.id);
+  });
+  card.addEventListener("dragend", () => { dragId = null; });
+  return card;
+}
+function renderBoard() {
+  document.getElementById("board").replaceChildren(...PIPE.map(column));
+  document.getElementById("closed").replaceChildren(...CLOSED.map(column));
+}
+
+function visibleApps() {
+  const q = document.getElementById("search").value.trim().toLowerCase();
+  const filter = document.getElementById("filter").value;
+  const sort = document.getElementById("sort").value;
+  const rows = apps.filter(a => {
+    if (filter === "follow") {
+      if (!needsFollowUp(a)) return false;
+    } else if (filter !== "all" && a.status !== filter) return false;
+    if (!q) return true;
+    return (a.company + " " + a.role).toLowerCase().includes(q);
+  });
+  rows.sort((a, b) => {
+    if (sort === "company") return a.company.localeCompare(b.company) || b.dateApplied.localeCompare(a.dateApplied);
+    if (sort === "status") return (STATUS_RANK[a.status] ?? 99) - (STATUS_RANK[b.status] ?? 99) || b.dateApplied.localeCompare(a.dateApplied);
+    if (sort === "date-asc") return a.dateApplied.localeCompare(b.dateApplied);
+    return b.dateApplied.localeCompare(a.dateApplied);
+  });
+  return rows;
+}
+
+function appCard(a) {
+  const title = el("div", {}, [
+    el("div", { class: "company", text: a.company || "—" }),
+    el("div", { class: "role", text: a.role || "" })
+  ]);
+  if (a.isSample) title.querySelector(".company").append(el("span", { class: "sample", text: "Sample" }));
+  const actions = el("div", { class: "row-actions" });
+  const href = safeHref(a.link);
+  if (href) actions.append(el("a", { class: "link", href: href, target: "_blank", rel: "noopener noreferrer", text: "Link" }));
+  actions.append(el("button", { type: "button", text: "Edit", onclick: () => openForm(a) }));
+  actions.append(el("button", { type: "button", class: "danger", text: "Delete", onclick: () => remove(a) }));
+  const bits = [a.source, a.pay].filter(Boolean).join(" · ");
+  const state = followState(a);
+  const when = el("div", { class: "when" }, [
+    el("span", { class: "chip", text: formatDate(a.dateApplied) }),
+    el("span", { class: "chip days", text: daysSince(a), title: "Days since applied" })
+  ]);
+  if (state === "overdue") when.append(el("span", { class: "chip overdue", text: "Overdue", title: "Follow up " + formatDate(a.nextFollowUp) }));
+  if (state === "soon") when.append(el("span", { class: "chip soon", text: "Due soon", title: "Follow up " + formatDate(a.nextFollowUp) }));
+  const article = el("article", { class: "row" + (state ? " " + state : "") }, [
+    title,
+    el("span", { class: "badge " + (a.status || ""), text: a.status || "—" }),
+    when,
+    el("div", { class: "source", text: bits || "—" }),
+    actions
+  ]);
+  if (a.notes) article.append(el("p", { class: "notes", text: a.notes }));
+  return article;
+}
+
+function renderList() {
+  const rows = visibleApps();
+  const list = document.getElementById("list");
+  const empty = document.getElementById("empty");
+  empty.hidden = rows.length !== 0;
+  list.replaceChildren(...rows.map(appCard));
+}
+
+function renderFollow() {
+  const rows = apps.filter(needsFollowUp).sort((a, b) => String(a.nextFollowUp || "").localeCompare(String(b.nextFollowUp || "")));
+  const host = document.getElementById("followList");
+  const empty = document.getElementById("followEmpty");
+  if (!host || !empty) return;
+  empty.hidden = rows.length !== 0;
+  host.replaceChildren(...rows.map(appCard));
+}
+function syncChrome() {
+  const hasSamples = apps.some(a => a.isSample);
+  document.getElementById("banner").hidden = !hasSamples;
+  document.getElementById("clearSamples").hidden = !hasSamples;
+}
+
+function render() {
+  syncChrome();
+  renderCards();
+  renderOverview();
+  renderBoard();
+  renderList();
+  renderFollow();
+}
+function setStatus(id, status) {
+  const app = apps.find(a => a.id === id);
+  if (!app || !STATUSES.includes(status) || app.status === status) return;
+  const previous = app.status;
+  app.status = status;
+  if (!save()) {
+    app.status = previous;
+    return;
+  }
+  render();
+}
+
+function setView(name) {
+  const allowed = ["overview", "board", "list", "follow"];
+  const view = allowed.includes(name) ? name : "overview";
+  allowed.forEach(id => {
+    const panel = document.getElementById("view-" + id);
+    panel.hidden = id !== view;
+    panel.setAttribute("aria-hidden", id === view ? "false" : "true");
+  });
+  document.querySelectorAll("[data-view]").forEach(btn => {
+    btn.classList.toggle("active", btn.getAttribute("data-view") === view);
+  });
+  const copy = {
+    overview: ["WORKSPACE / OVERVIEW", null, "A clear view of your search. One step at a time."],
+    board: ["WORKSPACE / PIPELINE", "Pipeline", "Drag a card to change its stage. On a phone, use Move."],
+    list: ["WORKSPACE / APPLICATIONS", "All applications", "Search, filter, and sort everything saved in this browser."],
+    follow: ["WORKSPACE / FOLLOW-UPS", "Follow-ups", "Applied, screening, and interview — overdue and the next 3 days."]
+  };
+  document.getElementById("eyebrow").textContent = copy[view][0];
+  const title = document.getElementById("pageTitle");
+  if (view === "overview") {
+    title.textContent = greeting() + " ";
+    title.append(el("span", { class: "spark", text: "✦" }));
+  } else {
+    title.textContent = copy[view][1];
+  }
+  document.getElementById("pageSub").textContent = copy[view][2];
+  try { localStorage.setItem(VIEW_KEY, view); } catch (err) { /* private mode */ }
+}
+function todayISO() {
+  return iso(new Date());
+}
+
+function openForm(app) {
+  document.getElementById("formTitle").textContent = app ? "Edit application" : "Add application";
+  document.getElementById("editId").value = app ? app.id : "";
+  document.getElementById("company").value = app ? app.company : "";
+  document.getElementById("role").value = app ? app.role : "";
+  document.getElementById("status").value = app ? app.status : "Applied";
+  document.getElementById("dateApplied").value = app ? app.dateApplied : todayISO();
+  document.getElementById("nextFollowUp").value = app && app.nextFollowUp ? app.nextFollowUp : "";
+  const wanted = app ? app.source : "LinkedIn";
+  document.getElementById("source").value = SOURCES.includes(wanted) ? wanted : sourceBucket(wanted);
+  document.getElementById("pay").value = app ? (app.pay || "") : "";
+  document.getElementById("link").value = app ? (app.link || "") : "";
+  document.getElementById("notes").value = app ? (app.notes || "") : "";
+  document.getElementById("dialog").showModal();
+  document.getElementById("company").focus();
+}
+
+function remove(app) {
+  if (!storageOk) {
+    alert("Changes were not saved. The stored list could not be read, and it was left untouched.");
+    return;
+  }
+  if (!confirm("Delete " + app.company + " — " + app.role + "?")) return;
+  undoDelete = app;
+  apps = apps.filter(a => a.id !== app.id);
+  if (!save()) {
+    apps.push(app);
+    undoDelete = null;
+    return;
+  }
+  const bar = document.getElementById("undoBar");
+  document.getElementById("undoText").textContent = "Deleted " + app.company + " — " + app.role + ".";
+  bar.hidden = false;
+  render();
+}
+
+function undoRemove() {
+  if (!undoDelete) return;
+  if (apps.some(a => a.id === undoDelete.id)) {
+    undoDelete = null;
+    document.getElementById("undoBar").hidden = true;
+    return;
+  }
+  apps.unshift(undoDelete);
+  if (!save()) {
+    apps = apps.filter(a => a.id !== undoDelete.id);
+    return;
+  }
+  undoDelete = null;
+  document.getElementById("undoBar").hidden = true;
+  render();
+}
+
+document.getElementById("addBtn").addEventListener("click", () => openForm(null));
+document.getElementById("undoBtn").addEventListener("click", undoRemove);
+document.getElementById("cancelBtn").addEventListener("click", () => document.getElementById("dialog").close());
+document.getElementById("search").addEventListener("input", renderList);
+document.getElementById("filter").addEventListener("change", renderList);
+document.getElementById("sort").addEventListener("change", renderList);
+document.querySelectorAll("[data-view]").forEach(btn => {
+  btn.addEventListener("click", () => setView(btn.dataset.view));
+});
+document.getElementById("viewAllBtn").addEventListener("click", () => setView("list"));
+document.getElementById("exportSide").addEventListener("click", () => document.getElementById("exportBtn").click());
+document.getElementById("prefsBtn").addEventListener("click", () => document.getElementById("prefsDialog").showModal());
+document.getElementById("prefsClose").addEventListener("click", () => document.getElementById("prefsDialog").close());
+
+document.getElementById("form").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const id = document.getElementById("editId").value;
+  const existing = apps.find(a => a.id === id);
+  const next = {
+    id: id || uid(),
+    company: document.getElementById("company").value.trim(),
+    role: document.getElementById("role").value.trim(),
+    status: document.getElementById("status").value,
+    dateApplied: document.getElementById("dateApplied").value,
+    nextFollowUp: cleanFollowUp(document.getElementById("nextFollowUp").value),
+    source: document.getElementById("source").value,
+    pay: document.getElementById("pay").value.trim(),
+    link: document.getElementById("link").value.trim(),
+    notes: document.getElementById("notes").value.trim(),
+    isSample: existing ? !!existing.isSample : false
+  };
+  if (!STATUSES.includes(next.status)) return;
+  if (!isRealISO(next.dateApplied)) {
+    alert("Date applied needs a real calendar date.");
+    return;
+  }
+  const linkRaw = document.getElementById("link").value.trim();
+  if (linkRaw && !safeHref(linkRaw)) {
+    alert("Link must start with http:// or https://.");
+    return;
+  }
+  next.link = safeHref(linkRaw);
+  if (!existing) {
+    const key = (next.company + "\n" + next.role).toLowerCase();
+    const dup = apps.some(a => (a.company + "\n" + a.role).toLowerCase() === key);
+    if (dup && !confirm("You already have " + next.company + " — " + next.role + ". Save another copy?")) return;
+  }
+  const saved = existing ? Object.assign({}, existing, next) : next;
+  if (existing) apps = apps.map(a => a.id === id ? saved : a);
+  else apps.unshift(saved);
+  if (!save()) {
+    if (existing) apps = apps.map(a => a.id === id ? existing : a);
+    else apps = apps.filter(a => a.id !== saved.id);
+    return;
+  }
+  document.getElementById("dialog").close();
+  render();
+});
+
+document.getElementById("clearSamples").addEventListener("click", () => {
+  const n = apps.filter(a => a.isSample).length;
+  if (!n) return;
+  if (!confirm("Remove " + n + " sample application" + (n === 1 ? "" : "s") + "? Applications you added stay.")) return;
+  const previous = apps.slice();
+  apps = apps.filter(a => !(a.isSample && SAMPLE_IDS.has(a.id)));
+  if (!save()) {
+    apps = previous;
+    return;
+  }
+  render();
+});
+
+document.getElementById("exportBtn").addEventListener("click", () => {
+  const blob = new Blob([JSON.stringify(apps, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "brice-job-apps.json";
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+document.getElementById("importBtn").addEventListener("click", () => {
+  document.getElementById("importFile").value = "";
+  document.getElementById("importFile").click();
+});
+
+function normalizeImported(item) {
+  if (!item || typeof item !== "object" || Array.isArray(item)) return null;
+  const company = String(item.company || "").trim();
+  const role = String(item.role || "").trim();
+  if (!company || !role) return null;
+  if (!isRealISO(item.dateApplied)) return null;
+  if (!STATUSES.includes(item.status)) return null;
+  const id = typeof item.id === "string" && item.id.trim() ? item.id.trim() : uid();
+  const linkRaw = String(item.link || "").trim();
+  return {
+    id,
+    company,
+    role,
+    status: item.status,
+    dateApplied: item.dateApplied,
+    nextFollowUp: cleanFollowUp(item.nextFollowUp),
+    source: SOURCES.includes(item.source) ? item.source : sourceBucket(item.source),
+    pay: String(item.pay || "").trim(),
+    link: linkRaw ? safeHref(linkRaw) : "",
+    notes: String(item.notes || "").trim(),
+    isSample: SAMPLE_IDS.has(id) && item.isSample !== false
+  };
+}
+
+function prepareImport(list) {
+  const mapped = [];
+  let skipped = 0;
+  list.forEach(item => {
+    const next = normalizeImported(item);
+    if (!next) skipped += 1;
+    else mapped.push(next);
+  });
+  const seen = new Set();
+  const unique = [];
+  let duplicateIds = 0;
+  mapped.forEach(item => {
+    if (seen.has(item.id)) {
+      duplicateIds += 1;
+      return;
+    }
+    seen.add(item.id);
+    unique.push(item);
+  });
+  return { unique, skipped, duplicateIds };
+}
+
+document.getElementById("importFile").addEventListener("change", async (e) => {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+  let parsed;
+  try {
+    parsed = JSON.parse(await file.text());
+  } catch {
+    alert("That file isn’t valid JSON.");
+    return;
+  }
+  const list = Array.isArray(parsed) ? parsed : (parsed && Array.isArray(parsed.apps) ? parsed.apps : null);
+  if (!list) {
+    alert("Expected a JSON array of applications, or an object with an apps array.");
+    return;
+  }
+  const prepared = prepareImport(list);
+  pendingImport = prepared.unique;
+  if (!pendingImport.length) {
+    alert("No usable applications in that file. Each needs a company, a role, a real date applied, and a known status. Nothing was changed.");
+    pendingImport = null;
+    return;
+  }
+  const bits = [
+    pendingImport.length + " application" + (pendingImport.length === 1 ? "" : "s") + " ready."
+  ];
+  if (prepared.skipped) bits.push(prepared.skipped + " skipped.");
+  if (prepared.duplicateIds) bits.push(prepared.duplicateIds + " duplicate id" + (prepared.duplicateIds === 1 ? "" : "s") + " ignored (first one kept).");
+  bits.push("Merge updates matches by id only and adds the rest. Replace overwrites everything in this browser. Export a copy first if you might need it back.");
+  document.getElementById("importSummary").textContent = bits.join(" ");
+  document.getElementById("importDialog").showModal();
+});
+
+document.getElementById("importCancel").addEventListener("click", () => {
+  pendingImport = null;
+  document.getElementById("importDialog").close();
+});
+
+document.getElementById("importMerge").addEventListener("click", () => {
+  if (!pendingImport || !pendingImport.length) return;
+  const previous = apps.slice();
+  const byId = new Map(apps.map(a => [a.id, a]));
+  pendingImport.forEach(item => {
+    const current = byId.get(item.id);
+    byId.set(item.id, current ? Object.assign({}, current, item) : item);
+  });
+  apps = Array.from(byId.values());
+  if (!save()) {
+    apps = previous;
+    return;
+  }
+  pendingImport = null;
+  document.getElementById("importDialog").close();
+  render();
+});
+
+document.getElementById("importReplace").addEventListener("click", () => {
+  if (!pendingImport || !pendingImport.length) return;
+  if (!confirm("Replace all " + apps.length + " saved application" + (apps.length === 1 ? "" : "s") + " with " + pendingImport.length + " from this file? Export first if you might need the current list. This cannot be undone from the page.")) return;
+  const previous = apps.slice();
+  apps = pendingImport.slice();
+  if (!save()) {
+    apps = previous;
+    return;
+  }
+  pendingImport = null;
+  document.getElementById("importDialog").close();
+  render();
+});
+
+let savedView = "overview";
+try { savedView = localStorage.getItem(VIEW_KEY) || "overview"; } catch (err) { /* ignore */ }
+setView(savedView);
+if (!storageOk) document.getElementById("storageWarn").hidden = false;
+render();
+</script>
+<div id="tip" class="tip" hidden></div>
+
+</body>
+</html>
