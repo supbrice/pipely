@@ -27,8 +27,8 @@ Do not commit personal access tokens or application JSON to the public repo. The
 
 ## Features
 
-- Overview cards are clickable: Total, In progress, Interviews, Offers, Follow-ups due, Rejected, and Response rate each open the matching applications.
-- Follow-up reminders: an overdue banner on Overview, a count in the tab title, and Followed up / Snooze buttons.
+- Overview cards are clickable: Total, In progress, Interviews, Offers, Rejected, and Response rate each open the matching applications.
+- Follow-ups has its own screen, in the sidebar and on the phone nav, with a count on that item, a count in the tab title, and Followed up / Snooze buttons.
 - Response rate: share of applications sent 14+ days ago (withdrawn left out) that moved to Screening, Interview, Offer, or Rejected.
 - Import takes a Bryz Jobs JSON backup or a tracker CSV. Merge matches by id and keeps interview logs.
 - Warns when you add an application at a company where you already have an active one.
