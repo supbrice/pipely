@@ -58,8 +58,6 @@
   --days:#5C677A;--due-soon:#5C42B0;--card:#fff;--kcol:#f7f8fc;--kcol-over:#f5f7ff;--kdot-closed:#8A93A6;
   --chip-bg:#f7f8fb;--soon-ink:#8A5A0C;--soon-line:#f3e0b8;--field:#fff;--input:#f7f8fb;
   --dialog-shadow:0 24px 80px rgba(24,39,75,.18);--backdrop:rgba(23,32,51,.45);--tip-bg:#172033;--tip-fg:#fff;
-  --remind-bg:#fff;--remind-line:#f0c2c6;--remind-soon-line:#f3e0b8;--remind-title-soon:#9a6700;
-  --remind-row:#fffafa;--remind-row-line:#f6dfe1;--remind-soon-bg:#fffdf7;--remind-soon-border:#f3e7cc;
   --dup-ink:#8a5d00;--log-bg:#fbfcfe;--log-ink:#4d576c;--log-note-bg:#f2f4f8;--log-note-fg:#5f6a80;
   --timeline:#e4dcff;--timeline-b:#5b4bb0;--mobile-nav:#ffffffed;--mobile-nav-fg:#7b8497;
   --src-easy:#F0B44D;--src-li:#4778F5;--src-indeed:#159B72;--src-co:#9274E8;--src-re:#9274E8;--src-ot:#DCE2ED;
@@ -91,8 +89,6 @@ html[data-theme="dark"]{
   --days:#A8B4C8;--due-soon:#DDD0FF;--card:#1B2433;--kcol:#141C2A;--kcol-over:#1A2C4E;--kdot-closed:#7E8BA0;
   --chip-bg:#243044;--soon-ink:#F6C56E;--soon-line:#6A5430;--field:#1B2433;--input:#101722;
   --dialog-shadow:0 24px 80px rgba(0,0,0,.55);--backdrop:rgba(4,6,12,.66);--tip-bg:#F4F7FC;--tip-fg:#121826;
-  --remind-bg:#2A1A1E;--remind-line:#6E3E46;--remind-soon-line:#6A5430;--remind-title-soon:#F6C56E;
-  --remind-row:#321F24;--remind-row-line:#5C343C;--remind-soon-bg:#2C2618;--remind-soon-border:#6A5430;
   --dup-ink:#F6C56E;--log-bg:#141C2A;--log-ink:#E0E7F2;--log-note-bg:#243044;--log-note-fg:#D5DCEC;
   --timeline:#4A406E;--timeline-b:#DDD0FF;--mobile-nav:#121926ee;--mobile-nav-fg:#D5DCEC;
   --src-easy:#F0B44D;--src-li:#7EA2FF;--src-indeed:#3DCA9A;--src-co:#C4B0FF;--src-re:#C4B0FF;--src-ot:#93A0B5;
@@ -154,7 +150,7 @@ html[data-theme="dark"] .theme-word::before{content:"Dark"}
 .btn{border:1px solid var(--line);background:var(--btn-bg);color:var(--btn-fg);border-radius:10px;padding:10px 14px;font:600 12px 'DM Sans',sans-serif;box-shadow:var(--btn-shadow);cursor:pointer}
 .btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent);box-shadow:var(--btn-primary-shadow)}
 .btn .plus{font-size:16px;margin-right:5px}
-.cards{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:12px;margin-bottom:20px}
+.cards{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px;margin-bottom:20px}
 .stat{background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:18px;box-shadow:var(--shadow);min-width:0}
 .stat.clickable{cursor:pointer;transition:border-color .15s,box-shadow .15s,transform .15s}
 .stat.clickable:hover{border-color:var(--stat-hover-line);box-shadow:var(--stat-hover-shadow);transform:translateY(-1px)}
@@ -306,20 +302,8 @@ textarea{min-height:88px;resize:vertical}
 .dialog-actions{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap}
 .tip{position:fixed;z-index:40;pointer-events:none;white-space:pre-line;background:var(--tip-bg);color:var(--tip-fg);font-size:12px;font-weight:500;line-height:1.35;padding:6px 8px;border-radius:8px;max-width:240px}
 .mobile-nav{display:none}
-.remind{background:var(--remind-bg);border:1px solid var(--remind-line);border-left:5px solid var(--red);border-radius:16px;padding:16px 18px;margin-bottom:20px;box-shadow:var(--shadow)}
-.remind.soon-only{border-color:var(--remind-soon-line);border-left-color:var(--amber)}
-.remind-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
-.remind-title{font:800 17px Manrope,sans-serif;color:var(--red);letter-spacing:-.3px}
-.remind.soon-only .remind-title{color:var(--remind-title-soon)}
-.remind-sub{font-size:12px;color:var(--muted);margin-top:4px}
-.remind-actions{display:flex;gap:8px;flex-wrap:wrap}
-.remind-list{display:grid;gap:6px;margin-top:12px}
-.remind-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:10px;align-items:center;padding:8px 10px;border-radius:10px;background:var(--remind-row);border:1px solid var(--remind-row-line)}
-.remind-row.soon{background:var(--remind-soon-bg);border-color:var(--remind-soon-border)}
-.remind-row .company{font-weight:700;font-size:13px;color:var(--ink)}
-.remind-row .role{font-size:11px;margin-top:1px}
-.remind-btns{display:flex;gap:6px;flex-wrap:wrap}
-.remind-more{margin-top:10px;font-size:12px}
+#view-follow .panel-head{flex-wrap:wrap}
+.follow-actions{display:flex;gap:8px;flex-wrap:wrap;flex:none}
 .linkbtn{background:none;border:0;padding:0;color:var(--blue);font-weight:700;cursor:pointer;font-size:12px}
 .mini{border:1px solid var(--line);background:var(--btn-bg);border-radius:8px;padding:6px 9px;font:600 11px 'DM Sans',sans-serif;cursor:pointer;color:var(--btn-fg);white-space:nowrap}
 .mini.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
@@ -382,10 +366,9 @@ textarea{min-height:88px;resize:vertical}
   .grid-2{grid-template-columns:1fr}
   .log-add{grid-template-columns:1fr 1fr}
   .log-add input#logNote{grid-column:1 / -1}
-  .remind-row{grid-template-columns:minmax(0,1fr) auto}
-  .remind-btns{grid-column:1 / -1}
-  .mobile-nav{display:flex;position:fixed;bottom:0;left:0;right:0;background:var(--mobile-nav);backdrop-filter:blur(14px);border-top:1px solid var(--line);justify-content:space-around;padding:10px 5px 12px;z-index:20}
-  .mobile-nav button{font-size:10px;color:var(--mobile-nav-fg);background:none;border:0;text-align:center;display:grid;gap:4px;padding:0;cursor:pointer;min-height:0}
+  .mobile-nav{display:flex;position:fixed;bottom:0;left:0;right:0;background:var(--mobile-nav);backdrop-filter:blur(14px);border-top:1px solid var(--line);justify-content:space-around;padding:10px 4px 12px;z-index:20}
+  .mobile-nav button{flex:1 1 0;min-width:0;font-size:10px;color:var(--mobile-nav-fg);background:none;border:0;text-align:center;display:grid;gap:4px;justify-items:center;padding:0 2px;cursor:pointer;min-height:0;line-height:1.15}
+  .mobile-nav .nav-badge{margin-left:3px;padding:1px 5px}
   .mobile-nav button.active{color:var(--blue);font-weight:700}
   .mobile-nav b{font-size:17px;font-weight:500}
   .activity{gap:5px}
@@ -441,7 +424,6 @@ textarea{min-height:88px;resize:vertical}
   </header>
 
   <section id="view-overview">
-    <section class="remind" id="remind" hidden aria-live="polite"></section>
     <section class="cards" id="cards" aria-label="Summary"></section>
     <section class="grid">
       <div class="panel">
@@ -511,7 +493,7 @@ textarea{min-height:88px;resize:vertical}
 
   <section id="view-follow" hidden>
     <div class="panel">
-      <div class="panel-head"><div><div class="panel-title">Needs a follow-up</div><div class="panel-sub">Overdue, or due within 3 days. Offer, rejected, and withdrawn are not included.</div></div></div>
+      <div class="panel-head"><div><div class="panel-title">Needs a follow-up</div><div class="panel-sub">Overdue, or due within 3 days. Offer, rejected, and withdrawn are not included.</div></div><div class="follow-actions" id="followActions"></div></div>
       <div class="list" id="followList"></div>
       <div class="empty" id="followEmpty" hidden><p class="empty-title">No follow-ups due</p><p>Nothing overdue or due in the next 3 days.</p></div>
     </div>
@@ -1332,7 +1314,6 @@ function renderCards() {
   const offers = apps.filter(a => a.status === "Offer").length;
   const followApps = apps.filter(needsFollowUp);
   const overdue = followApps.filter(a => followState(a) === "overdue").length;
-  const soon = followApps.length - overdue;
   const month = todayISO().slice(0, 7);
   const added = apps.filter(a => String(a.dateApplied || "").startsWith(month)).length;
   const totalFoot = el("div", { class: "stat-foot" });
@@ -1342,8 +1323,6 @@ function renderCards() {
   } else {
     totalFoot.textContent = "None added this month";
   }
-  const followFoot = el("div", { class: "stat-foot", text: overdue + " overdue · " + soon + " coming up" });
-  if (overdue) { followFoot.style.color = "var(--red)"; followFoot.style.fontWeight = "700"; }
   const rs = responseStats();
   const rejectedApps = apps.filter(a => a.status === "Rejected");
   const weekAgo = iso(addDays(new Date(), -7));
@@ -1356,12 +1335,11 @@ function renderCards() {
     ["Interviews", interviews, "Conversations in motion", "✦", "si-amber", () => goToList("Interview"), "Show interview-stage applications"],
     ["Offers", offers, "A good step forward", "✓", "si-green", () => goToList("Offer"), "Show offers"],
     ["Rejected", rejectedApps.length, rejFoot, "⊘", "si-gray", () => openRejected(), "Show rejected applications"],
-    ["Follow-ups due", followApps.length, followFoot, "⌁", "si-red", () => setView("follow"), "Show follow-ups that are overdue or due soon"],
     ["Response rate", pct(rs.rate), rateFoot, "↺", "si-green", () => goToList("heard"),
       "Applications sent " + RESPONSE_DAYS + "+ days ago (withdrawn / closed postings left out). Heard back = moved to Screening, Interview, Offer, or Rejected. Click to see them."]
   ];
   document.getElementById("cards").replaceChildren(...specs.map(([label, n, foot, icon, cls, onOpen, hint]) => {
-    const card = el("article", { class: "stat clickable" + (label === "Follow-ups due" && overdue ? " alert" : ""), role: "button", tabindex: "0", title: hint, "aria-label": label + ": " + n + ". " + hint }, [
+    const card = el("article", { class: "stat clickable", role: "button", tabindex: "0", title: hint, "aria-label": label + ": " + n + ". " + hint }, [
       el("div", { class: "stat-top" }, [
         el("span", { class: "stat-label", text: label }),
         el("span", { class: "stat-icon " + cls, text: icon })
@@ -1452,43 +1430,11 @@ function followButtons(a) {
   ];
 }
 
-function renderRemind() {
-  const host = document.getElementById("remind");
-  if (!host) return;
-  const due = apps.filter(needsFollowUp).sort((a, b) => String(a.nextFollowUp).localeCompare(String(b.nextFollowUp)));
-  if (!due.length) { host.hidden = true; host.replaceChildren(); return; }
-  const overdue = due.filter(a => followState(a) === "overdue");
-  const soon = due.length - overdue.length;
-  host.hidden = false;
-  host.className = "remind" + (overdue.length ? "" : " soon-only");
-  const title = overdue.length
-    ? "⚠ " + overdue.length + " follow-up" + (overdue.length === 1 ? " is" : "s are") + " overdue"
-    : soon + " follow-up" + (soon === 1 ? "" : "s") + " due in the next 3 days";
-  const sub = overdue.length
-    ? "Oldest was due " + formatDate(overdue[0].nextFollowUp) + " (" + dueLabel(overdue[0]) + "). " + soon + " more due in the next 3 days."
-    : "Nothing overdue. Nice.";
-  const actions = el("div", { class: "remind-actions" }, [
-    el("button", { type: "button", class: "btn primary", text: "Open follow-ups", onclick: () => setView("follow") })
-  ]);
-  if (overdue.length > 1) {
-    actions.append(el("button", { type: "button", class: "btn", text: "Snooze all overdue +7d", onclick: () => {
-      if (!confirm("Move all " + overdue.length + " overdue follow-ups to " + formatDate(iso(addDays(new Date(), 7))) + "? You can undo right after.")) return;
-      const next = iso(addDays(new Date(), 7));
-      updateApps(overdue.map(a => a.id), a => { a.nextFollowUp = next; }, "Moved " + overdue.length + " overdue follow-ups to " + formatDate(next) + ".");
-    } }));
-  }
-  const list = el("div", { class: "remind-list" });
-  due.slice(0, 5).forEach(a => {
-    const state = followState(a);
-    list.append(el("div", { class: "remind-row " + state }, [
-      el("div", {}, [el("div", { class: "company", text: a.company }), el("div", { class: "role", text: a.role + " · " + a.status })]),
-      el("span", { class: "chip " + state, text: dueLabel(a), title: "Follow up " + formatDate(a.nextFollowUp) }),
-      el("div", { class: "remind-btns" }, followButtons(a).concat([el("button", { type: "button", class: "mini", text: "Open", onclick: () => openForm(a) })]))
-    ]));
-  });
-  const parts = [el("div", { class: "remind-head" }, [el("div", {}, [el("div", { class: "remind-title", text: title }), el("div", { class: "remind-sub", text: sub })]), actions]), list];
-  if (due.length > 5) parts.push(el("div", { class: "remind-more" }, [el("button", { type: "button", class: "linkbtn", text: "+ " + (due.length - 5) + " more in Follow-ups →", onclick: () => setView("follow") })]));
-  host.replaceChildren(...parts);
+function snoozeOverdue(overdueApps) {
+  if (!overdueApps.length) return;
+  const next = iso(addDays(new Date(), 7));
+  if (!confirm("Move all " + overdueApps.length + " overdue follow-ups to " + formatDate(next) + "? You can undo right after.")) return;
+  updateApps(overdueApps.map(a => a.id), a => { a.nextFollowUp = next; }, "Moved " + overdueApps.length + " overdue follow-ups to " + formatDate(next) + ".");
 }
 function roundedTop(x, y, w, h, r) {
   const rad = Math.min(r, w / 2, h / 2);
@@ -1745,7 +1691,6 @@ function renderRecent() {
   host.replaceChildren(el("div", { class: "table-scroll" }, [recentTable(rows)]));
 }
 function renderOverview() {
-  renderRemind();
   renderWeekly();
   renderFunnel();
   renderSources();
@@ -1934,10 +1879,17 @@ function renderFollow() {
   if (!host || !empty) return;
   empty.hidden = rows.length !== 0;
   host.replaceChildren(...rows.map(appCard));
+  const overdueApps = rows.filter(a => followState(a) === "overdue");
+  const actions = document.getElementById("followActions");
+  if (actions) {
+    actions.replaceChildren();
+    if (overdueApps.length > 1) {
+      actions.append(el("button", { type: "button", class: "btn", text: "Snooze all overdue +7d", title: "Move every overdue follow-up 7 days out", onclick: () => snoozeOverdue(overdueApps) }));
+    }
+  }
   const sub = document.querySelector("#view-follow .panel-sub");
   if (sub) {
-    const over = rows.filter(a => followState(a) === "overdue").length;
-    sub.textContent = over + " overdue · " + (rows.length - over) + " due in the next 3 days. Offer, rejected, and withdrawn are not included. “Followed up” logs it and sets the next one 7 days out.";
+    sub.textContent = overdueApps.length + " overdue · " + (rows.length - overdueApps.length) + " due in the next 3 days. Offer, rejected, and withdrawn are not included. “Followed up” logs it and sets the next one 7 days out.";
   }
 }
 // Best-effort "rejected on" date: interview/activity log first, then the notes text.
