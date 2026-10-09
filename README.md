@@ -43,6 +43,7 @@ Prefer Cloud sync (Pull / Push). You can still Export JSON / Import JSON, or fro
 - Applications: `brice-job-apps-v1`
 - Selected tab: `brice-job-apps-view`
 - Sync settings (gist id + optional token): `brice-job-apps-sync`
+- Theme (`light` or `dark`): `brice-job-apps-theme`. If that key is unset, Bryz Jobs follows the system color scheme. The header toggle saves a choice.
 
 Export JSON before using Replace. Clear samples deletes only the built-in examples. Files named `index.html.bak-*` are page backups, not application data, and are not committed.
 
