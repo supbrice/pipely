@@ -1,6 +1,6 @@
-# Pipely
+# Bryz Jobs
 
-Pipely is a private job application tracker. It is a single `index.html` file (HTML + CSS + JS, no build step, no libraries) plus small `assets/` for the logo.
+Bryz Jobs is a private job application tracker. It is a single `index.html` file (HTML + CSS + JS, no build step, no libraries) plus small `assets/` for the logo. The project still lives in the `supbrice/pipely` repo.
 
 ## Open it locally
 
@@ -18,9 +18,9 @@ The code is public. Your applications are not committed to the repo. They live i
 Preferences → **Cloud sync** stores settings under `brice-job-apps-sync` in this browser only.
 
 - **Gist ID** — identifies the secret gist that holds `pipely-apps.json`. Pull uses the public raw URL for that secret gist (no token required).
-- **GitHub token** — optional. Needed only to **Push** updates back to the gist. Create a classic token with the **gist** scope only: https://github.com/settings/tokens/new?scopes=gist&description=Pipely%20cloud%20sync  
+- **GitHub token** — optional. Needed only to **Push** updates back to the gist. Create a classic token with the **gist** scope only: https://github.com/settings/tokens/new?scopes=gist&description=Bryz%20Jobs%20cloud%20sync  
   Paste it in Preferences and click Save. The token never goes into this git repo.
-- **Auto-pull** — when this browser only has sample rows, Pipely replaces them with the gist list on load.
+- **Auto-pull** — when this browser only has sample rows, Bryz Jobs replaces them with the gist list on load.
 - **Auto-push** — after saves, pushes to the gist when a token is set.
 
 Do not commit personal access tokens or application JSON to the public repo. The gist stays secret (unlisted); anyone who knows the raw gist URL can read it, so treat that ID like a private link.
@@ -30,7 +30,7 @@ Do not commit personal access tokens or application JSON to the public repo. The
 - Overview cards are clickable: Total, In progress, Interviews, Offers, Follow-ups due, Rejected, and Response rate each open the matching applications.
 - Follow-up reminders: an overdue banner on Overview, a count in the tab title, and Followed up / Snooze buttons.
 - Response rate: share of applications sent 14+ days ago (withdrawn left out) that moved to Screening, Interview, Offer, or Rejected.
-- Import takes a Pipely JSON backup or a tracker CSV. Merge matches by id and keeps interview logs.
+- Import takes a Bryz Jobs JSON backup or a tracker CSV. Merge matches by id and keeps interview logs.
 - Warns when you add an application at a company where you already have an active one.
 - Per-application interview log (date, type, note).
 
