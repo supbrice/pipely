@@ -27,7 +27,8 @@ Do not commit personal access tokens or application JSON to the public repo. The
 
 ## Features
 
-- Overview cards are clickable: Total, In progress, Interviews scheduled, Offers, Rejected, and Response rate each open the matching applications. A short upcoming-follow-ups list links to the Follow-ups screen.
+- Overview cards are clickable: Total, In progress, Interviews scheduled, Offers, Rejected, and Response rate each open the matching applications. A short upcoming-follow-ups list links to the Follow-ups screen. The same real counts feed the weekly chart, stage breakdown, and recent activity.
+- The interface uses a system font stack (Inter when it is installed), inline icons, light and dark colors, and a bottom tab bar on phones. Press N to add an application; Enter saves it. Those choices stay in the tab only.
 - Follow-ups has its own screen, in the sidebar and on the phone nav, with a count on that item, a count in the tab title, and Followed up / Snooze buttons.
 - Pipeline stages: Interested, Applied, Screening, Interview, Offer, Rejected, Withdrawn. Interested is a stage before Applied. Existing statuses keep their meaning.
 - If saved applications cannot be read, the original `brice-job-apps-v1` value is left in place and copied to `brice-job-apps-v1-unreadable-<timestamp>`. The banner can download that raw value, retry, or repair (keep valid rows, skip bad ones, only after you confirm).
