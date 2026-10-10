@@ -198,7 +198,7 @@ html[data-theme="dark"] .theme-word::before{content:"Dark"}
 .legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:18px;color:var(--legend);font-size:11px}
 .dot{display:inline-block;width:7px;height:7px;border-radius:3px;margin-right:5px}
 .funnel{display:grid;gap:13px}
-.funnel-row{display:grid;grid-template-columns:78px 1fr 28px;gap:10px;align-items:center;font-size:11px;color:var(--funnel)}
+.funnel-row{display:grid;grid-template-columns:92px 1fr 28px;gap:10px;align-items:center;font-size:11px;color:var(--funnel)}
 .track{height:8px;border-radius:20px;background:var(--track);overflow:hidden}
 .fill{height:100%;border-radius:20px}
 .funnel-num{text-align:right;font-weight:700;color:var(--funnel-num)}
@@ -235,13 +235,19 @@ html[data-theme="dark"] .theme-word::before{content:"Dark"}
 .l1{background:var(--logo-1-bg);color:var(--logo-1-fg)}.l2{background:var(--logo-2-bg);color:var(--logo-2-fg)}.l3{background:var(--logo-3-bg);color:var(--logo-3-fg)}.l4{background:var(--logo-4-bg);color:var(--logo-4-fg)}
 .table .role{display:block;font-weight:400;color:var(--role-dim);margin-top:3px;font-size:10px}
 .status{display:inline-flex;align-items:center;gap:5px;border-radius:7px;padding:6px 8px;font-size:10px;font-weight:700}
-.s-interview{color:var(--st-int-fg);background:var(--st-int-bg)}.s-applied{color:var(--st-app-fg);background:var(--st-app-bg)}.s-screen{color:var(--st-scr-fg);background:var(--st-scr-bg)}.s-offer{color:var(--st-off-fg);background:var(--st-off-bg)}.s-rejected{color:var(--st-rej-fg);background:var(--st-rej-bg)}
+.s-interview{color:var(--st-int-fg);background:var(--st-int-bg)}.s-applied{color:var(--st-app-fg);background:var(--st-app-bg)}.s-screen{color:var(--st-scr-fg);background:var(--st-scr-bg)}.s-offer{color:var(--st-off-fg);background:var(--st-off-bg)}.s-rejected{color:var(--st-rej-fg);background:var(--st-rej-bg)}.s-interested{color:var(--ink-2);background:var(--gray-bg)}
 .days{color:var(--days);font-size:10px}
 .due-over{color:var(--red);font-weight:700}.due-soon{color:var(--due-soon);font-weight:700}
-.warn{margin-bottom:16px;padding:12px 16px;border-radius:12px;background:var(--red-soft);color:var(--red);font-size:13px;font-weight:500}
+.warn{margin-bottom:16px;padding:12px 16px;border-radius:12px;background:var(--red-soft);color:var(--red);font-size:13px;font-weight:500;line-height:1.45}
+.warn p{margin:0 0 10px}
+.warn-actions{display:flex;flex-wrap:wrap;gap:8px}
+.upcoming{margin-bottom:18px}
+.upcoming-row{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:8px 0;border-top:1px solid var(--line)}
+.upcoming-row:first-child{border-top:0;padding-top:0}
+.upcoming-more{margin:8px 0 0;font-size:12px;color:var(--muted)}
 .undo{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px;padding:10px 12px 10px 16px;background:var(--panel);border:1px solid var(--line);border-radius:12px;color:var(--ink)}
 .board-note{color:var(--muted);font-size:13px;margin:0 0 14px}
-.board{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.board{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px}
 .closed-wrap{margin-top:22px}
 .closed-wrap h3{margin:0 0 8px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
 .closed-lane{display:grid;grid-template-columns:1fr 1fr;gap:14px}
@@ -251,7 +257,7 @@ html[data-theme="dark"] .theme-word::before{content:"Dark"}
 .kname{display:inline-flex;align-items:center;gap:8px}
 .khead strong{font-size:13px;font-weight:700}
 .kdot{width:8px;height:8px;border-radius:99px}
-.kdot.Applied{background:var(--accent)}.kdot.Screening{background:var(--amber)}.kdot.Interview{background:var(--purple)}.kdot.Offer{background:var(--green)}.kdot.Rejected,.kdot.Withdrawn{background:var(--kdot-closed)}
+.kdot.Interested{background:var(--muted)}.kdot.Applied{background:var(--accent)}.kdot.Screening{background:var(--amber)}.kdot.Interview{background:var(--purple)}.kdot.Offer{background:var(--green)}.kdot.Rejected,.kdot.Withdrawn{background:var(--kdot-closed)}
 .kcount{min-width:24px;height:24px;padding:0 8px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--muted);background:var(--card);border:1px solid var(--line);border-radius:999px}
 .kcards{display:flex;flex-direction:column;gap:8px;flex:1;min-height:72px}
 .placeholder{flex:1;min-height:88px;border:1px dashed var(--line);border-radius:12px;display:grid;place-items:center;align-content:center;gap:2px;text-align:center;color:var(--muted);padding:16px;font-size:12px}
@@ -277,6 +283,7 @@ html[data-theme="dark"] .theme-word::before{content:"Dark"}
 .list{display:flex;flex-direction:column;gap:8px}
 .row{background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:14px 16px;display:grid;grid-template-columns:minmax(0,1.6fr) auto auto auto auto;gap:12px 16px;align-items:center}
 .badge{display:inline-flex;align-items:center;border-radius:7px;padding:6px 8px;font-size:11px;font-weight:700}
+.badge.Interested{color:var(--ink-2);background:var(--gray-bg)}
 .badge.Applied{color:var(--st-app-fg);background:var(--st-app-bg)}
 .badge.Screening{color:var(--st-scr-fg);background:var(--st-scr-bg)}
 .badge.Interview{color:var(--st-int-fg);background:var(--st-int-bg)}
@@ -333,6 +340,7 @@ textarea{min-height:88px;resize:vertical}
   .cards{grid-template-columns:repeat(4,minmax(0,1fr))}
 }
 @media(max-width:1100px){
+  .btn,.mini,.nav button{min-height:44px}
   .main{padding:24px 20px}
   .cards{grid-template-columns:repeat(3,1fr)}
   .rej-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -367,7 +375,8 @@ textarea{min-height:88px;resize:vertical}
   .log-add{grid-template-columns:1fr 1fr}
   .log-add input#logNote{grid-column:1 / -1}
   .mobile-nav{display:flex;position:fixed;bottom:0;left:0;right:0;background:var(--mobile-nav);backdrop-filter:blur(14px);border-top:1px solid var(--line);justify-content:space-around;padding:10px 4px 12px;z-index:20}
-  .mobile-nav button{flex:1 1 0;min-width:0;font-size:10px;color:var(--mobile-nav-fg);background:none;border:0;text-align:center;display:grid;gap:4px;justify-items:center;padding:0 2px;cursor:pointer;min-height:0;line-height:1.15}
+  .btn,.mini{min-height:44px}
+  .mobile-nav button{flex:1 1 0;min-width:0;font-size:10px;color:var(--mobile-nav-fg);background:none;border:0;text-align:center;display:grid;gap:4px;justify-items:center;padding:4px 2px;cursor:pointer;min-height:44px;line-height:1.15}
   .mobile-nav .nav-badge{margin-left:3px;padding:1px 5px}
   .mobile-nav button.active{color:var(--blue);font-weight:700}
   .mobile-nav b{font-size:17px;font-weight:500}
@@ -402,7 +411,14 @@ textarea{min-height:88px;resize:vertical}
   </div>
 </aside>
 <main class="main">
-  <div class="warn" id="storageWarn" hidden role="alert">Saved applications could not be read. Nothing new will be written, and the stored copy was left as-is.</div>
+  <div class="warn" id="storageWarn" hidden role="alert">
+    <p id="storageWarnText">Saved applications could not be read. The stored copy was left as-is.</p>
+    <div class="warn-actions">
+      <button type="button" class="btn" id="storageDownload">Download raw data</button>
+      <button type="button" class="btn" id="storageRetry">Retry</button>
+      <button type="button" class="btn primary" id="storageRepair">Repair</button>
+    </div>
+  </div>
   <div class="cloud-banner" id="cloudBanner" hidden role="status"><span id="cloudBannerText"></span><span class="sync-row"><button type="button" class="btn primary" id="cloudBannerPull">Pull from cloud</button><button type="button" class="btn" id="cloudBannerPrefs">Preferences</button></span></div>
   <div class="undo" id="undoBar" hidden role="status" aria-live="polite">
     <span id="undoText"></span>
@@ -425,6 +441,16 @@ textarea{min-height:88px;resize:vertical}
 
   <section id="view-overview">
     <section class="cards" id="cards" aria-label="Summary"></section>
+    <section class="panel upcoming" id="upcomingPanel">
+      <div class="panel-head">
+        <div>
+          <div class="panel-title">Upcoming follow-ups</div>
+          <div class="panel-sub" id="upcomingSub">Overdue, or due within 3 days. The full list stays on Follow-ups.</div>
+        </div>
+        <button type="button" class="btn" id="upcomingOpen">Open follow-ups</button>
+      </div>
+      <div id="upcomingList"></div>
+    </section>
     <section class="grid">
       <div class="panel">
         <div class="panel-head"><div><div class="panel-title">Application activity</div><div class="panel-sub">Applications submitted over the last 8 weeks</div></div><span class="period">Last 8 weeks</span></div>
@@ -469,6 +495,7 @@ textarea{min-height:88px;resize:vertical}
       <select id="filter" aria-label="Filter by status">
         <option value="all">All statuses</option>
         <option value="follow">Needs follow-up</option>
+        <option>Interested</option>
         <option value="overdue">Follow-up overdue</option>
         <option value="progress">In progress (screening + interview)</option>
         <option value="heard">Heard back (14+ days)</option>
@@ -541,6 +568,7 @@ textarea{min-height:88px;resize:vertical}
     <div class="grid-2">
       <label>Status
         <select id="status" required>
+          <option>Interested</option>
           <option>Applied</option>
           <option>Screening</option>
           <option>Interview</option>
@@ -664,8 +692,8 @@ textarea{min-height:88px;resize:vertical}
 const KEY = "brice-job-apps-v1";
 const VIEW_KEY = "brice-job-apps-view";
 const THEME_KEY = "brice-job-apps-theme";
-const STATUSES = ["Applied", "Screening", "Interview", "Offer", "Rejected", "Withdrawn"];
-const PIPE = ["Applied", "Screening", "Interview", "Offer"];
+const STATUSES = ["Interested", "Applied", "Screening", "Interview", "Offer", "Rejected", "Withdrawn"];
+const PIPE = ["Interested", "Applied", "Screening", "Interview", "Offer"];
 const CLOSED = ["Rejected", "Withdrawn"];
 const SOURCES = ["Easy Apply", "LinkedIn", "Indeed", "Company site", "Referral", "Other"];
 const CHART_SOURCES = ["Easy Apply", "LinkedIn", "Indeed", "Company site", "Other"];
@@ -787,6 +815,8 @@ const GIST_FILENAME = "pipely-apps.json";
 let storageOk = true;
 let undoSnapshot = null;
 let formLog = [];
+let formLogKept = [];
+let storageProblem = null;
 let pendingLabel = "";
 let apps = load();
 let pendingImport = null;
@@ -830,59 +860,177 @@ function cleanLog(raw) {
   return out.sort((a, b) => a.date.localeCompare(b.date));
 }
 
+function splitLog(raw) {
+  if (raw == null || raw === "") return { entries: [], kept: [] };
+  if (!Array.isArray(raw)) return { entries: [], kept: [raw] };
+  const entries = [];
+  const kept = [];
+  raw.forEach(e => {
+    const cleaned = cleanLog([e]);
+    if (cleaned.length) entries.push(cleaned[0]);
+    else kept.push(e);
+  });
+  return { entries, kept };
+}
+
 function mergeLogs(a, b) {
   const seen = new Set();
   const out = [];
-  cleanLog([].concat(a || [], b || [])).forEach(e => {
+  const left = splitLog(a);
+  const right = splitLog(b);
+  left.entries.concat(right.entries).forEach(e => {
     const key = e.id + "|" + e.date + "|" + e.note;
     if (seen.has(e.id) || seen.has(key)) return;
     seen.add(e.id); seen.add(key);
     out.push(e);
   });
-  return out;
+  return out.concat(left.kept, right.kept);
 }
 
-function normalizeStored(app) {
-  const id = typeof app.id === "string" && app.id ? app.id : uid();
-  const extra = { id, nextFollowUp: cleanFollowUp(app.nextFollowUp), isSample: SAMPLE_IDS.has(id) && app.isSample !== false };
-  if (app.log !== undefined) extra.log = cleanLog(app.log);
-  return Object.assign({}, app, extra);
+function keepId(app) {
+  const copy = Object.assign({}, app);
+  if (typeof copy.id === "number" && isFinite(copy.id)) copy.id = String(copy.id);
+  else if (typeof copy.id !== "string" || !copy.id.trim()) copy.id = uid();
+  else copy.id = copy.id.trim();
+  return copy;
+}
+
+function recoveryPrefix() {
+  return KEY + "-unreadable-";
+}
+
+function findRecoveryKey(raw) {
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const name = localStorage.key(i);
+      if (name && name.indexOf(recoveryPrefix()) === 0 && localStorage.getItem(name) === raw) return name;
+    }
+  } catch (err) { /* storage blocked */ }
+  return "";
+}
+
+function stashRaw(raw) {
+  const existing = findRecoveryKey(raw);
+  if (existing) return { key: existing, copied: true };
+  const key = recoveryPrefix() + Date.now();
+  try {
+    localStorage.setItem(key, raw);
+    return { key, copied: true };
+  } catch (err) {
+    return { key: "", copied: false };
+  }
+}
+
+function failRead(raw, kind, bad, good) {
+  const stashed = stashRaw(raw);
+  storageOk = false;
+  storageProblem = {
+    kind: kind,
+    raw: raw,
+    recoveryKey: stashed.key,
+    copied: stashed.copied,
+    bad: bad || [],
+    good: good || []
+  };
+  return storageProblem.good.map(keepId);
 }
 
 function load() {
-  const raw = localStorage.getItem(KEY);
+  let raw;
+  try { raw = localStorage.getItem(KEY); }
+  catch (err) {
+    storageOk = false;
+    storageProblem = { kind: "unavailable", raw: "", recoveryKey: "", copied: false, bad: [], good: [] };
+    return [];
+  }
   if (raw === null) {
-    const seed = SAMPLES.map(a => normalizeStored(a));
-    localStorage.setItem(KEY, JSON.stringify(seed));
+    const seed = SAMPLES.map(a => keepId(a));
+    try { localStorage.setItem(KEY, JSON.stringify(seed)); }
+    catch (err) {
+      storageOk = false;
+      storageProblem = { kind: "unavailable", raw: "", recoveryKey: "", copied: false, bad: [], good: seed };
+      return seed;
+    }
+    storageOk = true;
+    storageProblem = null;
     return seed;
   }
   let data;
+  try { data = JSON.parse(raw); }
+  catch (err) { return failRead(raw, "not-json", [], []); }
+  if (!Array.isArray(data)) return failRead(raw, "not-array", [], []);
+  const good = [];
+  const bad = [];
+  data.forEach((item, index) => {
+    if (!item || typeof item !== "object" || Array.isArray(item)) bad.push({ index: index, reason: "Not an application record" });
+    else good.push(item);
+  });
+  if (!data.length) {
+    storageOk = true;
+    storageProblem = null;
+    return [];
+  }
+  if (!good.length) return failRead(raw, "no-rows", bad, []);
+  if (bad.length) return failRead(raw, "partial", bad, good);
+  storageOk = true;
+  storageProblem = null;
+  return data.map(keepId);
+}
+
+function storageWarnMessage(problem) {
+  const where = problem.copied && problem.recoveryKey
+    ? " A copy is saved under " + problem.recoveryKey + "."
+    : " A second copy could not be saved. Download the raw data. The original key was not changed.";
+  if (problem.kind === "not-json") return "Saved applications could not be read because the stored value is not JSON. It is still under " + KEY + "." + where;
+  if (problem.kind === "not-array") return "Saved applications could not be read because the stored value is not a list. It is still under " + KEY + "." + where;
+  if (problem.kind === "partial") return problem.bad.length + " saved record" + (problem.bad.length === 1 ? "" : "s") + " could not be read. " + problem.good.length + " valid application" + (problem.good.length === 1 ? " is" : "s are") + " shown and will not be written back until you repair. The original list is unchanged." + where;
+  if (problem.kind === "no-rows") return "Saved applications could not be read. None of the stored records are application objects. The original value is unchanged." + where;
+  return "Saved applications could not be read. Nothing new will be written, and the stored copy was left as-is.";
+}
+
+function showStorageWarn() {
+  const box = document.getElementById("storageWarn");
+  if (!box) return;
+  if (!storageProblem || storageOk) { box.hidden = true; return; }
+  const text = document.getElementById("storageWarnText");
+  if (text) text.textContent = storageWarnMessage(storageProblem);
+  const repair = document.getElementById("storageRepair");
+  if (repair) repair.hidden = !(storageProblem.good && storageProblem.good.length);
+  box.hidden = false;
+}
+
+function downloadStorageRaw() {
+  if (!storageProblem) return;
+  const raw = storageProblem.raw == null ? "" : String(storageProblem.raw);
+  const blob = new Blob([raw], { type: "text/plain" });
+  const a = document.createElement("a");
+  const url = URL.createObjectURL(blob);
+  a.href = url;
+  a.download = "bryz-jobs-unreadable-" + todayISO() + ".txt";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function repairStorage() {
+  if (!storageProblem || !storageProblem.good || !storageProblem.good.length) return;
+  const n = storageProblem.good.length;
+  const skipped = storageProblem.bad.length;
+  const copy = storageProblem.recoveryKey || KEY;
+  if (!confirm("Keep " + n + " valid application" + (n === 1 ? "" : "s") + " and skip " + skipped + " unreadable record" + (skipped === 1 ? "" : "s") + "? The original value stays in " + copy + ".")) return;
+  const next = storageProblem.good.map(keepId);
   try {
-    data = JSON.parse(raw);
+    localStorage.setItem(KEY, JSON.stringify(next));
   } catch (err) {
-    storageOk = false;
-    return [];
+    alert("Repair could not be written. The original stored value was left in place.");
+    return;
   }
-  if (!Array.isArray(data)) {
-    storageOk = false;
-    return [];
-  }
-  const list = [];
-  let changed = false;
-  for (const item of data) {
-    if (!item || typeof item !== "object" || Array.isArray(item)) {
-      storageOk = false;
-      return [];
-    }
-    const next = normalizeStored(item);
-    if (JSON.stringify(next) !== JSON.stringify(item)) changed = true;
-    list.push(next);
-  }
-  if (changed) {
-    try { localStorage.setItem(KEY, JSON.stringify(list)); }
-    catch (err) { storageOk = false; }
-  }
-  return list;
+  storageOk = true;
+  storageProblem = null;
+  apps = next;
+  render();
+  showStorageWarn();
 }
 
 function save() {
@@ -1240,7 +1388,7 @@ function statusCount(status) {
 
 
 function followState(app) {
-  if (!app || !["Applied", "Screening", "Interview"].includes(app.status)) return null;
+  if (!app || !["Interested", "Applied", "Screening", "Interview"].includes(app.status)) return null;
   const due = cleanFollowUp(app.nextFollowUp);
   if (!due) return null;
   const today = todayISO();
@@ -1281,7 +1429,7 @@ function responseStats() {
   const cutoff = iso(addDays(new Date(), -RESPONSE_DAYS));
   const real = apps.filter(a => !a.isSample);
   const base = real.length ? real : apps;
-  const pool = base.filter(a => a.status !== "Withdrawn" && isRealISO(a.dateApplied) && a.dateApplied <= cutoff);
+  const pool = base.filter(a => a.status !== "Withdrawn" && a.status !== "Interested" && isRealISO(a.dateApplied) && a.dateApplied <= cutoff);
   const heard = pool.filter(a => a.status !== "Applied");
   const positive = pool.filter(a => ["Screening", "Interview", "Offer"].includes(a.status));
   const rejected = pool.filter(a => a.status === "Rejected");
@@ -1332,7 +1480,7 @@ function renderCards() {
   const specs = [
     ["Total applications", apps.length, totalFoot, "▤", "si-blue", () => goToList("all", "date-desc"), "Show all applications"],
     ["In progress", inProgress, "Screening or interview stage", "◷", "si-purple", () => goToList("progress"), "Show screening and interview applications"],
-    ["Interviews", interviews, "Conversations in motion", "✦", "si-amber", () => goToList("Interview"), "Show interview-stage applications"],
+    ["Interviews scheduled", interviews, "Conversations in motion", "✦", "si-amber", () => goToList("Interview"), "Show interview-stage applications"],
     ["Offers", offers, "A good step forward", "✓", "si-green", () => goToList("Offer"), "Show offers"],
     ["Rejected", rejectedApps.length, rejFoot, "⊘", "si-gray", () => openRejected(), "Show rejected applications"],
     ["Response rate", pct(rs.rate), rateFoot, "↺", "si-green", () => goToList("heard"),
@@ -1532,6 +1680,7 @@ function renderWeekly() {
 }
 function renderFunnel() {
   const stages = [
+    ["Interested", "var(--muted)"],
     ["Applied", "var(--accent)"],
     ["Screening", "var(--amber)"],
     ["Interview", "var(--purple)"],
@@ -1636,6 +1785,7 @@ function ageLabel(app) {
 }
 
 function statusClass(status) {
+  if (status === "Interested") return "s-interested";
   if (status === "Interview") return "s-interview";
   if (status === "Screening") return "s-screen";
   if (status === "Offer") return "s-offer";
@@ -1690,7 +1840,40 @@ function renderRecent() {
   }
   host.replaceChildren(el("div", { class: "table-scroll" }, [recentTable(rows)]));
 }
+function renderUpcoming() {
+  const host = document.getElementById("upcomingList");
+  const sub = document.getElementById("upcomingSub");
+  if (!host) return;
+  const due = apps.filter(needsFollowUp).sort((a, b) => String(a.nextFollowUp).localeCompare(String(b.nextFollowUp)));
+  const overdue = due.filter(a => followState(a) === "overdue").length;
+  if (sub) {
+    sub.textContent = due.length
+      ? overdue + " overdue · " + (due.length - overdue) + " due in the next 3 days. The full list stays on Follow-ups."
+      : "Nothing overdue or due in the next 3 days.";
+  }
+  if (!due.length) {
+    host.replaceChildren(el("p", { class: "empty-title", text: "No follow-ups due" }));
+    return;
+  }
+  const shown = due.slice(0, 4);
+  const list = document.createElement("div");
+  shown.forEach(a => {
+    const state = followState(a);
+    list.append(el("div", { class: "upcoming-row" }, [
+      el("div", {}, [
+        el("div", { class: "company", text: a.company || "—" }),
+        el("div", { class: "role", text: (a.role || "") + " · " + (a.status || "") })
+      ]),
+      el("span", { class: "chip " + state, text: dueLabel(a) })
+    ]));
+  });
+  host.replaceChildren(list);
+  if (due.length > shown.length) {
+    host.append(el("p", { class: "upcoming-more", text: (due.length - shown.length) + " more on the Follow-ups screen." }));
+  }
+}
 function renderOverview() {
+  renderUpcoming();
   renderWeekly();
   renderFunnel();
   renderSources();
@@ -1700,7 +1883,7 @@ function renderOverview() {
 function column(status) {
   const items = apps
     .filter(a => a.status === status)
-    .sort((a, b) => b.dateApplied.localeCompare(a.dateApplied));
+    .sort((a, b) => String(b.dateApplied || "").localeCompare(String(a.dateApplied || "")));
   const cards = el("div", { class: "kcards" });
   if (!items.length) {
     cards.append(el("div", { class: "placeholder" }, [
@@ -1759,7 +1942,7 @@ function kanbanCard(a) {
     el("div", { class: "kmeta" }, [
       el("span", { text: a.source || "" }),
       el("span", { class: "chip days", text: daysSince(a), title: "Days since applied" }),
-      a.log && a.log.length ? el("span", { class: "chip", text: "🗒 " + a.log.length, title: a.log.length + " interview log entr" + (a.log.length === 1 ? "y" : "ies") }) : null
+      splitLog(a.log).entries.length ? el("span", { class: "chip", text: "🗒 " + splitLog(a.log).entries.length, title: splitLog(a.log).entries.length + " interview log entr" + (splitLog(a.log).entries.length === 1 ? "y" : "ies") }) : null
     ]),
     flags.childNodes.length ? flags : null,
     move
@@ -1801,9 +1984,9 @@ function visibleApps() {
   });
   rows.sort((a, b) => {
     if (sort === "company") return a.company.localeCompare(b.company) || String(b.dateApplied).localeCompare(String(a.dateApplied));
-    if (sort === "status") return (STATUS_RANK[a.status] ?? 99) - (STATUS_RANK[b.status] ?? 99) || b.dateApplied.localeCompare(a.dateApplied);
-    if (sort === "date-asc") return a.dateApplied.localeCompare(b.dateApplied);
-    return b.dateApplied.localeCompare(a.dateApplied);
+    if (sort === "status") return (STATUS_RANK[a.status] ?? 99) - (STATUS_RANK[b.status] ?? 99) || String(b.dateApplied || "").localeCompare(String(a.dateApplied || ""));
+    if (sort === "date-asc") return String(a.dateApplied || "").localeCompare(String(b.dateApplied || ""));
+    return String(b.dateApplied || "").localeCompare(String(a.dateApplied || ""));
   });
   return rows;
 }
@@ -1835,14 +2018,15 @@ function appCard(a) {
     el("div", { class: "source", text: bits || "—" }),
     actions
   ]);
-  if (a.log && a.log.length) {
+  const logView = splitLog(a.log);
+  if (logView.entries.length) {
     const tl = el("div", { class: "timeline", "aria-label": "Interview log" });
-    a.log.slice().reverse().slice(0, 3).forEach(e => {
+    logView.entries.slice().reverse().slice(0, 3).forEach(e => {
       const row = el("div");
       row.append(el("b", { text: formatDate(e.date) + " · " + e.type }), document.createTextNode(" — " + e.note));
       tl.append(row);
     });
-    if (a.log.length > 3) tl.append(el("div", { text: "+ " + (a.log.length - 3) + " earlier (Edit / log to see all)" }));
+    if (logView.entries.length > 3) tl.append(el("div", { text: "+ " + (logView.entries.length - 3) + " earlier (Edit / log to see all)" }));
     article.append(tl);
   }
   if (a.notes) article.append(el("p", { class: "notes", text: a.notes }));
@@ -1854,7 +2038,7 @@ const FILTER_TEXT = {
   overdue: "Follow-ups that are overdue",
   progress: "In progress: screening or interview stage",
   heard: "Heard back: sent " + RESPONSE_DAYS + "+ days ago and moved past Applied",
-  Applied: "Status: Applied", Screening: "Status: Screening", Interview: "Status: Interview",
+  Interested: "Status: Interested", Applied: "Status: Applied", Screening: "Status: Screening", Interview: "Status: Interview",
   Offer: "Status: Offer", Rejected: "Status: Rejected", Withdrawn: "Status: Withdrawn"
 };
 
@@ -1894,7 +2078,7 @@ function renderFollow() {
 }
 // Best-effort "rejected on" date: interview/activity log first, then the notes text.
 function rejectedOn(a) {
-  const logHit = (a.log || []).filter(e => /reject|not selected|declin|another candidate/i.test((e.type || "") + " " + (e.note || "")) && isRealISO(e.date))
+  const logHit = splitLog(a.log).entries.filter(e => /reject|not selected|declin|another candidate/i.test((e.type || "") + " " + (e.note || "")) && isRealISO(e.date))
     .map(e => e.date).sort().pop();
   if (logHit) return logHit;
   const notes = String(a.notes || "");
@@ -2028,7 +2212,7 @@ function setView(name) {
     overview: ["WORKSPACE / OVERVIEW", null, "A clear view of your search. One step at a time."],
     board: ["WORKSPACE / PIPELINE", "Pipeline", "Drag a card to change its stage. On a phone, use Move."],
     list: ["WORKSPACE / APPLICATIONS", "All applications", "Search, filter, and sort everything saved in this browser."],
-    follow: ["WORKSPACE / FOLLOW-UPS", "Follow-ups", "Applied, screening, and interview — overdue and the next 3 days."],
+    follow: ["WORKSPACE / FOLLOW-UPS", "Follow-ups", "Interested, applied, screening, and interview — overdue and the next 3 days."],
     rejected: ["WORKSPACE / REJECTED", "Rejected", "Every no in one place, newest first. Search, sort, and spot patterns."]
   };
   document.getElementById("eyebrow").textContent = copy[view][0];
@@ -2059,7 +2243,9 @@ function openForm(app) {
   document.getElementById("pay").value = app ? (app.pay || "") : "";
   document.getElementById("link").value = app ? (app.link || "") : "";
   document.getElementById("notes").value = app ? (app.notes || "") : "";
-  formLog = app ? cleanLog(app.log) : [];
+  const split = app ? splitLog(app.log) : { entries: [], kept: [] };
+  formLog = split.entries;
+  formLogKept = split.kept;
   document.getElementById("logDate").value = todayISO();
   document.getElementById("logType").value = app && app.status === "Interview" ? "Interview" : (app && app.status === "Screening" ? "Screen" : "Note");
   document.getElementById("logNote").value = "";
@@ -2205,7 +2391,8 @@ document.getElementById("form").addEventListener("submit", (e) => {
   };
   const pendingNote = document.getElementById("logNote").value.trim();
   if (pendingNote && confirm("Add the unsaved interview log note too?\n\n" + pendingNote)) addFormLog();
-  if (formLog.length || (existing && existing.log)) next.log = cleanLog(formLog);
+  const savedLog = cleanLog(formLog).concat(formLogKept);
+  if (savedLog.length || (existing && existing.log)) next.log = savedLog;
   if (!STATUSES.includes(next.status)) return;
   if (!isRealISO(next.dateApplied)) {
     alert("Date applied needs a real calendar date.");
@@ -2459,6 +2646,7 @@ function mapCsvStatus(raw) {
   if (!s) return "Applied";
   const exact = STATUSES.find(x => x.toLowerCase() === s);
   if (exact) return exact;
+  if (/^interest/.test(s)) return "Interested";
   if (/offer/.test(s)) return "Offer";
   if (/reject|declin|not selected|turned down|no longer/.test(s)) return "Rejected";
   if (/interview/.test(s)) return "Interview";
@@ -2660,7 +2848,11 @@ document.getElementById("importReplace").addEventListener("click", () => {
 let savedView = "overview";
 try { savedView = localStorage.getItem(VIEW_KEY) || "overview"; } catch (err) { /* ignore */ }
 setView(savedView);
-if (!storageOk) document.getElementById("storageWarn").hidden = false;
+showStorageWarn();
+document.getElementById("storageDownload").addEventListener("click", downloadStorageRaw);
+document.getElementById("storageRetry").addEventListener("click", () => location.reload());
+document.getElementById("storageRepair").addEventListener("click", repairStorage);
+document.getElementById("upcomingOpen").addEventListener("click", () => setView("follow"));
 
 // Seed default Gist ID into localStorage once (token never auto-seeded).
 try {
@@ -2732,6 +2924,7 @@ try { initTheme(); } catch (err) { /* theme toggle is optional */ }
 render();
 
 (async function bootCloudSync() {
+  if (!storageOk) return;
   const cfg = getSyncConfig();
   if (cfg.gistId === RETIRED_GIST_ID) {
     setSyncConfig({ gistId: "", token: cfg.token || "", autoPull: false, autoPush: false });

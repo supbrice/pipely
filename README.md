@@ -27,8 +27,10 @@ Do not commit personal access tokens or application JSON to the public repo. The
 
 ## Features
 
-- Overview cards are clickable: Total, In progress, Interviews, Offers, Rejected, and Response rate each open the matching applications.
+- Overview cards are clickable: Total, In progress, Interviews scheduled, Offers, Rejected, and Response rate each open the matching applications. A short upcoming-follow-ups list links to the Follow-ups screen.
 - Follow-ups has its own screen, in the sidebar and on the phone nav, with a count on that item, a count in the tab title, and Followed up / Snooze buttons.
+- Pipeline stages: Interested, Applied, Screening, Interview, Offer, Rejected, Withdrawn. Interested is a stage before Applied. Existing statuses keep their meaning.
+- If saved applications cannot be read, the original `brice-job-apps-v1` value is left in place and copied to `brice-job-apps-v1-unreadable-<timestamp>`. The banner can download that raw value, retry, or repair (keep valid rows, skip bad ones, only after you confirm).
 - Response rate: share of applications sent 14+ days ago (withdrawn left out) that moved to Screening, Interview, Offer, or Rejected.
 - Import takes a Bryz Jobs JSON backup or a tracker CSV. Merge matches by id and keeps interview logs.
 - Warns when you add an application at a company where you already have an active one.
@@ -40,7 +42,7 @@ Prefer Cloud sync (Pull / Push). You can still Export JSON / Import JSON, or fro
 
 ## Where your data lives
 
-- Applications: `brice-job-apps-v1`
+- Applications: `brice-job-apps-v1`. An unreadable copy, if reading fails, is also kept under `brice-job-apps-v1-unreadable-<timestamp>`.
 - Selected tab: `brice-job-apps-view`
 - Sync settings (gist id + optional token): `brice-job-apps-sync`
 - Theme (`light` or `dark`): `brice-job-apps-theme`. If that key is unset, Bryz Jobs follows the system color scheme. The header toggle saves a choice.
