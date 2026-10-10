@@ -329,3 +329,60 @@ dialog{max-width:min(720px,calc(100vw - 24px))}
   .wk,.wk-x,.wk-n{gap:4px}
   .rej-tools select.inp{flex:1 1 140px}
 }
+
+/* Pages: one page per section. Sticky tab bar on desktop/iPad, compact scrollable tab row on phone. */
+section[hidden],.hero-wrap[hidden],.hero[hidden]{display:none!important}
+main section{scroll-margin-top:64px}
+.pagenav{position:sticky;top:0;z-index:30;background:var(--bg);background:color-mix(in srgb,var(--bg) 90%,transparent);-webkit-backdrop-filter:saturate(1.4) blur(12px);backdrop-filter:saturate(1.4) blur(12px);border-bottom:1px solid var(--line);margin-top:16px}
+.pagenav-in{display:flex;gap:4px;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none;padding:9px 0;-webkit-overflow-scrolling:touch}
+.pagenav-in::-webkit-scrollbar{display:none}
+.pagenav a{flex:0 0 auto;color:var(--muted);font-size:.9rem;font-weight:500;line-height:1.25;padding:9px 14px;border-radius:9999px;white-space:nowrap;text-decoration:none}
+.pagenav a:hover{color:var(--fg);background:var(--card);text-decoration:none}
+.pagenav a[aria-current="page"]{color:var(--fg);background:var(--card);font-weight:600;box-shadow:inset 0 0 0 1px var(--line)}
+.pagenav a:focus-visible{outline:2px solid var(--blue);outline-offset:-2px;box-shadow:none}
+main section.page-first{padding-top:48px}
+@media (max-width:700px){main section.page-first{padding-top:36px}.pagenav-in{-webkit-mask-image:linear-gradient(to right,transparent,#000 14px,#000 calc(100% - 14px),transparent);mask-image:linear-gradient(to right,transparent,#000 14px,#000 calc(100% - 14px),transparent)}.pagenav{margin-top:12px}.pagenav-in{gap:2px;padding:7px 0}.pagenav a{font-size:.84rem;padding:8px 12px}}
+.wrap > .pagenav{margin-left:-24px;margin-right:-24px;padding:0 24px}
+.top #sync-btn{margin-left:auto}
+@media (max-width:640px){ .wrap > .pagenav{margin-left:-20px;margin-right:-20px;padding:0 20px} }
+
+/* Calendar page (same look as the Bryz Trades calendar) */
+.jcal-card{margin-top:28px;padding:20px}
+:root{--k-purple:#7c3aed}:root[data-theme="dark"]{--k-purple:#a78bfa}
+.jcal-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.jcal-arrow{width:44px;height:44px;font-size:1.3rem}
+.jcal-title{text-align:center;display:flex;flex-direction:column;line-height:1.3;min-width:0}
+.jcal-title strong{font-size:1.1rem;letter-spacing:-.025em}
+.jcal-title span{font-size:.84rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.jcal-tools{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 14px;margin-bottom:14px}
+.jcal-legend{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:4px 14px;font-size:.8rem;color:var(--muted)}
+.jcal-legend li{display:inline-flex;align-items:center;gap:6px}
+.jd-dot{display:inline-block;width:8px;height:8px;border-radius:50%;flex:0 0 auto}
+.k-applied{background:var(--blue)}.k-interview{background:var(--k-purple)}.k-rejected{background:var(--red)}.k-offer{background:var(--green)}
+.jcal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+.jcal-grid .dow{font-size:.72rem;color:var(--muted);text-align:center;font-weight:500;padding-bottom:2px}
+.jday{aspect-ratio:1/0.8;background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:6px 7px;display:flex;flex-direction:column;justify-content:space-between;min-width:0;font:inherit;color:inherit;text-align:left;cursor:pointer;width:100%;font-variant-numeric:tabular-nums}
+.jday:hover{border-color:var(--muted2)}
+.jday:focus-visible{outline:none;box-shadow:var(--ring)}
+.jday.blank{background:transparent;border-color:transparent;cursor:default}
+.jday.has{background:var(--card2)}
+.jday.today{box-shadow:inset 0 0 0 1.5px var(--blue)}
+.jday .d{font-size:.74rem;color:var(--muted);font-weight:500}
+.jday .jd{display:flex;flex-wrap:wrap;gap:2px 7px;font-size:.72rem;font-weight:600;line-height:1.2}
+.jday .jd span{display:inline-flex;align-items:center;gap:3px}
+.jcal-foot{margin:14px 0 0}
+.jday-list{list-style:none;margin:6px 0 16px;padding:0;display:flex;flex-direction:column;gap:6px}
+.jday-list button{width:100%;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font:inherit;color:inherit;cursor:pointer;display:flex;flex-direction:column;gap:2px}
+.jday-list button:hover{border-color:var(--muted2)}
+.jday-list .co{font-weight:600;font-size:.92rem}
+.jday-list .ro{font-size:.8rem;color:var(--muted)}
+.jday-h{display:flex;align-items:center;gap:8px;font-size:.9rem;margin:14px 0 0}
+@media (max-width:700px){
+  .jcal-card{padding:14px}
+  .jcal-grid{gap:4px}
+  .jday{aspect-ratio:auto;min-height:56px;border-radius:9px;padding:4px}
+  .jday .d{font-size:.68rem}
+  .jday .jd{gap:1px 4px;font-size:.6rem;letter-spacing:-.02em}
+  .jday .jd span{gap:2px}
+  .jd-dot{width:6px;height:6px}
+}

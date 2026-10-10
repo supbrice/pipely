@@ -628,6 +628,46 @@
     return m ? m[1] : "";
   }
 
+  /* ---------- calendar (read-only: dates come from existing fields only, nothing is guessed) ---------- */
+  // Interview/screen dates: log entries of type Interview or Screen, plus an ISO date written right after the
+  // word "interview" or "screen" in the notes (e.g. "Zoom interview 2026-10-08"). Offer dates: an ISO date right
+  // after "offer" in the notes of an Offer record. Rejections: rejectedOn() (the Rejected view's date).
+  const NOTE_IV = /\b(?:interview\w*|screen\w*)\b[^.;|]{0,30}?(\d{4}-\d{2}-\d{2})/gi;
+  const NOTE_OFFER = /\boffer\w*\b[^.;|]{0,30}?(\d{4}-\d{2}-\d{2})/gi;
+  function noteDates(notes, re) {
+    const out = []; let m; re.lastIndex = 0;
+    while ((m = re.exec(String(notes || "")))) if (isRealISO(m[1])) out.push(m[1]);
+    return out;
+  }
+  function calendarIndex(apps) {
+    const days = {}, undated = { applied: 0, interview: 0, rejected: 0, offer: 0 };
+    const put = (date, kind, a) => {
+      const d = days[date] || (days[date] = { applied: [], interview: [], rejected: [], offer: [] });
+      if (!d[kind].some((x) => x.id === a.id)) d[kind].push(a);
+    };
+    (apps || []).forEach((a) => {
+      const st = statusOf(a);
+      if (st !== "Interested") { if (isRealISO(a.dateApplied)) put(a.dateApplied, "applied", a); else undated.applied++; }
+      const iv = new Set(logOf(a).filter((e) => e.type === "Interview" || e.type === "Screen").map((e) => e.date).concat(noteDates(a.notes, NOTE_IV)));
+      iv.forEach((d) => put(d, "interview", a));
+      if (!iv.size && (st === "Screening" || st === "Interview")) undated.interview++;
+      if (st === "Rejected") { const r = rejectedOn(a); if (r) put(r, "rejected", a); else undated.rejected++; }
+      if (st === "Offer") { const o = noteDates(a.notes, NOTE_OFFER); if (o.length) o.forEach((d) => put(d, "offer", a)); else undated.offer++; }
+    });
+    return { days, undated };
+  }
+  function calendarMonth(index, year, month) {
+    const pre = year + "-" + String(month + 1).padStart(2, "0") + "-";
+    const totals = { applied: 0, interview: 0, rejected: 0, offer: 0, activeDays: 0 };
+    Object.keys(index.days).forEach((k) => {
+      if (k.slice(0, 8) !== pre) return;
+      const d = index.days[k]; let any = false;
+      ["applied", "interview", "rejected", "offer"].forEach((t) => { totals[t] += d[t].length; if (d[t].length) any = true; });
+      if (any) totals.activeDays++;
+    });
+    return totals;
+  }
+
   return {
     KEY, SYNC_KEY, UNREADABLE_PREFIX, GIST_FILENAME, RETIRED_GIST_ID, DEFAULT_GIST_ID,
     STATUSES, PIPE, ACTIVE, CLOSED, THEME_KEY, CHART_SOURCES, SOURCES, LOG_TYPES, SAMPLE_IDS, RESPONSE_DAYS, LIMITS,
@@ -639,6 +679,6 @@
     filterApps, sortByApplied, markFollowedUp, addLogEntry, removeLogEntry,
     sha1Hex, parseCSV, csvToApps, toCsv, parseImportText,
     readSyncConfig, syncConfigValue, gistHashId,
-    weekStart, weekly, sourceCounts, heatmap, heatLevel, rejectedOn, daysToNo, rejectedStats, rejectedList, boardColumn, themeFrom
+    weekStart, weekly, sourceCounts, heatmap, heatLevel, rejectedOn, daysToNo, rejectedStats, rejectedList, boardColumn, themeFrom, calendarIndex, calendarMonth
   };
 });

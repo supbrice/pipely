@@ -6,7 +6,7 @@ const ARG = process.argv[2] || path.join(__dirname, "..");
 const LIVE = /^https?:/.test(ARG), PORT = 8818, KEY = "brice-job-apps-v1";
 const BASE = LIVE ? ARG : "http://127.0.0.1:" + PORT + "/";
 const DATA = fs.readFileSync(path.join(__dirname, "fixtures/apps-255.json"), "utf8");
-const BOARD_URL = process.env.BOARD_HASH ? BASE.replace(/#.*$/, "") + process.env.BOARD_HASH : BASE;
+const BOARD_URL = BASE.replace(/#.*$/, "") + "#/board";
 let fails = 0; const ok = (c, m) => { console.log((c ? "PASS " : "FAIL ") + m); if (!c) fails++; };
 const drag = (p, id, to) => p.evaluate(([id, to]) => {
   const card = document.querySelector('.kcard[data-id="' + id + '"]'), col = document.querySelector('.kcol[data-status="' + to + '"]');

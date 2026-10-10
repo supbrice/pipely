@@ -214,3 +214,30 @@ test("theme defaults to light; only an explicit dark choice turns it on", () => 
   assert.equal(J.themeFrom("dark"), "dark");
   assert.equal(J.themeFrom("system"), "light");
 });
+
+test("calendar index reads dates from existing fields only and counts undated items", () => {
+  const apps = [
+    { id: "a1", company: "A", role: "r", status: "Applied", dateApplied: "2026-10-09" },
+    { id: "a2", company: "B", role: "r", status: "Applied", dateApplied: "2026-10-09" },
+    { id: "a3", company: "C", role: "r", status: "Applied", dateApplied: "" },
+    { id: "i1", company: "D", role: "r", status: "Interested", dateApplied: "" },
+    { id: "r1", company: "E", role: "r", status: "Rejected", dateApplied: "2026-10-01", notes: "x | Rejection email 2026-10-08" },
+    { id: "r2", company: "F", role: "r", status: "Rejected", dateApplied: "2026-10-02", notes: "no date here" },
+    { id: "s1", company: "G", role: "r", status: "Screening", dateApplied: "2026-09-01", log: [{ id: "l1", date: "2026-10-12", type: "Screen", note: "phone" }] },
+    { id: "s2", company: "H", role: "r", status: "Interview", dateApplied: "2026-09-02", notes: "waiting" },
+    { id: "o1", company: "I", role: "r", status: "Offer", dateApplied: "2026-09-03", notes: "Zoom interview + offer 2026-10-08; start soon" },
+    { id: "o2", company: "J", role: "r", status: "Offer", dateApplied: "2026-09-04" },
+  ];
+  const before = JSON.stringify(apps);
+  const ix = J.calendarIndex(apps);
+  assert.equal(JSON.stringify(apps), before, "inputs untouched");
+  assert.deepEqual(ix.days["2026-10-09"].applied.map((a) => a.id), ["a1", "a2"]);
+  assert.deepEqual(ix.days["2026-10-08"].rejected.map((a) => a.id), ["r1"]);
+  assert.deepEqual(ix.days["2026-10-08"].interview.map((a) => a.id), ["o1"]);
+  assert.deepEqual(ix.days["2026-10-08"].offer.map((a) => a.id), ["o1"]);
+  assert.deepEqual(ix.days["2026-10-12"].interview.map((a) => a.id), ["s1"]);
+  assert.deepEqual(ix.undated, { applied: 1, interview: 1, rejected: 1, offer: 1 });
+  const oct = J.calendarMonth(ix, 2026, 9);
+  assert.deepEqual(oct, { applied: 4, interview: 2, rejected: 1, offer: 1, activeDays: 5 });
+  assert.equal(J.calendarMonth(ix, 2026, 8).applied, 4);
+});

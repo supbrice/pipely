@@ -33,6 +33,8 @@ let fails = 0; const ok = (c, m) => { console.log((c ? "PASS " : "FAIL ") + m); 
   const ls = (k) => page.evaluate((k) => localStorage.getItem(k), k);
 
   // 1) Fresh browser: empty state, nothing written
+  // Pages: each section lives on its own hash route now
+  const route = async (r) => { await page.evaluate((r) => { location.hash = "#/" + r; }, r); await page.waitForTimeout(80); };
   await page.goto(BASE);
   ok((await ls(KEY)) === null, "fresh load writes nothing to " + KEY);
   ok(/No applications yet/.test(await page.textContent("#job-list")), "empty state shown");
@@ -55,6 +57,7 @@ let fails = 0; const ok = (c, m) => { console.log((c ? "PASS " : "FAIL ") + m); 
   ok(/Panel/.test(ivText), "logged interview appears in Interviews");
   // spot check: search for a record and open details
   const probe = real[17];
+  await route("applications");
   await page.fill("#q", probe.company);
   await page.click("#job-list .item:first-child button:has-text('Details')");
   ok((await page.textContent("#d-title")).includes(probe.company), "details open for " + probe.company);
@@ -77,6 +80,7 @@ let fails = 0; const ok = (c, m) => { console.log((c ? "PASS " : "FAIL ") + m); 
   await page.fill("#q", "");
 
   // 4) CRUD + reload persistence
+  await route("");
   await page.click(".hero [data-act=add]");
   await page.fill("#f-company", "Playwright Test Co");
   await page.fill("#f-role", "QA Tech");
@@ -84,6 +88,7 @@ let fails = 0; const ok = (c, m) => { console.log((c ? "PASS " : "FAIL ") + m); 
   ok(JSON.parse(await ls(KEY)).length === N + 1, "add -> N+1");
   await page.reload();
   ok((await page.textContent("#hero-count")) === (N + 1) + " applications", "add persisted across reload");
+  await route("applications");
   await page.fill("#q", "Playwright Test Co");
   await page.click("#job-list .item:first-child button:has-text('Edit')");
   await page.fill("#f-role", "QA Tech II");
@@ -103,6 +108,7 @@ let fails = 0; const ok = (c, m) => { console.log((c ? "PASS " : "FAIL ") + m); 
   ok(JSON.stringify(after) === JSON.stringify(realPlus), "after add/edit/delete the original records are byte-identical");
 
   // 5) Export / import
+  await route("sync");
   const [dl] = await Promise.all([page.waitForEvent("download"), page.click("#data [data-act=export]")]);
   const exp = path.join(OUT, "export.json"); await dl.saveAs(exp);
   const exported = JSON.parse(fs.readFileSync(exp, "utf8"));
@@ -135,6 +141,7 @@ let fails = 0; const ok = (c, m) => { console.log((c ? "PASS " : "FAIL ") + m); 
   ok(await page.isVisible("#storage-warn"), "unreadable banner visible");
   const keys = await page.evaluate(() => Object.keys(localStorage));
   ok(keys.some((k) => k.startsWith("brice-job-apps-v1-unreadable-")), "unreadable copy saved");
+  await route("");
   await page.click(".hero [data-act=add]");
   await page.fill("#f-company", "X"); await page.fill("#f-role", "Y"); await page.click("#job-submit");
   ok((await ls(KEY)) === "{not json", "original unreadable value untouched after attempted save");
@@ -149,6 +156,7 @@ let fails = 0; const ok = (c, m) => { console.log((c ? "PASS " : "FAIL ") + m); 
     const ov = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
     ok(ov <= 0, "no horizontal overflow at " + w + " (" + ov + ")");
     await page.screenshot({ path: path.join(OUT, "jobs-" + w + ".png"), fullPage: false });
+    await route("applications");
     await page.click("#job-list .item:first-child button:has-text('Details')");
     const dov = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
     ok(dov <= 0, "details dialog no overflow at " + w);

@@ -50,6 +50,7 @@
   let storageOk = true;
   let filter = { q: "", status: "All" }, shown = PAGE, fuAll = false, rejShown = PAGE;
   let undoSnapshot = null;
+  let router = null;
 
   function storageGet(key) { try { return localStorage.getItem(key); } catch (e) { return null; } }
 
@@ -124,7 +125,7 @@
 
   /* ---------- render ---------- */
   function render() {
-    renderHero(); renderKpis(); renderChips(); renderList(); renderBoard(); renderInsights(); renderInterviews(); renderFollowUps(); renderRejected(); renderActivity(); renderSamples();
+    renderHero(); renderKpis(); renderChips(); renderList(); renderBoard(); renderInsights(); renderInterviews(); renderFollowUps(); renderRejected(); renderActivity(); renderJcal(); renderSamples();
     const open = $("#detail-dlg");
     if (open.open && open.dataset.id) renderDetail(open.dataset.id, true);
   }
@@ -150,10 +151,10 @@
       card("pulse", "Response rate", rs.rate == null ? "—" : rs.rate + "%", rs.pool ? rs.heard + " of " + rs.pool + " heard back (sent " + J.RESPONSE_DAYS + "+ days ago) · " + k.rejected + " rejected in total." : "Shows up " + J.RESPONSE_DAYS + " days after you apply.", false, () => goToSection("rejected")),
     );
   }
-  function goToSection(id) { $("#" + id).scrollIntoView({ behavior: "smooth", block: "start" }); }
+  function goToSection(id) { if (router) router.go(router.routeOf(id) || "overview", id); else $("#" + id).scrollIntoView({ block: "start" }); }
   function goTo(status) {
     filter.status = status; shown = PAGE; renderChips(); renderList();
-    $("#pipeline").scrollIntoView({ behavior: "smooth", block: "start" });
+    if (router) router.go("applications"); else $("#pipeline").scrollIntoView({ block: "start" });
   }
 
   function renderChips() {
@@ -406,6 +407,64 @@
     renderInsights();
   });
   applyTheme(J.themeFrom(storageGet(J.THEME_KEY)));
+
+  /* ---------- calendar page (read-only) ---------- */
+  const JCAL_KINDS = [["applied", "Applied", "applied"], ["interview", "Interview / screen", "interview"], ["rejected", "Rejected", "rejected"], ["offer", "Offer", "offer"]];
+  const MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  const nowD = new Date();
+  let jcalMonth = { y: nowD.getFullYear(), m: nowD.getMonth() };
+  let jcalIndex = null;
+  const plural = (n, one, many) => n + " " + (n === 1 ? one : many);
+  function renderJcal() {
+    const grid = $("#jcal-grid"); if (!grid) return;
+    jcalIndex = J.calendarIndex(apps);
+    const y = jcalMonth.y, m = jcalMonth.m, tdy = today();
+    grid.replaceChildren();
+    ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].forEach((d) => grid.appendChild(h("div", { class: "dow", role: "columnheader", text: d })));
+    const first = new Date(y, m, 1).getDay(), days = new Date(y, m + 1, 0).getDate();
+    for (let i = 0; i < first; i++) grid.appendChild(h("div", { class: "jday blank", "aria-hidden": "true" }));
+    for (let d = 1; d <= days; d++) {
+      const key = y + "-" + String(m + 1).padStart(2, "0") + "-" + String(d).padStart(2, "0");
+      const ev = jcalIndex.days[key];
+      const parts = [], label = [MONTH_NAMES[m].slice(0, 3) + " " + d];
+      if (ev) JCAL_KINDS.forEach(([k, name]) => { const n = ev[k].length; if (n) { parts.push(h("span", { class: "j-" + k }, h("i", { class: "jd-dot k-" + k, "aria-hidden": "true" }), String(n))); label.push(n + " " + name.toLowerCase()); } });
+      if (!parts.length) label.push("nothing recorded");
+      grid.appendChild(h("button", { type: "button", class: "jday" + (parts.length ? " has" : "") + (key === tdy ? " today" : ""), role: "gridcell", "data-key": key, "aria-label": label.join(", "), onclick: () => openJday(key) },
+        h("span", { class: "d", text: String(d) }), h("span", { class: "jd" }, ...parts)));
+    }
+    const t = J.calendarMonth(jcalIndex, y, m);
+    $("#jcal-title").textContent = MONTH_NAMES[m] + " " + y;
+    $("#jcal-total").textContent = t.activeDays
+      ? [plural(t.applied, "applied", "applied"), plural(t.interview, "interview / screen", "interviews / screens"), plural(t.rejected, "rejected", "rejected"), plural(t.offer, "offer", "offers")].join(" · ")
+      : "Nothing recorded this month";
+    const u = jcalIndex.undated, bits = [];
+    if (u.applied) bits.push(plural(u.applied, "application", "applications") + " without an applied date");
+    if (u.interview) bits.push(plural(u.interview, "screening/interview record", "screening/interview records") + " without an interview date");
+    if (u.rejected) bits.push(plural(u.rejected, "rejection", "rejections") + " without a rejection date");
+    if (u.offer) bits.push(plural(u.offer, "offer", "offers") + " without an offer date");
+    $("#jcal-foot").textContent = bits.length ? "Not on the calendar (no date in the record, so not guessed): " + bits.join(", ") + "." : "Every item has a date.";
+  }
+  function openJday(key) {
+    const ev = (jcalIndex && jcalIndex.days[key]) || null;
+    const [yy, mm, dd] = key.split("-").map(Number);
+    const title = new Date(yy, mm - 1, dd).toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric", year: "numeric" });
+    const body = $("#jday-body"), dlg = $("#jday-dlg");
+    const kids = [h("button", { class: "btn ghost xs dlg-x", type: "button", onclick: () => dlg.close(), "aria-label": "Close day" }, "Close"), h("h2", { id: "jday-title", class: "c-title", text: title })];
+    let any = false;
+    JCAL_KINDS.forEach(([k, name]) => {
+      const list = ev ? ev[k] : [];
+      if (!list.length) return; any = true;
+      kids.push(h("h3", { class: "jday-h" }, h("i", { class: "jd-dot k-" + k, "aria-hidden": "true" }), name + " (" + list.length + ")"));
+      kids.push(h("ul", { class: "jday-list" }, ...list.map((a) => h("li", null, h("button", { type: "button", onclick: () => { dlg.close(); openDetail(a.id); } },
+        h("span", { class: "co", text: String(a.company || "—") }), h("span", { class: "ro", text: String(a.role || "") + " · " + J.statusOf(a) }))))));
+    });
+    if (!any) kids.push(h("p", { class: "lead", text: "Nothing recorded on this day." }));
+    body.replaceChildren(...kids);
+    dlg.showModal();
+  }
+  $("#jcal-prev").addEventListener("click", () => { jcalMonth.m--; if (jcalMonth.m < 0) { jcalMonth.m = 11; jcalMonth.y--; } renderJcal(); });
+  $("#jcal-next").addEventListener("click", () => { jcalMonth.m++; if (jcalMonth.m > 11) { jcalMonth.m = 0; jcalMonth.y++; } renderJcal(); });
+  $("#jcal-today").addEventListener("click", () => { const n = new Date(); jcalMonth = { y: n.getFullYear(), m: n.getMonth() }; renderJcal(); });
 
   function renderActivity() {
     const items = J.recentActivity(apps, 12);
@@ -763,6 +822,29 @@
     }
   } catch (e) { /* ignore */ }
   render();
+  /* ---------- pages (hash routes) ---------- */
+  router = PageRouter.start({
+    nav: $("#pagenav"), siteTitle: "Bryz Jobs",
+    routes: [
+      { id: "overview", label: "Overview", sections: ["hero", "overview", "activity"] },
+      { id: "applications", label: "Applications", sections: ["pipeline"] },
+      { id: "board", label: "Board", sections: ["board"] },
+      { id: "calendar", label: "Calendar", sections: ["jcal"] },
+      { id: "followups", label: "Follow-ups", sections: ["interviews", "followups"] },
+      { id: "insights", label: "Insights", sections: ["insights"] },
+      { id: "rejected", label: "Rejected", sections: ["rejected"] },
+      { id: "sync", label: "Data & sync", sections: ["data"] }
+    ],
+    // old in-page links (#board, #pipeline ...) open their page
+    aliases: { hero: "overview", overview: "overview", activity: "overview", pipeline: "applications", applications: "applications", board: "board", calendar: "calendar", jcal: "calendar",
+      followups: "followups", interviews: "followups", insights: "insights", rejected: "rejected", data: "sync", sync: "sync" },
+    isSpecial: (hh) => !!J.gistHashId(hh),
+    onShow: (id) => {
+      if (id === "board") document.querySelectorAll(".kcol[data-status]").forEach(boardFade);
+      if (id === "insights") renderInsights();
+      if (id === "calendar") renderJcal();
+    }
+  });
   (async function bootCloudSync() {
     const cfg = getSyncConfig();
     if (cfg.gistId === J.RETIRED_GIST_ID) {

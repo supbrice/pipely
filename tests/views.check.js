@@ -38,6 +38,8 @@ function expected(list) {
   page.on("console", (m) => { if (m.type() === "error") errors.push(m.text()); });
   page.on("pageerror", (e) => errors.push(String(e)));
   const ls = (k) => page.evaluate((k) => localStorage.getItem(k), k);
+  // Pages: each section lives on its own hash route now
+  const route = async (r) => { await page.evaluate((r) => { location.hash = "#/" + r; }, r); await page.waitForTimeout(80); };
   await page.goto(BASE);
   await page.evaluate(([k, v]) => { localStorage.clear(); localStorage.setItem(k, v); localStorage.setItem("brice-job-apps-sync", JSON.stringify({ gistId: "", token: "", autoPull: false, autoPush: false })); }, [KEY, raw]);
   await page.reload();
@@ -75,6 +77,7 @@ function expected(list) {
   const rejRows = await page.$$eval("#rej-list .item", (n) => n.length);
   ok(rejRows === Math.min(40, E.c.Rejected), "Rejected list shows " + rejRows + " rows (page of 40)");
   ok(new RegExp("^\\d+ shown · " + E.c.Rejected + " rejected$").test(await page.textContent("#rej-sub")), "Rejected badge: " + (await page.textContent("#rej-sub")));
+  await route("rejected");
   await page.check("#rej-withdrawn");
   ok((await page.textContent("#rej-sub")).includes("+ " + E.c.Withdrawn + " withdrawn"), "include withdrawn adds " + E.c.Withdrawn);
   await page.uncheck("#rej-withdrawn");
@@ -101,6 +104,7 @@ function expected(list) {
     await page.click("#toast-undo");
     ok((await ls(KEY)) === JSON.stringify(recs), "undo restores the exact stored records");
     // Touch / keyboard path: the menu on a board card
+    await route("board");
     await page.selectOption('.kcol[data-status="Applied"] .kcard[data-id="' + target + '"] select', "Interview");
     const viaMenu = JSON.parse(await ls(KEY)).filter((a, i) => JSON.stringify(a) !== JSON.stringify(recs[i]));
     ok(viaMenu.length === 1 && viaMenu[0].status === "Interview", "board card menu moves the card");
@@ -110,6 +114,7 @@ function expected(list) {
   } else ok(false, "no Applied card to drag");
 
   // Interested: add one, round-trip through export/import, other records untouched
+  await route("");
   await page.click(".hero [data-act=add]");
   await page.fill("#f-company", "Interested Test Co"); await page.fill("#f-role", "Tech");
   await page.selectOption("#f-status", "Interested");
@@ -120,6 +125,7 @@ function expected(list) {
   ok(JSON.stringify(st.filter((a) => a !== added && a.company !== "Interested Test Co")) === JSON.stringify(recs), "existing records unchanged by the add");
   ok((await page.$eval('.kcol[data-status="Interested"] .kcount', (n) => n.textContent)) === String(E.c.Interested + 1), "Interested column updated");
   ok((await page.$$eval("#kpis .v", (n) => n[4].textContent)) === kp[4], "response rate unchanged by an Interested add");
+  await route("sync");
   const [dl] = await Promise.all([page.waitForEvent("download"), page.click("#data [data-act=export]")]);
   const exp = path.join(OUT, "views-export.json"); await dl.saveAs(exp);
   await page.evaluate((k) => localStorage.removeItem(k), KEY); await page.reload();
@@ -142,7 +148,7 @@ function expected(list) {
       const ov = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
       ok(ov <= 0, theme + " " + w + ": no horizontal overflow (" + ov + ")");
       for (const sec of ["board", "insights", "rejected"]) {
-        await page.$eval("#" + sec, (e) => e.scrollIntoView());
+        await route(sec); await page.waitForTimeout(100);
         await page.screenshot({ path: path.join(OUT, sec + "-" + theme + "-" + w + ".png") });
       }
     }
