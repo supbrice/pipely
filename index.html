@@ -1476,9 +1476,9 @@ function daysSince(app) {
 }
 
 function greeting() {
-  const h = new Date().getHours();
-  const part = h < 12 ? "morning" : h < 17 ? "afternoon" : "evening";
-  return "Good " + part + ", Brice";
+  const hour = new Date().getHours();
+  const part = hour < 12 ? "morning" : hour < 17 ? "afternoon" : "evening";
+  return "Good " + part + ", Bryz";
 }
 
 const FLOW_COLORS = {
