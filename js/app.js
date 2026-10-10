@@ -258,6 +258,7 @@
 
   /* ---------- board (drag between stages) ---------- */
   let dragId = null;
+  const boardSearch = {}; // per column: { open, q } — view state only, never stored
   function boardCard(a) {
     const card = h("article", { class: "kcard", draggable: "true", "data-id": a.id },
       h("div", { class: "ktop" },
@@ -276,9 +277,38 @@
   function boardCol(status) {
     const items = J.boardColumn(apps, status);
     // Every card is rendered; each column is capped in height and scrolls on its own (header stays sticky).
+    const ss = boardSearch[status] || (boardSearch[status] = { open: false, q: "" });
+    const sid = "ks-" + status;
+    const input = h("input", { class: "ksearch-in", type: "search", id: sid, autocomplete: "off", spellcheck: "false", enterkeyhint: "search", placeholder: "Company or role", "aria-label": "Search " + status + " by company or role", value: ss.q });
+    const clearBtn = h("button", { class: "ksearch-x", type: "button", "aria-label": "Clear search" }, "×");
+    const box = h("div", { class: "ksearch", hidden: !ss.open }, input, clearBtn);
+    const btn = h("button", { class: "ksearch-btn", type: "button", "aria-label": "Search " + status, "aria-expanded": String(ss.open), "aria-controls": sid, title: "Search " + status },
+      h("span", { class: "ksi", "aria-hidden": "true", html: '<svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M20 20l-4.8-4.8"/></svg>' }));
+    const count = h("span", { class: "kcount", text: String(items.length) });
+    const none = h("div", { class: "kplace knone", text: "No matches", hidden: true });
     const col = h("section", { class: "kcol st-" + status, "data-status": status, "aria-label": status + ", " + items.length },
-      h("div", { class: "khead" }, h("strong", null, h("span", { class: "dot", "aria-hidden": "true" }), status), h("span", { class: "kcount", text: String(items.length) })),
-      items.length ? items.map(boardCard) : h("div", { class: "kplace", text: "Drop a card here" }));
+      h("div", { class: "khead" }, h("strong", null, h("span", { class: "dot", "aria-hidden": "true" }), status), h("span", { class: "kright" }, count, btn), box),
+      items.length ? items.map(boardCard) : h("div", { class: "kplace", text: "Drop a card here" }), none);
+    // search text per card: company + role, case-insensitive
+    const hay = {}; items.forEach((a) => { hay[a.id] = (String(a.company || "") + " " + String(a.role || "")).toLowerCase(); });
+    const applyFilter = () => {
+      const q = ss.q.trim().toLowerCase();
+      let n = 0;
+      col.querySelectorAll(".kcard").forEach((c) => { const hit = !q || hay[c.dataset.id].includes(q); c.hidden = !hit; if (hit) n++; });
+      count.textContent = q ? n + " / " + items.length : String(items.length);
+      count.setAttribute("aria-label", q ? n + " of " + items.length + " match" : items.length + " cards");
+      none.hidden = !(q && n === 0);
+      boardFade(col);
+    };
+    const close = () => { ss.open = false; ss.q = ""; input.value = ""; box.hidden = true; btn.setAttribute("aria-expanded", "false"); applyFilter(); btn.focus(); };
+    btn.addEventListener("click", () => {
+      if (ss.open) { close(); return; }
+      ss.open = true; box.hidden = false; btn.setAttribute("aria-expanded", "true"); input.focus();
+    });
+    input.addEventListener("input", () => { ss.q = input.value; applyFilter(); });
+    input.addEventListener("keydown", (e) => { if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); close(); } });
+    clearBtn.addEventListener("click", () => { ss.q = ""; input.value = ""; applyFilter(); input.focus(); });
+    col._applyFilter = applyFilter;
     col.addEventListener("scroll", () => boardFade(col), { passive: true });
     col.addEventListener("dragover", (e) => {
       e.preventDefault(); col.classList.add("over");
@@ -303,9 +333,11 @@
     // keep each column's scroll position across re-renders (after a drop, menu change or undo)
     const keep = {};
     document.querySelectorAll(".kcol[data-status]").forEach((c) => { keep[c.dataset.status] = c.scrollTop; });
+    const active = document.activeElement && document.activeElement.classList && document.activeElement.classList.contains("ksearch-in") ? document.activeElement.id : null;
     $("#board-cols").replaceChildren(...J.PIPE.map(boardCol));
     $("#board-closed").replaceChildren(...J.CLOSED.map(boardCol));
-    document.querySelectorAll(".kcol[data-status]").forEach((c) => { if (keep[c.dataset.status]) c.scrollTop = keep[c.dataset.status]; boardFade(c); });
+    document.querySelectorAll(".kcol[data-status]").forEach((c) => { if (c._applyFilter) c._applyFilter(); if (keep[c.dataset.status]) c.scrollTop = keep[c.dataset.status]; boardFade(c); });
+    if (active && $("#" + active)) { const inp = $("#" + active); inp.focus({ preventScroll: true }); try { inp.setSelectionRange(inp.value.length, inp.value.length); } catch (e) { /* ignore */ } }
   }
 
   /* ---------- insights (charts + heatmap) ---------- */
