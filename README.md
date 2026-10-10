@@ -1,50 +1,57 @@
 # Bryz Jobs
 
-Bryz Jobs is a private job application tracker. It is a single `index.html` file (HTML + CSS + JS, no build step, no libraries) plus small `assets/` for the logo. The project still lives in the `supbrice/pipely` repo.
+A private job application tracker. Static site, no build step, no libraries. Published at <https://supbrice.github.io/pipely/> (GitHub Pages from `main` of `supbrice/pipely`).
+
+The code is public. Your applications are not in the repo. They live in this browser's `localStorage` and can optionally sync through a secret GitHub Gist.
 
 ## Open it locally
 
-- Double-click `index.html`, or
-- Run `python3 -m http.server 8766 --bind 127.0.0.1` in this folder and open http://127.0.0.1:8766/
+```sh
+python3 -m http.server 8766 --bind 127.0.0.1
+```
 
-## Live URL
+Then open <http://127.0.0.1:8766/>.
 
-https://supbrice.github.io/pipely/ (GitHub Pages from `main` / root of the public repo https://github.com/supbrice/pipely).
+## What's on the page
 
-The code is public. Your applications are not committed to the repo. They live in the browser (`localStorage` key `brice-job-apps-v1`) and can optionally sync through a **secret GitHub Gist**.
+- **Overview**: total applications, in progress, interviews, offers, and response rate. Each card filters the pipeline.
+- **Pipeline**: search, status chips (Applied, Screening, Interview, Offer, Rejected, Withdrawn), and the list, 40 at a time with Show more. Change status inline, edit, open details, delete with undo.
+- **Interviews**: upcoming Interview or Screen entries from each application's log.
+- **Follow-ups**: active applications whose next follow-up is within 7 days, with Followed up (logs it and sets the next one a week out) and Snooze 3 days.
+- **Activity**: the latest log entries.
+- **Your data**: Export JSON or CSV, Import JSON or CSV (Merge or Replace, with a preview), and Cloud sync.
 
-## Cloud sync (private Gist)
-
-Preferences → **Cloud sync** stores settings under `brice-job-apps-sync` in this browser only.
-
-- **Gist ID** — identifies the secret gist that holds `pipely-apps.json`. Pull uses the public raw URL for that secret gist (no token required).
-- **GitHub token** — optional. Needed only to **Push** updates back to the gist. Create a classic token with the **gist** scope only: https://github.com/settings/tokens/new?scopes=gist&description=Bryz%20Jobs%20cloud%20sync  
-  Paste it in Preferences and click Save. The token never goes into this git repo.
-- **Auto-pull** — when this browser only has sample rows, Bryz Jobs replaces them with the gist list on load.
-- **Auto-push** — after saves, pushes to the gist when a token is set.
-
-Do not commit personal access tokens or application JSON to the public repo. The gist stays secret (unlisted); anyone who knows the raw gist URL can read it, so treat that ID like a private link.
-
-## Features
-
-- Overview cards are clickable: Total, In progress, Interviews, Offers, Rejected, and Response rate each open the matching applications.
-- Follow-ups has its own screen, in the sidebar and on the phone nav, with a count on that item, a count in the tab title, and Followed up / Snooze buttons.
-- Response rate: share of applications sent 14+ days ago (withdrawn left out) that moved to Screening, Interview, Offer, or Rejected.
-- Import takes a Bryz Jobs JSON backup or a tracker CSV. Merge matches by id and keeps interview logs.
-- Warns when you add an application at a company where you already have an active one.
-- Per-application interview log (date, type, note).
-
-## Moving data between browsers
-
-Prefer Cloud sync (Pull / Push). You can still Export JSON / Import JSON, or from a local preview use Send to live site (tab-to-tab postMessage; nothing uploaded to GitHub).
+Adding an application at a company where you already have an active one shows a warning. A first visit starts empty; there is no sample data. If a browser still has the old built-in examples, a banner offers to remove them.
 
 ## Where your data lives
 
-- Applications: `brice-job-apps-v1`
-- Selected tab: `brice-job-apps-view`
-- Sync settings (gist id + optional token): `brice-job-apps-sync`
-- Theme (`light` or `dark`): `brice-job-apps-theme`. If that key is unset, Bryz Jobs follows the system color scheme. The header toggle saves a choice.
+- Applications: `brice-job-apps-v1`, a JSON array of `{id, company, role, status, dateApplied, nextFollowUp, source, pay, link, notes, isSample, log}`. Loading never rewrites it, and editing a record keeps any field the form does not show.
+- Sync settings (gist id, optional token, auto-pull, auto-push): `brice-job-apps-sync`, this browser only.
+- If the stored applications cannot be read, the text is copied to `brice-job-apps-v1-unreadable-<timestamp>`, a banner explains it, and saving stays off so nothing is overwritten.
 
-Export JSON before using Replace. Clear samples deletes only the built-in examples. Files named `index.html.bak-*` are page backups, not application data, and are not committed.
+## Cloud sync (secret Gist)
+
+Your data → **Cloud sync**.
+
+- **Gist ID**: the secret gist that holds `pipely-apps.json`. Pull reads the raw gist URL; no token needed.
+- **GitHub token** (optional): needed only to **Push**. Use a classic token with only the `gist` scope: <https://github.com/settings/tokens/new?scopes=gist&description=Bryz%20Jobs%20cloud%20sync>. It stays in this browser.
+- **Auto-pull**: on load, if this browser is empty or only has examples, the gist list fills it. Otherwise a banner offers to pull.
+- **Auto-push**: after a save, pushes to the gist when a token is set.
+
+A link ending in `#pipely-gist=<gist id>` saves that gist id with auto-pull on and then clears itself from the address bar, which is the quickest way to set up a new device.
+
+Do not commit tokens or application JSON to this repo (`.gitignore` excludes `*.json` and `*.csv`; the test fixture is fake data added on purpose). Anyone with the raw gist URL can read it, so treat the gist id like a private link.
+
+## Tests
+
+```sh
+node --test tests/*.test.js
+```
+
+`tests/browser.check.js` drives the page in Chrome with the fake records in `tests/fixtures/apps.json`. It checks that loading writes nothing, CRUD and undo, reload persistence, export/import, the `#pipely-gist` link and auto-pull against a mocked gist (every write to GitHub is blocked), the unreadable-data banner, layout at 390/768/1440 px, and console errors. It needs `playwright-core` and Chrome (`CHROME=/path/to/chrome` if it is not at `/usr/bin/google-chrome`):
+
+```sh
+npm i --no-save playwright-core && node tests/browser.check.js
+```
 
 This page is not part of the public portfolio.
