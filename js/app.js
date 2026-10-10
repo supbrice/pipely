@@ -385,8 +385,7 @@
     document.documentElement.setAttribute("data-theme", t);
     const b = $("#theme-btn");
     b.setAttribute("aria-pressed", String(t === "dark"));
-    b.setAttribute("aria-label", t === "dark" ? "Light mode" : "Dark mode");
-    b.title = t === "dark" ? "Light mode" : "Dark mode";
+    b.title = t === "dark" ? "Switch to light mode" : "Switch to dark mode";
   }
   $("#theme-btn").addEventListener("click", () => {
     const next = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
