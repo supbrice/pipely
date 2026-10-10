@@ -17,8 +17,10 @@
   const GIST_FILENAME = "pipely-apps.json";
   const RETIRED_GIST_ID = "7532d2540c1f892127b57bd7aa17e93e";
   const DEFAULT_GIST_ID = "";
-  const STATUSES = ["Applied", "Screening", "Interview", "Offer", "Rejected", "Withdrawn"];
-  const ACTIVE = ["Applied", "Screening", "Interview"];
+  const STATUSES = ["Interested", "Applied", "Screening", "Interview", "Offer", "Rejected", "Withdrawn"];
+  const PIPE = ["Interested", "Applied", "Screening", "Interview", "Offer"];
+  const ACTIVE = ["Interested", "Applied", "Screening", "Interview"];
+  const THEME_KEY = "brice-job-apps-theme";
   const CLOSED = ["Rejected", "Withdrawn"];
   const SOURCES = ["Easy Apply", "LinkedIn", "Indeed", "Company site", "Referral", "Other"];
   const LOG_TYPES = ["Interview", "Screen", "Call", "Email", "Follow-up", "Note"];
@@ -101,7 +103,18 @@
     return { ok: true, apps };
   }
   // Display helpers: tolerate legacy/odd values without changing the record.
-  function statusOf(a) { return STATUSES.includes(a && a.status) ? a.status : "Applied"; }
+  // Map a stored status to a known stage for display/counting only (the record is never changed).
+  // Exact names first, then case/whitespace variants, then the same keyword rules CSV import uses.
+  function canonicalStatus(raw) {
+    if (STATUSES.includes(raw)) return raw;
+    const s = String(raw == null ? "" : raw).trim().replace(/\s+/g, " ").toLowerCase();
+    const exact = STATUSES.find((x) => x.toLowerCase() === s);
+    if (exact) return exact;
+    if (!s) return "Applied";
+    if (/^(interest|suggest|saved|wishlist|to apply|package)/.test(s)) return "Interested";
+    return mapCsvStatus(s);
+  }
+  function statusOf(a) { return canonicalStatus(a && a.status); }
   function isSample(a) { return !!(a && a.isSample && SAMPLE_IDS.has(a.id)); }
   function followUpOf(a) { return cleanFollowUp(a && a.nextFollowUp); }
   function logOf(a) { return cleanLog(a && a.log); }
@@ -113,12 +126,13 @@
     const role = String(item.role || "").trim();
     if (!company || !role) return null;
     if (!isRealISO(item.dateApplied)) return null;
-    if (!STATUSES.includes(item.status)) return null;
+    const st = STATUSES.find((x) => x.toLowerCase() === String(item.status == null ? "" : item.status).trim().toLowerCase());
+    if (!st) return null;
     const id = typeof item.id === "string" && item.id.trim() ? item.id.trim() : uid();
     const linkRaw = String(item.link || "").trim();
     const out = {
       id, company, role,
-      status: item.status,
+      status: st,
       dateApplied: item.dateApplied,
       nextFollowUp: cleanFollowUp(item.nextFollowUp),
       source: SOURCES.includes(item.source) ? item.source : sourceBucket(item.source),
@@ -227,10 +241,11 @@
     const cutoff = addDays(today, -RESPONSE_DAYS);
     const real = apps.filter((a) => !a.isSample);
     const base = real.length ? real : apps;
-    const pool = base.filter((a) => a.status !== "Withdrawn" && isRealISO(a.dateApplied) && a.dateApplied <= cutoff);
-    const heard = pool.filter((a) => a.status !== "Applied");
-    const positive = pool.filter((a) => ["Screening", "Interview", "Offer"].includes(a.status));
-    const rejected = pool.filter((a) => a.status === "Rejected");
+    // Interested (not applied yet) is left out, like Withdrawn.
+    const pool = base.filter((a) => { const st = statusOf(a); return st !== "Withdrawn" && st !== "Interested" && isRealISO(a.dateApplied) && a.dateApplied <= cutoff; });
+    const heard = pool.filter((a) => statusOf(a) !== "Applied");
+    const positive = pool.filter((a) => ["Screening", "Interview", "Offer"].includes(statusOf(a)));
+    const rejected = pool.filter((a) => statusOf(a) === "Rejected");
     return {
       pool: pool.length, heard: heard.length, positive: positive.length, rejected: rejected.length,
       waiting: pool.length - heard.length,
@@ -247,6 +262,9 @@
     const month = today.slice(0, 7);
     return {
       total: apps.length,
+      interested: c.Interested,
+      submitted: apps.length - c.Interested,
+      withdrawn: c.Withdrawn,
       inProgress: c.Screening + c.Interview,
       interviews: c.Interview,
       offers: c.Offer,
@@ -257,7 +275,7 @@
   }
   // 'overdue' | 'due' | 'soon' (within 7 days) | null. Only for active applications.
   function followState(a, today) {
-    if (!a || !ACTIVE.includes(a.status)) return null;
+    if (!a || !ACTIVE.includes(statusOf(a))) return null;
     const due = followUpOf(a);
     if (!due) return null;
     if (due < today) return "overdue";
@@ -310,6 +328,112 @@
     copy.log = cleanLog(a.log).filter((e) => e.id !== entryId);
     return copy;
   }
+
+  /* ---------- charts ---------- */
+  const CHART_SOURCES = ["Company site", "Easy Apply", "LinkedIn", "Indeed", "Other"];
+  function weekStart(iso) { // Monday-based week, local calendar
+    const p = iso.split("-").map(Number); const d = new Date(p[0], p[1] - 1, p[2]);
+    return addDays(iso, -((d.getDay() + 6) % 7));
+  }
+  // Applications per week by source (dateApplied), oldest first. Interested is left out (not applied).
+  function weekly(apps, today, weeks) {
+    const end = weekStart(today);
+    const out = [];
+    for (let i = weeks - 1; i >= 0; i--) {
+      const start = addDays(end, -7 * i), stop = addDays(start, 7);
+      const counts = {}; CHART_SOURCES.forEach((s) => (counts[s] = 0));
+      apps.forEach((a) => { if (statusOf(a) !== "Interested" && isRealISO(a.dateApplied) && a.dateApplied >= start && a.dateApplied < stop) counts[sourceBucket(a.source)] += 1; });
+      out.push({ start, counts, n: CHART_SOURCES.reduce((t, s) => t + counts[s], 0) });
+    }
+    return out;
+  }
+  function sourceCounts(apps) {
+    const c = {}; CHART_SOURCES.forEach((s) => (c[s] = 0));
+    apps.forEach((a) => { if (statusOf(a) !== "Interested") c[sourceBucket(a.source)] += 1; });
+    return c;
+  }
+  // Daily heatmap: { days:[{date,n}], max } for the last `weeks` full weeks ending this week.
+  function heatmap(apps, today, weeks) {
+    const start = addDays(weekStart(today), -7 * (weeks - 1));
+    const byDay = new Map();
+    apps.forEach((a) => { if (statusOf(a) !== "Interested" && isRealISO(a.dateApplied)) byDay.set(a.dateApplied, (byDay.get(a.dateApplied) || 0) + 1); });
+    const days = [];
+    for (let i = 0; i < weeks * 7; i++) { const d = addDays(start, i); days.push({ date: d, n: byDay.get(d) || 0, future: d > today }); }
+    return { days, max: Math.max(0, ...days.map((d) => d.n)) };
+  }
+  function heatLevel(n, max) {
+    if (!n) return 0;
+    if (max <= 1) return 4;
+    const t = n / max;
+    return t > 0.75 ? 4 : t > 0.5 ? 3 : t > 0.25 ? 2 : 1;
+  }
+
+  /* ---------- rejected view (ported from the previous app) ---------- */
+  function rejectedOn(a) {
+    const logHit = cleanLog(a.log).filter((e) => /reject|not selected|declin|another candidate/i.test(e.type + " " + e.note)).map((e) => e.date).sort().pop();
+    if (logHit) return logHit;
+    const notes = String(a.notes || "");
+    const year = String(a.dateApplied || "").slice(0, 4) || String(new Date().getFullYear());
+    const KW = /(reject\w*|not selected|another candidate|not able to consider|not moving forward|better match|req closed)/ig;
+    let best = null, m;
+    while ((m = KW.exec(notes))) {
+      const after = notes.slice(m.index, m.index + 70);
+      const before = notes.slice(Math.max(0, m.index - 30), m.index);
+      let d = (after.match(/(\d{4}-\d{2}-\d{2})/) || [])[1] || (before.match(/(\d{4}-\d{2}-\d{2})\D*$/) || [])[1];
+      if (!d) {
+        const md = before.match(/(\d{1,2})\/(\d{1,2})\D*$/) || after.match(/\b(\d{1,2})\/(\d{1,2})\b/);
+        if (md) d = year + "-" + md[1].padStart(2, "0") + "-" + md[2].padStart(2, "0");
+      }
+      if (!d && /same day/i.test(notes.slice(Math.max(0, m.index - 20), m.index + 40))) d = a.dateApplied;
+      if (d && isRealISO(d) && (!best || d > best)) best = d;
+    }
+    return best;
+  }
+  function daysToNo(a) {
+    const r = rejectedOn(a);
+    if (!r || !isRealISO(a.dateApplied)) return null;
+    const p = (x) => x.split("-").map(Number);
+    const [ry, rm, rd] = p(r), [ay, am, ad] = p(a.dateApplied);
+    const n = Math.round((new Date(ry, rm - 1, rd) - new Date(ay, am - 1, ad)) / 86400000);
+    return n >= 0 ? n : null;
+  }
+  function rejectedStats(apps, today) {
+    const all = apps.filter((a) => statusOf(a) === "Rejected");
+    const days = all.map(daysToNo).filter((n) => n !== null).sort((x, y) => x - y);
+    const month = today.slice(0, 7);
+    const bySource = {};
+    all.forEach((a) => { const k = a.source || "Other"; bySource[k] = (bySource[k] || 0) + 1; });
+    const top = Object.entries(bySource).sort((x, y) => y[1] - x[1])[0] || null;
+    return {
+      count: all.length,
+      share: apps.length ? Math.round(all.length / apps.length * 100) : 0,
+      thisMonth: all.filter((a) => String(rejectedOn(a) || "").startsWith(month)).length,
+      median: days.length ? days[Math.floor((days.length - 1) / 2)] : null,
+      withDates: days.length,
+      top
+    };
+  }
+  function rejectedList(apps, opts) {
+    const o = opts || {};
+    const statuses = o.withdrawn ? ["Rejected", "Withdrawn"] : ["Rejected"];
+    const q = String(o.q || "").trim().toLowerCase();
+    const rows = apps.filter((a) => statuses.includes(statusOf(a)) && (!o.source || o.source === "all" || (a.source || "Other") === o.source) &&
+      (!q || (a.company + " " + a.role + " " + (a.notes || "")).toLowerCase().includes(q)));
+    const da = (a) => String(a.dateApplied || "");
+    rows.sort((a, b) => {
+      if (o.sort === "company") return String(a.company).localeCompare(String(b.company)) || da(b).localeCompare(da(a));
+      if (o.sort === "date-asc") return da(a).localeCompare(da(b));
+      if (o.sort === "date-desc") return da(b).localeCompare(da(a));
+      if (o.sort === "fast") return (daysToNo(a) ?? 9999) - (daysToNo(b) ?? 9999) || da(b).localeCompare(da(a));
+      return String(rejectedOn(b) || "").localeCompare(String(rejectedOn(a) || "")) || da(b).localeCompare(da(a));
+    });
+    return rows;
+  }
+  function boardColumn(apps, status) {
+    return sortByApplied(apps.filter((a) => statusOf(a) === status));
+  }
+  // Theme: light unless the user opted into dark (old key, same values).
+  function themeFrom(raw) { return raw === "dark" ? "dark" : "light"; }
 
   /* ---------- CSV (import + export, same columns as the previous app) ---------- */
   function sha1Hex(str) {
@@ -506,14 +630,15 @@
 
   return {
     KEY, SYNC_KEY, UNREADABLE_PREFIX, GIST_FILENAME, RETIRED_GIST_ID, DEFAULT_GIST_ID,
-    STATUSES, ACTIVE, CLOSED, SOURCES, LOG_TYPES, SAMPLE_IDS, RESPONSE_DAYS, LIMITS,
+    STATUSES, PIPE, ACTIVE, CLOSED, THEME_KEY, CHART_SOURCES, SOURCES, LOG_TYPES, SAMPLE_IDS, RESPONSE_DAYS, LIMITS,
     uid, isRealISO, cleanFollowUp, safeHref, toISO, addDays, sourceBucket, cleanLog, mergeLogs,
-    readStored, statusOf, isSample, followUpOf, logOf,
+    readStored, canonicalStatus, statusOf, isSample, followUpOf, logOf,
     normalizeImported, prepareImport, mergeRecord, mergeInto, mergeCloud, onlySamples, realCount,
     validateInput, buildRecord, companyKey,
     responseStats, statusCounts, kpis, followState, followUpsDue, upcomingInterviews, recentActivity,
     filterApps, sortByApplied, markFollowedUp, addLogEntry, removeLogEntry,
     sha1Hex, parseCSV, csvToApps, toCsv, parseImportText,
-    readSyncConfig, syncConfigValue, gistHashId
+    readSyncConfig, syncConfigValue, gistHashId,
+    weekStart, weekly, sourceCounts, heatmap, heatLevel, rejectedOn, daysToNo, rejectedStats, rejectedList, boardColumn, themeFrom
   };
 });

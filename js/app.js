@@ -48,7 +48,9 @@
   /* ---------- state + storage ---------- */
   let apps = [];
   let storageOk = true;
-  let filter = { q: "", status: "All" }, shown = PAGE, fuAll = false;
+  let filter = { q: "", status: "All" }, shown = PAGE, fuAll = false, rejShown = PAGE;
+  const boardOpen = new Set();
+  const BOARD_CAP = 20;
   let undoSnapshot = null;
 
   function storageGet(key) { try { return localStorage.getItem(key); } catch (e) { return null; } }
@@ -124,7 +126,7 @@
 
   /* ---------- render ---------- */
   function render() {
-    renderHero(); renderKpis(); renderChips(); renderList(); renderInterviews(); renderFollowUps(); renderActivity(); renderSamples();
+    renderHero(); renderKpis(); renderChips(); renderList(); renderBoard(); renderInsights(); renderInterviews(); renderFollowUps(); renderRejected(); renderActivity(); renderSamples();
     const open = $("#detail-dlg");
     if (open.open && open.dataset.id) renderDetail(open.dataset.id, true);
   }
@@ -144,12 +146,13 @@
       svg(icon), h("div", { class: "k", text: label }), h("div", { class: "v", text: value }), h("div", { class: "s", text: sub }));
     $("#kpis").replaceChildren(
       card("stack", "Applications", String(k.total), k.addedThisMonth ? k.addedThisMonth + " added this month." : "None added this month.", false, () => goTo("All")),
-      card("send", "In progress", String(k.inProgress), "Screening or interviewing.", false, () => goTo("Screening")),
+      card("send", "In progress", String(k.inProgress), "Screening or interviewing." + (k.interested ? " " + k.interested + " interested, not applied yet." : ""), false, () => goTo("Screening")),
       card("chat", "Interviews", String(k.interviews), "At the interview stage.", false, () => goTo("Interview")),
       card("star", "Offers", String(k.offers), k.offers ? "A good step forward." : "None yet.", k.offers > 0, () => goTo("Offer")),
-      card("pulse", "Response rate", rs.rate == null ? "—" : rs.rate + "%", rs.pool ? rs.heard + " of " + rs.pool + " heard back (sent " + J.RESPONSE_DAYS + "+ days ago) · " + k.rejected + " rejected." : "Shows up " + J.RESPONSE_DAYS + " days after you apply.", false, () => goTo("Rejected")),
+      card("pulse", "Response rate", rs.rate == null ? "—" : rs.rate + "%", rs.pool ? rs.heard + " of " + rs.pool + " heard back (sent " + J.RESPONSE_DAYS + "+ days ago) · " + k.rejected + " rejected in total." : "Shows up " + J.RESPONSE_DAYS + " days after you apply.", false, () => goToSection("rejected")),
     );
   }
+  function goToSection(id) { $("#" + id).scrollIntoView({ behavior: "smooth", block: "start" }); }
   function goTo(status) {
     filter.status = status; shown = PAGE; renderChips(); renderList();
     $("#pipeline").scrollIntoView({ behavior: "smooth", block: "start" });
@@ -235,6 +238,8 @@
     const limit = fuAll ? items.length : 12;
     $("#fu-more-row").hidden = items.length <= 12 || fuAll;
     $("#fu-more-btn").textContent = "Show all " + items.length;
+    const nOver = items.filter((a) => J.followState(a, t) === "overdue").length, nDue = items.filter((a) => J.followState(a, t) === "due").length;
+    $("#fu-sub").textContent = items.length ? nOver + " overdue · " + nDue + " due today · " + (items.length - nOver - nDue) + " this week" : "Overdue first";
     if (!items.length) { box.replaceChildren(h("div", { class: "empty", text: "You're all caught up. Nothing due in the next 7 days." })); return; }
     box.replaceChildren(...items.slice(0, limit).map((a) => {
       const st = J.followState(a, t), due = J.followUpOf(a);
@@ -251,6 +256,145 @@
     }));
   }
   $("#fu-more-btn").addEventListener("click", () => { fuAll = true; renderFollowUps(); });
+
+  /* ---------- board (drag between stages) ---------- */
+  let dragId = null;
+  function boardCard(a) {
+    const card = h("article", { class: "kcard", draggable: "true", "data-id": a.id },
+      h("div", { class: "co" }, String(a.company || "—"), sampleTag(a)),
+      h("div", { class: "ro", text: String(a.role || "") }),
+      h("div", { class: "km" }, h("span", { text: "Applied " + fmtDate(a.dateApplied) }), h("button", { class: "btn ghost xs", type: "button", onclick: () => openDetail(a.id), "aria-label": "Details for " + a.company }, "Open")),
+      statusSelect(a, "bd-"));
+    card.addEventListener("dragstart", (e) => {
+      if (e.target.closest && e.target.closest("select, button, a")) { e.preventDefault(); return; }
+      dragId = a.id; card.classList.add("dragging");
+      if (e.dataTransfer) { e.dataTransfer.effectAllowed = "move"; e.dataTransfer.setData("text/plain", a.id); }
+    });
+    card.addEventListener("dragend", () => { dragId = null; card.classList.remove("dragging"); });
+    return card;
+  }
+  function boardCol(status) {
+    const items = J.boardColumn(apps, status);
+    const open = boardOpen.has(status);
+    const shownItems = open ? items : items.slice(0, BOARD_CAP);
+    const col = h("section", { class: "kcol st-" + status, "data-status": status, "aria-label": status + ", " + items.length },
+      h("div", { class: "khead" }, h("strong", null, h("span", { class: "dot", "aria-hidden": "true" }), status), h("span", { class: "kcount", text: String(items.length) })),
+      items.length ? shownItems.map(boardCard) : h("div", { class: "kplace", text: "Drop a card here" }),
+      items.length > shownItems.length ? h("button", { class: "btn sec xs kmore", type: "button", onclick: () => { boardOpen.add(status); renderBoard(); } }, "Show all " + items.length) : null);
+    col.addEventListener("dragover", (e) => { e.preventDefault(); col.classList.add("over"); });
+    col.addEventListener("dragleave", (e) => { if (!col.contains(e.relatedTarget)) col.classList.remove("over"); });
+    col.addEventListener("drop", (e) => {
+      e.preventDefault(); col.classList.remove("over");
+      const id = (e.dataTransfer && e.dataTransfer.getData("text/plain")) || dragId;
+      if (id) setStatus(id, status);
+    });
+    return col;
+  }
+  function renderBoard() {
+    $("#board-cols").replaceChildren(...J.PIPE.map(boardCol));
+    $("#board-closed").replaceChildren(...J.CLOSED.map(boardCol));
+  }
+
+  /* ---------- insights (charts + heatmap) ---------- */
+  const SRC_CLASS = { "Company site": "src-co", "Easy Apply": "src-easy", LinkedIn: "src-li", Indeed: "src-indeed", Other: "src-ot" };
+  function renderInsights() {
+    const t = today();
+    // weekly stacked bars
+    const weeks = J.weekly(apps, t, 8);
+    const peak = Math.max(1, ...weeks.map((w) => w.n));
+    const totals = {}; J.CHART_SOURCES.forEach((s) => (totals[s] = weeks.reduce((n, w) => n + w.counts[s], 0)));
+    $("#chart-weekly").replaceChildren(
+      h("div", { class: "wk-n", "aria-hidden": "true" }, weeks.map((w) => h("span", { text: String(w.n) }))),
+      h("div", { class: "wk", role: "img", "aria-label": "Applications per week: " + weeks.map((w) => fmtDate(w.start) + " " + w.n).join(", ") },
+        weeks.map((w) => {
+          const col = h("div", { class: "col", title: "Week of " + fmtDate(w.start) + ": " + w.n });
+          J.CHART_SOURCES.forEach((s) => { if (!w.counts[s]) return; const seg = h("span", { class: SRC_CLASS[s] }); seg.style.height = (w.counts[s] / peak) * 100 + "%"; col.append(seg); });
+          return col;
+        })),
+      h("div", { class: "wk-x", "aria-hidden": "true" }, weeks.map((w) => h("span", { text: fmtDate(w.start) }))),
+      h("div", { class: "legend" }, J.CHART_SOURCES.map((s) => h("span", null, h("i", { class: "sw " + SRC_CLASS[s] }), s + " ", h("b", { text: String(totals[s]) })))));
+    // by stage
+    const counts = J.statusCounts(apps);
+    const max = Math.max(1, ...J.STATUSES.map((s) => counts[s]));
+    $("#chart-funnel").replaceChildren(...J.STATUSES.map((s) => {
+      const fill = h("div", { class: "fill" }); fill.style.width = (counts[s] ? Math.max(3, counts[s] / max * 100) : 0) + "%";
+      return h("div", { class: "frow st-" + s, "data-status": s }, h("span", { text: s }), h("div", { class: "track" }, fill), h("b", { text: String(counts[s]) }));
+    }));
+    // sources donut
+    const sc = J.sourceCounts(apps);
+    const total = J.CHART_SOURCES.reduce((n, s) => n + sc[s], 0);
+    const donut = h("div", { class: "donut", role: "img", "aria-label": "Sources: " + J.CHART_SOURCES.map((s) => s + " " + sc[s]).join(", ") },
+      h("div", { class: "donut-c" }, h("div", null, h("b", { text: String(total) }), h("small", { text: total === 1 ? "application" : "applications" }))));
+    if (total) {
+      let at = 0;
+      const css = getComputedStyle(document.documentElement);
+      const stops = J.CHART_SOURCES.filter((s) => sc[s]).map((s) => { const a0 = at / total * 100; at += sc[s]; return css.getPropertyValue("--" + SRC_CLASS[s]).trim() + " " + a0 + "% " + (at / total * 100) + "%"; });
+      donut.style.background = "conic-gradient(" + stops.join(",") + ")";
+    }
+    $("#chart-sources").replaceChildren(h("div", { class: "donut-wrap" }, donut,
+      h("div", { class: "slist" }, J.CHART_SOURCES.map((s) => h("div", null, h("span", null, h("i", { class: "sw " + SRC_CLASS[s] }), s), h("b", { text: String(sc[s]) }))))));
+    // daily heatmap (12 weeks, Monday first)
+    const hm = J.heatmap(apps, t, 12);
+    const sum = hm.days.reduce((n, d) => n + d.n, 0);
+    const active = hm.days.filter((d) => d.n).length;
+    $("#chart-heat").replaceChildren(
+      h("div", { class: "heat", role: "img", "aria-label": sum + " applications on " + active + " days in the last 12 weeks" },
+        hm.days.map((d) => h("i", { class: "l" + J.heatLevel(d.n, hm.max) + (d.future ? " fut" : ""), title: fmtDate(d.date, { weekday: "short", month: "short", day: "numeric" }) + ": " + d.n }))),
+      h("div", { class: "heat-foot" }, h("span", { text: sum + " applications on " + active + " days · last 12 weeks" + (hm.max ? " · busiest day " + hm.max : "") }),
+        h("span", { class: "heat-key", "aria-hidden": "true" }, "Less ", [0, 1, 2, 3, 4].map((l) => h("i", { class: "heat-l l" + l })), " More")));
+    document.querySelectorAll(".heat-key i").forEach((i) => { const l = i.className.match(/l(\d)$/)[1]; i.style.background = "var(--heat" + l + ")"; });
+  }
+
+  /* ---------- rejected ---------- */
+  function renderRejected() {
+    const t = today();
+    const st = J.rejectedStats(apps, t);
+    const stat = (n, label) => h("div", { class: "card" }, h("div", { class: "v", text: String(n) }), h("div", { class: "s", text: label }));
+    $("#rej-stats").replaceChildren(
+      stat(st.count, st.share + "% of " + apps.length + " tracked applications"),
+      stat(st.median === null ? "—" : st.median + "d", "median time to a no (" + st.withDates + " with a date in notes or log)"),
+      stat(st.top ? st.top[1] : 0, st.top ? "from " + st.top[0] : "no source yet"));
+    const srcSel = $("#rej-source"), wanted = srcSel.value || "all";
+    const withdrawn = $("#rej-withdrawn").checked;
+    const pool = J.rejectedList(apps, { withdrawn });
+    const sources = Array.from(new Set(pool.map((a) => a.source || "Other"))).sort();
+    srcSel.replaceChildren(h("option", { value: "all" }, "All sources"), ...sources.map((x) => h("option", { value: x }, x)));
+    srcSel.value = sources.includes(wanted) ? wanted : "all";
+    const rows = J.rejectedList(apps, { withdrawn, q: $("#rej-q").value, source: srcSel.value, sort: $("#rej-sort").value });
+    const nW = pool.length - st.count;
+    $("#rej-sub").textContent = rows.length + " shown · " + st.count + " rejected" + (withdrawn ? " + " + nW + " withdrawn" : "");
+    $("#rej-more-row").hidden = rows.length <= rejShown;
+    $("#rej-more-btn").textContent = "Show more (" + (rows.length - rejShown) + " left)";
+    const box = $("#rej-list");
+    if (!rows.length) { box.replaceChildren(h("div", { class: "empty", text: st.count || withdrawn ? "Nothing matches that search." : "No rejections. Keep going." })); return; }
+    box.replaceChildren(...rows.slice(0, rejShown).map((a) => {
+      const r = J.rejectedOn(a), n = J.daysToNo(a);
+      return h("div", { class: "item rej-row" },
+        h("div", { class: "who" }, h("div", { class: "co" }, String(a.company || "—"), sampleTag(a)), h("div", { class: "ro", text: String(a.role || "") }),
+          h("span", { class: "chip rej", text: J.statusOf(a) === "Rejected" ? (r ? "No on " + fmtDate(r) + (n !== null ? " · " + n + "d" : "") : "Date of the no unknown") : "Withdrawn" })),
+        h("div", { class: "wh" }, h("div", { text: (a.source || "—") + " · Applied " + fmtDate(a.dateApplied) })),
+        statusSelect(a, "rj-"),
+        h("div", { class: "acts" }, h("button", { class: "btn sec xs", type: "button", onclick: () => openDetail(a.id), "aria-label": "Details for " + a.company }, "Details")));
+    }));
+  }
+  ["#rej-q", "#rej-source", "#rej-sort", "#rej-withdrawn"].forEach((sel) => $(sel).addEventListener(sel === "#rej-q" ? "input" : "change", () => { rejShown = PAGE; renderRejected(); }));
+  $("#rej-more-btn").addEventListener("click", () => { rejShown += PAGE * 2; renderRejected(); });
+
+  /* ---------- theme (opt-in dark; light stays the default) ---------- */
+  function applyTheme(t) {
+    document.documentElement.setAttribute("data-theme", t);
+    const b = $("#theme-btn");
+    b.setAttribute("aria-pressed", String(t === "dark"));
+    b.setAttribute("aria-label", t === "dark" ? "Light mode" : "Dark mode");
+    b.title = t === "dark" ? "Light mode" : "Dark mode";
+  }
+  $("#theme-btn").addEventListener("click", () => {
+    const next = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+    try { localStorage.setItem(J.THEME_KEY, next); } catch (e) { /* private mode: still switch for this visit */ }
+    applyTheme(next);
+    renderInsights();
+  });
+  applyTheme(J.themeFrom(storageGet(J.THEME_KEY)));
 
   function renderActivity() {
     const items = J.recentActivity(apps, 12);

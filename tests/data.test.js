@@ -12,7 +12,8 @@ test("storage key and gist settings match the previous app", () => {
   assert.equal(J.KEY, "brice-job-apps-v1");
   assert.equal(J.SYNC_KEY, "brice-job-apps-sync");
   assert.equal(J.GIST_FILENAME, "pipely-apps.json");
-  assert.deepEqual(J.STATUSES, ["Applied", "Screening", "Interview", "Offer", "Rejected", "Withdrawn"]);
+  assert.deepEqual(J.STATUSES, ["Interested", "Applied", "Screening", "Interview", "Offer", "Rejected", "Withdrawn"]);
+  assert.equal(J.THEME_KEY, "brice-job-apps-theme");
   assert.equal(J.gistHashId("#pipely-gist=0123456789abcdef0123456789abcdef"), "0123456789abcdef0123456789abcdef");
   assert.equal(J.gistHashId("#pipely-sync=abc123"), "abc123");
   assert.equal(J.gistHashId("#bryz-jobs-gist=abc123"), "abc123");
@@ -62,14 +63,14 @@ test("new records use the previous app's shape", () => {
 });
 
 test("validation", () => {
-  const bad = J.validateInput({ company: "", role: "", status: "Interested", dateApplied: "2026-02-30", nextFollowUp: "x", link: "javascript:alert(1)" });
+  const bad = J.validateInput({ company: "", role: "", status: "Bogus", dateApplied: "2026-02-30", nextFollowUp: "x", link: "javascript:alert(1)" });
   assert.equal(bad.ok, false);
   for (const k of ["company", "role", "status", "dateApplied", "nextFollowUp", "link"]) assert.ok(bad.errors[k], k);
   assert.equal(J.validateInput({ company: "A", role: "B", status: "Applied", dateApplied: T, source: "Other" }).ok, true);
 });
 
 test("prepareImport matches previous behaviour (drops bad rows, dedupes ids, keeps logs)", () => {
-  const p = J.prepareImport([rowShape, rowShape, withLog, { company: "x" }, Object.assign({}, rowShape, { id: "z", status: "Interested" })]);
+  const p = J.prepareImport([rowShape, rowShape, withLog, { company: "x" }, Object.assign({}, rowShape, { id: "z", status: "Bogus" })]);
   assert.equal(p.unique.length, 2);
   assert.equal(p.skipped, 2);
   assert.equal(p.duplicateIds, 1);
@@ -137,4 +138,79 @@ test("sync config reads the previous shape", () => {
   const cfg = J.readSyncConfig(JSON.stringify({ gistId: " abc ", token: "t", autoPull: false, autoPush: true }));
   assert.deepEqual(cfg, { gistId: "abc", token: "t", autoPull: false, autoPush: true });
   assert.deepEqual(J.readSyncConfig(null), { gistId: "", token: "", autoPull: true, autoPush: false });
+});
+
+test("Interested is backward compatible and round-trips through import / gist pull", () => {
+  const old = [rowShape, withLog];
+  const before = JSON.stringify(old);
+  const r = J.readStored(before);
+  assert.equal(JSON.stringify(r.apps), before); // records without Interested load identically
+  const interested = Object.assign({}, rowShape, { id: "int1", status: "Interested", extra: { keep: 1 } });
+  const round = J.prepareImport(JSON.parse(JSON.stringify([interested])));
+  assert.equal(round.unique.length, 1);
+  assert.equal(round.unique[0].status, "Interested");
+  const merged = J.mergeCloud([interested], round.unique);
+  assert.equal(merged[0].status, "Interested");
+  assert.deepEqual(merged[0].extra, { keep: 1 });
+  // case / whitespace variants import as the canonical name
+  assert.equal(J.prepareImport([Object.assign({}, rowShape, { status: " rejected " })]).unique[0].status, "Rejected");
+});
+
+test("status counting tolerates case/whitespace variants without changing the record", () => {
+  const list = [{ id: "a", status: "Rejected" }, { id: "b", status: " rejected" }, { id: "c", status: "REJECTED " }, { id: "d", status: "interested" }, { id: "e", status: "Closed" }, { id: "f" }];
+  const c = J.statusCounts(list);
+  assert.equal(c.Rejected, 3); assert.equal(c.Interested, 1); assert.equal(c.Withdrawn, 1); assert.equal(c.Applied, 1);
+  assert.equal(list[1].status, " rejected");
+  assert.equal(Object.values(c).reduce((a, b) => a + b, 0), list.length);
+});
+
+test("response rate leaves out Interested and Withdrawn; matches old 14-day rule", () => {
+  const mk = (id, status, d) => ({ id, status, dateApplied: d, company: id, role: "r" });
+  const t = "2026-10-10";
+  const list = [mk("1", "Applied", "2026-09-01"), mk("2", "Rejected", "2026-09-01"), mk("3", "Screening", "2026-09-01"), mk("4", "Withdrawn", "2026-09-01"),
+    mk("5", "Interested", "2026-09-01"), mk("6", "Applied", "2026-10-05")];
+  const rs = J.responseStats(list, t);
+  assert.equal(rs.pool, 3); assert.equal(rs.heard, 2); assert.equal(rs.rate, 67);
+});
+
+test("follow-ups: Interested counts as active, closed stages do not", () => {
+  const t = "2026-10-10";
+  assert.equal(J.followState({ status: "Interested", nextFollowUp: "2026-10-09" }, t), "overdue");
+  assert.equal(J.followState({ status: "Rejected", nextFollowUp: "2026-10-09" }, t), null);
+  assert.equal(J.followState({ status: "Applied", nextFollowUp: "2026-10-17" }, t), "soon");
+  assert.equal(J.followState({ status: "Applied", nextFollowUp: "2026-10-18" }, t), null);
+});
+
+test("charts: weekly, sources and heatmap add up to the applications in range", () => {
+  const t = "2026-10-10"; // Saturday
+  assert.equal(J.weekStart(t), "2026-10-05");
+  const list = [{ id: "1", status: "Applied", dateApplied: "2026-10-05", source: "Easy Apply" }, { id: "2", status: "Rejected", dateApplied: "2026-10-01", source: "Company site" },
+    { id: "3", status: "Interested", dateApplied: "2026-10-06", source: "LinkedIn" }, { id: "4", status: "Applied", dateApplied: "2026-10-10", source: "weird" }];
+  const w = J.weekly(list, t, 2);
+  assert.deepEqual(w.map((x) => x.n), [1, 2]);
+  assert.equal(w[1].counts.Other, 1);
+  const sc = J.sourceCounts(list);
+  assert.equal(Object.values(sc).reduce((a, b) => a + b, 0), 3);
+  const hm = J.heatmap(list, t, 2);
+  assert.equal(hm.days.length, 14);
+  assert.equal(hm.days.reduce((a, d) => a + d.n, 0), 3);
+  assert.equal(J.heatLevel(0, 5), 0); assert.equal(J.heatLevel(5, 5), 4);
+});
+
+test("rejected view helpers", () => {
+  const a = { id: "r", status: "Rejected", company: "X", role: "Y", dateApplied: "2026-09-01", notes: "Rejected 2026-09-08 by email", source: "Company site" };
+  assert.equal(J.rejectedOn(a), "2026-09-08");
+  assert.equal(J.daysToNo(a), 7);
+  const list = [a, { id: "w", status: "Withdrawn", company: "W", role: "Z", dateApplied: "2026-09-02" }, { id: "p", status: "Applied", company: "P", role: "Q", dateApplied: "2026-09-03" }];
+  assert.equal(J.rejectedList(list, {}).length, 1);
+  assert.equal(J.rejectedList(list, { withdrawn: true }).length, 2);
+  const st = J.rejectedStats(list, "2026-09-20");
+  assert.equal(st.count, 1); assert.equal(st.median, 7); assert.equal(st.thisMonth, 1);
+});
+
+test("theme defaults to light; only an explicit dark choice turns it on", () => {
+  assert.equal(J.themeFrom(null), "light");
+  assert.equal(J.themeFrom("light"), "light");
+  assert.equal(J.themeFrom("dark"), "dark");
+  assert.equal(J.themeFrom("system"), "light");
 });

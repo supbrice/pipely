@@ -9,11 +9,22 @@
 <meta name="description" content="Bryz Jobs is a private job application tracker.">
 <meta name="application-name" content="Bryz Jobs">
 <meta name="apple-mobile-web-app-title" content="Bryz Jobs">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Bryz Jobs">
+<meta property="og:title" content="Bryz Jobs">
+<meta property="og:description" content="Every application. One place. A private job application tracker.">
+<meta property="og:url" content="https://supbrice.github.io/pipely/">
+<meta property="og:image" content="https://supbrice.github.io/pipely/assets/apple-touch-icon.png">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Bryz Jobs">
+<meta name="twitter:description" content="Every application. One place. A private job application tracker.">
+<meta name="twitter:image" content="https://supbrice.github.io/pipely/assets/apple-touch-icon.png">
 <meta name="theme-color" content="#ffffff">
 <link rel="icon" type="image/svg+xml" href="assets/bryz-jobs-logo.svg">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16.png">
 <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
+<script src="js/theme.js"></script>
 <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
@@ -24,9 +35,10 @@
     <img src="assets/bryz-jobs-logo.svg" alt="Bryz Jobs logo">
     <span class="word">Bryz Jobs</span>
     <nav aria-label="Sections">
-      <a href="#pipeline">Pipeline</a><a href="#interviews">Interviews</a><a href="#followups">Follow-ups</a><a href="#activity">Activity</a>
+      <a href="#pipeline">Pipeline</a><a href="#board">Board</a><a href="#insights">Insights</a><a href="#followups">Follow-ups</a><a href="#rejected">Rejected</a>
     </nav>
     <button class="btn sec sm" type="button" data-act="prefs" id="sync-btn">Cloud sync</button>
+    <button class="btn sec sm theme-btn" type="button" id="theme-btn" aria-pressed="false" aria-label="Dark mode" title="Dark mode"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg></button>
   </header>
 
   <div class="banners">
@@ -55,7 +67,7 @@
     </section>
 
     <section id="pipeline" aria-labelledby="h-pipeline">
-      <span class="badge"><i>Pipeline</i> · Applied → Offer</span>
+      <span class="badge"><i>Pipeline</i> · Interested → Offer</span>
       <h2 id="h-pipeline">Every application.</h2>
       <div class="stagebar" id="stagebar" role="img" aria-label="Applications per status"></div>
       <div class="toolbar">
@@ -71,6 +83,25 @@
       <div class="more-row" id="more-row" hidden><button class="btn sec sm" type="button" id="more-btn">Show more</button></div>
     </section>
 
+    <section id="board" aria-labelledby="h-board">
+      <span class="badge"><i>Board</i> · Drag a card to change its stage</span>
+      <h2 id="h-board">Every stage.</h2>
+      <p class="lead">Drag between columns, or use the menu on a card. You can undo right after.</p>
+      <div class="board" id="board-cols" aria-label="Active stages"></div>
+      <div class="board closed-row" id="board-closed" aria-label="Closed stages"></div>
+    </section>
+
+    <section id="insights" aria-labelledby="h-insights">
+      <span class="badge"><i>Insights</i> · From your list, not estimates</span>
+      <h2 id="h-insights">How it's going.</h2>
+      <div class="ins">
+        <div class="card"><h3>Applications per week</h3><div id="chart-weekly"></div></div>
+        <div class="card"><h3>By stage</h3><div class="funnel" id="chart-funnel"></div></div>
+        <div class="card"><h3>Where you applied</h3><div id="chart-sources"></div></div>
+        <div class="card"><h3>Daily activity</h3><div id="chart-heat"></div></div>
+      </div>
+    </section>
+
     <section id="interviews" aria-labelledby="h-interviews">
       <h2 id="h-interviews">Interviews scheduled.</h2>
       <p class="lead">Upcoming interviews and screens from your logs, soonest first.</p>
@@ -78,10 +109,29 @@
     </section>
 
     <section id="followups" aria-labelledby="h-followups">
-      <span class="badge"><i>Next 7 days</i> · Overdue first</span>
+      <span class="badge"><i>Next 7 days</i> · <span id="fu-sub">Overdue first</span></span>
       <h2 id="h-followups">Follow-ups due.</h2>
       <div class="card list" id="fu-list"></div>
       <div class="more-row" id="fu-more-row" hidden><button class="btn sec sm" type="button" id="fu-more-btn">Show all</button></div>
+    </section>
+
+    <section id="rejected" aria-labelledby="h-rejected">
+      <span class="badge"><i>Rejected</i> · <span id="rej-sub">Closed applications</span></span>
+      <h2 id="h-rejected">Every no, in one place.</h2>
+      <div class="grid g3 rej-stats" id="rej-stats"></div>
+      <div class="rej-tools">
+        <div class="search">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+          <label class="sr-only" for="rej-q">Search rejected applications</label>
+          <input id="rej-q" type="search" placeholder="Search rejected…" autocomplete="off">
+        </div>
+        <label class="sr-only" for="rej-source">Source</label><select class="inp" id="rej-source"></select>
+        <label class="sr-only" for="rej-sort">Sort</label>
+        <select class="inp" id="rej-sort"><option value="recent">Newest no first</option><option value="date-desc">Applied, newest</option><option value="date-asc">Applied, oldest</option><option value="fast">Fastest no</option><option value="company">Company A–Z</option></select>
+        <label class="check-row"><input type="checkbox" class="check" id="rej-withdrawn"> Include withdrawn</label>
+      </div>
+      <div class="card list" id="rej-list" aria-live="polite"></div>
+      <div class="more-row" id="rej-more-row" hidden><button class="btn sec sm" type="button" id="rej-more-btn">Show more</button></div>
     </section>
 
     <section id="activity" aria-labelledby="h-activity">
@@ -169,7 +219,7 @@
     <h2 id="p-title">Cloud sync.</h2>
     <p class="lead">Keeps your list the same on every device through a private GitHub Gist. Pull works with the Gist ID alone. Push needs a GitHub token with only the <b>gist</b> scope. The token stays in this browser.</p>
     <div class="form-grid">
-      <div class="field full"><label for="sync-gist">Gist ID</label><input class="inp" id="sync-gist" autocomplete="off" spellcheck="false" placeholder="e.g. 9f60…"></div>
+      <div class="field full"><label for="sync-gist">Gist ID</label><input class="inp" id="sync-gist" autocomplete="off" spellcheck="false" placeholder="32-character Gist ID"></div>
       <div class="field full"><label for="sync-token">GitHub token <span class="opt">(optional, for Push)</span></label><input class="inp" id="sync-token" type="password" autocomplete="off" spellcheck="false"></div>
       <label class="check-row"><input type="checkbox" class="check" id="sync-autopull"> Pull from the cloud when the page opens</label>
       <label class="check-row"><input type="checkbox" class="check" id="sync-autopush"> Push to the cloud after every change</label>
