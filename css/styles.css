@@ -407,3 +407,15 @@ main section.page-first{padding-top:48px}
 .ksearch-x:hover{color:var(--fg)}
 .ksearch-x:focus-visible{outline:none;box-shadow:var(--ring)}
 .kcard[hidden],.knone[hidden]{display:none}
+
+/* Footer: social links + copyright (inline SVG, no external assets) */
+.social{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:0 2px;margin:14px 0 0}
+.social a{width:44px;height:44px;display:inline-flex;align-items:center;justify-content:center;border-radius:9999px;color:var(--muted);text-decoration:none;transition:color .15s ease,background .15s ease}
+.social a:hover{color:var(--fg);background:var(--card);text-decoration:none}
+.social a:focus-visible{outline:2px solid var(--blue);outline-offset:-2px;box-shadow:none;color:var(--fg)}
+.social svg{width:18px;height:18px;display:block}
+.social .fill{fill:currentColor;stroke:none}
+.social .line{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.social-handle{font-size:.8rem;color:var(--muted);margin-left:6px}
+.copy{margin:4px 0 0;font-size:.78rem;color:var(--muted)}
+footer .foot-line{margin:0}

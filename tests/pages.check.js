@@ -4,7 +4,7 @@
 const { chromium } = require("playwright-core");
 const path = require("path"), fs = require("fs"), { spawn } = require("child_process");
 const SITE = {
-  name: "bj", port: 8824,
+  name: "bj", title: "Bryz Jobs", port: 8824,
   seed: () => ({ "brice-job-apps-v1": fs.readFileSync(path.join(__dirname, "fixtures/apps-255.json"), "utf8"), "brice-job-apps-sync": JSON.stringify({ gistId: "", token: "", autoPull: false, autoPush: false }) }),
   routes: [{ id: "overview", sections: ["hero", "overview", "activity"] }, { id: "applications", sections: ["pipeline"] }, { id: "board", sections: ["board"] }, { id: "calendar", sections: ["jcal"] },
     { id: "followups", sections: ["interviews", "followups"] }, { id: "insights", sections: ["insights"] }, { id: "rejected", sections: ["rejected"] }, { id: "sync", sections: ["data"] }],
@@ -91,6 +91,13 @@ let fails = 0; const ok = (c, m) => { console.log((c ? "PASS " : "FAIL ") + m); 
       const s = await state();
       ok(JSON.stringify(s.visible) === JSON.stringify(r.sections) && JSON.stringify(s.current) === JSON.stringify([r.id]), L + "deep link #/" + r.id + " shows " + s.visible.join("+") + ", tab '" + s.current + "' highlighted");
       ok(s.overflow <= 0, L + r.id + ": no horizontal overflow (" + s.overflow + ")");
+      const ft = await p.evaluate(() => { const f = document.querySelector("footer"); const r = f.getBoundingClientRect();
+        return { vis: r.height > 0 && getComputedStyle(f).display !== "none", copy: (f.querySelector(".copy") || {}).textContent, handle: (f.querySelector(".social-handle") || {}).textContent,
+          links: [...f.querySelectorAll(".social a")].map((a) => { const q = a.getBoundingClientRect(); return { href: a.href, t: a.target, rel: a.rel, label: a.getAttribute("aria-label"), w: q.width, h: q.height, svg: !!a.querySelector("svg"), ext: !!a.querySelector("img,use[href^=http]") }; }),
+          fo: f.scrollWidth - f.clientWidth }; });
+      const want = ["https://instagram.com/supbrice", "https://x.com/supbrice", "https://www.threads.net/@supbrice", "https://github.com/supbrice"];
+      ok(ft.vis && JSON.stringify(ft.links.map((x) => x.href)) === JSON.stringify(want) && ft.links.every((x) => x.t === "_blank" && /noopener/.test(x.rel) && /@supbrice/.test(x.label) && x.w >= 44 && x.h >= 44 && x.svg && !x.ext)
+        && ft.handle === "@supbrice" && ft.copy === "© 2026 " + SITE.title && ft.fo <= 0, L + r.id + ": footer with Instagram/X/Threads/GitHub (44px, new tab, labelled), @supbrice, © 2026 " + SITE.title);
       // sticky nav after scrolling down
       await p.evaluate(() => scrollTo(0, document.body.scrollHeight)); await p.waitForTimeout(80);
       const s2 = await state();
