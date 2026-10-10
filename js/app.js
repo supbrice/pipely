@@ -49,8 +49,6 @@
   let apps = [];
   let storageOk = true;
   let filter = { q: "", status: "All" }, shown = PAGE, fuAll = false, rejShown = PAGE;
-  const boardOpen = new Set();
-  const BOARD_CAP = 20;
   let undoSnapshot = null;
 
   function storageGet(key) { try { return localStorage.getItem(key); } catch (e) { return null; } }
@@ -261,10 +259,11 @@
   let dragId = null;
   function boardCard(a) {
     const card = h("article", { class: "kcard", draggable: "true", "data-id": a.id },
-      h("div", { class: "co" }, String(a.company || "—"), sampleTag(a)),
+      h("div", { class: "ktop" },
+        h("div", { class: "co" }, String(a.company || "—"), sampleTag(a)),
+        h("button", { class: "btn ghost xs kopen", type: "button", onclick: () => openDetail(a.id), "aria-label": "Details for " + a.company }, "Open")),
       h("div", { class: "ro", text: String(a.role || "") }),
-      h("div", { class: "km" }, h("span", { text: "Applied " + fmtDate(a.dateApplied) }), h("button", { class: "btn ghost xs", type: "button", onclick: () => openDetail(a.id), "aria-label": "Details for " + a.company }, "Open")),
-      statusSelect(a, "bd-"));
+      h("div", { class: "km" }, h("span", { class: "kdate", text: "Applied " + fmtDate(a.dateApplied) }), statusSelect(a, "bd-")));
     card.addEventListener("dragstart", (e) => {
       if (e.target.closest && e.target.closest("select, button, a")) { e.preventDefault(); return; }
       dragId = a.id; card.classList.add("dragging");
@@ -275,13 +274,18 @@
   }
   function boardCol(status) {
     const items = J.boardColumn(apps, status);
-    const open = boardOpen.has(status);
-    const shownItems = open ? items : items.slice(0, BOARD_CAP);
+    // Every card is rendered; each column is capped in height and scrolls on its own (header stays sticky).
     const col = h("section", { class: "kcol st-" + status, "data-status": status, "aria-label": status + ", " + items.length },
       h("div", { class: "khead" }, h("strong", null, h("span", { class: "dot", "aria-hidden": "true" }), status), h("span", { class: "kcount", text: String(items.length) })),
-      items.length ? shownItems.map(boardCard) : h("div", { class: "kplace", text: "Drop a card here" }),
-      items.length > shownItems.length ? h("button", { class: "btn sec xs kmore", type: "button", onclick: () => { boardOpen.add(status); renderBoard(); } }, "Show all " + items.length) : null);
-    col.addEventListener("dragover", (e) => { e.preventDefault(); col.classList.add("over"); });
+      items.length ? items.map(boardCard) : h("div", { class: "kplace", text: "Drop a card here" }));
+    col.addEventListener("scroll", () => boardFade(col), { passive: true });
+    col.addEventListener("dragover", (e) => {
+      e.preventDefault(); col.classList.add("over");
+      // auto-scroll while dragging near the top or bottom edge of a scrolling column
+      const r = col.getBoundingClientRect(), edge = Math.min(56, r.height / 4);
+      if (e.clientY < r.top + edge) col.scrollTop -= Math.ceil((r.top + edge - e.clientY) / 3);
+      else if (e.clientY > r.bottom - edge) col.scrollTop += Math.ceil((e.clientY - (r.bottom - edge)) / 3);
+    });
     col.addEventListener("dragleave", (e) => { if (!col.contains(e.relatedTarget)) col.classList.remove("over"); });
     col.addEventListener("drop", (e) => {
       e.preventDefault(); col.classList.remove("over");
@@ -290,9 +294,17 @@
     });
     return col;
   }
+  function boardFade(col) {
+    const more = col.scrollHeight - col.clientHeight - col.scrollTop > 2;
+    col.classList.toggle("fade", more);
+  }
   function renderBoard() {
+    // keep each column's scroll position across re-renders (after a drop, menu change or undo)
+    const keep = {};
+    document.querySelectorAll(".kcol[data-status]").forEach((c) => { keep[c.dataset.status] = c.scrollTop; });
     $("#board-cols").replaceChildren(...J.PIPE.map(boardCol));
     $("#board-closed").replaceChildren(...J.CLOSED.map(boardCol));
+    document.querySelectorAll(".kcol[data-status]").forEach((c) => { if (keep[c.dataset.status]) c.scrollTop = keep[c.dataset.status]; boardFade(c); });
   }
 
   /* ---------- insights (charts + heatmap) ---------- */

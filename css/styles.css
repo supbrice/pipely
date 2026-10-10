@@ -257,23 +257,30 @@ dialog{max-width:min(720px,calc(100vw - 24px))}
 .theme-btn .i-moon{opacity:0;transform:rotate(-60deg) scale(.6)}
 :root[data-theme="dark"] .theme-btn .i-sun{opacity:0;transform:rotate(60deg) scale(.6)}
 :root[data-theme="dark"] .theme-btn .i-moon{opacity:1;transform:none}
-.top .theme-btn{margin-left:8px}
+.top .theme-btn{margin-left:0}
 
 .board{position:relative;display:grid;grid-auto-flow:column;grid-auto-columns:minmax(220px,1fr);gap:12px;margin-top:30px;overflow-x:auto;padding-bottom:8px;overscroll-behavior-x:contain}
 .board.closed-row{grid-auto-columns:minmax(220px,1fr);margin-top:12px}
-.kcol{background:var(--card);border-radius:var(--radius);padding:12px;min-width:0;display:flex;flex-direction:column;gap:8px;border:2px solid transparent}
+.kcol{position:relative;background:var(--card);border-radius:var(--radius);padding:0 10px 10px;min-width:0;display:flex;flex-direction:column;gap:6px;border:2px solid transparent;max-height:62vh;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;scrollbar-width:thin;scrollbar-color:var(--muted2) transparent}
+.kcol::-webkit-scrollbar{width:6px}.kcol::-webkit-scrollbar-track{background:transparent}.kcol::-webkit-scrollbar-thumb{background:var(--muted2);border-radius:9999px}
+/* soft fade at the bottom edge while there is more to scroll */
+.kcol::after{content:"";position:sticky;bottom:-10px;flex:0 0 32px;margin-top:-38px;margin-bottom:-10px;background:linear-gradient(to bottom,transparent,var(--card));pointer-events:none;opacity:0;transition:opacity .2s ease;z-index:1}
+.kcol.fade::after{opacity:1}
 .kcol.over{border-color:var(--blue)}
-.khead{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:4px 4px 6px}
+.khead{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 4px 6px;position:sticky;top:0;z-index:2;background:var(--card);flex:0 0 auto}
 .khead strong{font-size:.92rem;letter-spacing:-.015em;display:inline-flex;align-items:center;gap:8px}
 .kcount{font-size:.8rem;font-weight:600;color:var(--muted);font-variant-numeric:tabular-nums}
-.kcard{position:relative;background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:10px 12px;cursor:grab;min-width:0}
+.kcard{position:relative;background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:7px 9px;cursor:grab;min-width:0;flex:0 0 auto}
 .kcard.dragging{opacity:.5}
-.kcard .co{font-weight:600;font-size:.9rem;letter-spacing:-.01em;overflow-wrap:anywhere}
-.kcard .ro{color:var(--muted);font-size:.8rem;overflow-wrap:anywhere}
-.kcard .km{display:flex;justify-content:space-between;gap:6px;align-items:center;margin-top:8px;color:var(--muted2);font-size:.74rem}
-.kcard select.stage{height:28px;font-size:.74rem;margin-top:8px}
+.kcard .ktop{display:flex;align-items:flex-start;justify-content:space-between;gap:6px}
+.kcard .co{font-weight:600;font-size:.86rem;line-height:1.25;letter-spacing:-.01em;overflow-wrap:anywhere;min-width:0;padding-top:2px}
+.kcard .kopen{height:24px;padding:0 8px;font-size:.74rem;flex:0 0 auto;margin:-1px -4px 0 0}
+.kcard .ro{color:var(--muted);font-size:.76rem;line-height:1.3;overflow-wrap:anywhere;margin-top:1px}
+.kcard .km{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 6px;align-items:center;margin-top:6px;color:var(--muted2);font-size:.72rem}
+.kcard .kdate{white-space:nowrap}
+.kcard .km .stage-wrap{flex:1 1 92px;max-width:150px;margin-left:auto}
+.kcard select.stage{height:26px;font-size:.72rem;margin-top:0;padding:0 22px 0 9px;background-position:right 8px center}
 .kplace{color:var(--muted2);font-size:.8rem;text-align:center;padding:14px 6px;border:1px dashed var(--line);border-radius:12px}
-.kmore{align-self:center}
 
 .ins{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:12px;margin-top:30px}
 .ins .card h3{margin-bottom:14px}
@@ -318,6 +325,7 @@ dialog{max-width:min(720px,calc(100vw - 24px))}
 @media (max-width:900px){ .ins{grid-template-columns:1fr} }
 @media (max-width:700px){
   .board{margin-left:-20px;margin-right:-20px;padding-left:20px;padding-right:20px;grid-auto-columns:78%}
+  .kcol{max-height:58vh}
   .wk,.wk-x,.wk-n{gap:4px}
   .rej-tools select.inp{flex:1 1 140px}
 }

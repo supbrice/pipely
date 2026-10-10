@@ -36,6 +36,21 @@ let fails = 0; const ok = (c, m) => { console.log((c ? "PASS " : "FAIL ") + m); 
     ok((await p.evaluate((k) => localStorage.getItem(k), CFG.key)) === null, L + "nothing written on load");
     ok(s.tag === "BUTTON" && s.type === "button" && s.label === "Dark mode" && s.pressed === "false", L + "real <button>, aria-label 'Dark mode', aria-pressed=false");
     ok(s.w >= 44 && s.h >= 44 && s.radius >= s.h / 2 - 1 && s.inHeader && s.vis && s.border !== "0px none", L + "visible circle in header, " + s.w + "×" + s.h + " (≥44)");
+    const spec = await p.evaluate((sel) => {
+      const e = document.querySelector(sel), cs = getComputedStyle(e), svg = getComputedStyle(e.querySelector(".i-sun"));
+      const tok = (v, prop) => { const s = document.createElement("span"); s.style.setProperty(prop, "var(" + v + ")"); document.body.appendChild(s); const c = getComputedStyle(s)[prop === "color" ? "color" : "backgroundColor"]; s.remove(); return c; };
+      const r = e.getBoundingClientRect(), hEl = e.closest("header"), hb = hEl.getBoundingClientRect(), hs = getComputedStyle(hEl);
+      const hd = { top: hb.top + parseFloat(hs.paddingTop), bottom: hb.bottom - parseFloat(hs.paddingBottom), right: hb.right - parseFloat(hs.paddingRight) };
+      return { border: cs.borderTopWidth + " " + cs.borderTopStyle, borderColor: cs.borderTopColor, line: tok("--line", "background-color"), bg: cs.backgroundColor, card: tok("--card", "background-color"),
+        fg: cs.color, fgTok: tok("--fg", "color"), margin: cs.marginLeft + " " + cs.marginRight, svg: [svg.width, svg.height, svg.strokeWidth].join(" "),
+        centered: Math.abs((r.top + r.bottom) / 2 - (hd.top + hd.bottom) / 2) <= 1.5, rightEdge: Math.abs(hd.right - r.right) <= 1 };
+    }, SEL);
+    ok(spec.border === "1px solid" && spec.borderColor === spec.line && spec.bg === spec.card && spec.fg === spec.fgTok && spec.margin === "0px 0px" && spec.svg === "20px 20px 1.8px",
+      L + "same button spec on both sites: 1px --line border, --card fill, --fg icon, 20px icons, no margins (" + JSON.stringify(spec).slice(0, 160) + ")");
+    ok(spec.centered && spec.rightEdge, L + "sits at the right end of the header, vertically centred");
+    await p.hover(SEL); await p.waitForTimeout(250);
+    ok((await p.$eval(SEL, (e) => getComputedStyle(e).backgroundColor)) === spec.line, L + "hover fill is --line");
+    await p.mouse.move(1, 1);
     ok(s.sun === 1 && s.moon === 0 && s.sunSize >= 18, L + "light shows the sun icon (" + s.sunSize + "px)");
     await p.click(SEL); await p.waitForTimeout(100); s = await st();
     ok(s.theme === "dark" && s.pressed === "true" && s.moon === 1 && s.sun === 0 && s.moonSize >= 18, L + "click → dark, crescent shown, aria-pressed=true");
@@ -47,7 +62,7 @@ let fails = 0; const ok = (c, m) => { console.log((c ? "PASS " : "FAIL ") + m); 
     let found = false; for (let i = 0; i < 40 && !found; i++) { await p.keyboard.press("Tab"); found = await p.evaluate((sel) => document.activeElement === document.querySelector(sel), SEL); }
     ok(found, L + "reachable with Tab");
     const ring = await p.evaluate((sel) => { const cs = getComputedStyle(document.querySelector(sel)); return { o: cs.outlineStyle + " " + cs.outlineWidth, bs: cs.boxShadow, fv: document.querySelector(sel).matches(":focus-visible") }; }, SEL);
-    ok(ring.fv && (ring.o.indexOf("none") < 0 || ring.bs !== "none"), L + "keyboard focus ring (" + ring.o + " / " + ring.bs.slice(0, 40) + ")");
+    ok(ring.fv && ring.o === "solid 2px" && ring.bs !== "none", L + "keyboard focus ring: 2px outline + ring shadow (" + ring.o + " / " + ring.bs.slice(0, 40) + ")");
     await p.keyboard.press("Enter"); await p.waitForTimeout(100); s = await st();
     ok(s.theme === "light" && s.sun === 1 && s.pressed === "false", L + "Enter → light, sun shown");
     await p.keyboard.press("Space"); await p.waitForTimeout(100); s = await st();
